@@ -4,7 +4,7 @@ export function getFirstPageMessages(userDetail, userInput, userProblemStatement
     return {
         0: [
             { role: "bot", message: `Hi, ${userDetail.name}!`, messageId: '0_0' },
-            { role: "bot", message: "What would you like to solve for your school today?", messageId: '0_1' }
+            { role: "bot", message: "What challenge in your school do you want to solve for today?", messageId: '0_1' }
         ],
         1: [
             { role: "user", message: userInput[0], messageId: '1_0' },
@@ -35,7 +35,7 @@ export function getSecondPageMessages() {
         4: [
             { 
                 role: "bot", 
-                message: "These are some objectives that could help address your challenge. Select one to get started.", 
+                message: "These are some objectives that could help address your challenge.", 
                 messageId: '4_0' 
             },
             { 
@@ -79,6 +79,24 @@ export function getFourthPageMessages() {
                 role: "bot", 
                 message: "How many weeks would you like to dedicate to this improvement? <br/>Slide to select.", 
                 messageId: '8_0' 
+            },
+
+        ],
+    };
+}
+
+export function getFifthhPageMessages() {
+    return {
+        9: [
+            { 
+                role: "bot", 
+                message: "Here is the title for your improvement journey.", 
+                messageId: '9_0' 
+            },
+            { 
+                role: "bot", 
+                message: "You can edit it if you'd like.", 
+                messageId: '9_1' 
             },
 
         ],

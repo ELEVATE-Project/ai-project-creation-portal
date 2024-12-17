@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoArrowForward } from "react-icons/io5";
 import { BotMessage } from "../chatMessage";
 import Slider from "../../../components/Slider/slider";
@@ -14,7 +14,7 @@ import { saveUserChatsInDB } from "../../../api services/chat_flow_api";
 
 function FourthPage({
     isBotTalking, handleSpeakerOn, handleSpeakerOff, currentChatValue, setCurrentChatValue, setIsLoading, isLoading, 
-    handleGoBack, handleGoForward, setCurrentPageValue, setChatHistory, chatHistory
+    handleGoBack, handleGoForward, setCurrentPageValue, setChatHistory
 }) {
 
     const [selectedWeek, setSelectedWeek] = useState(getEncodedLocalStorage('selected_week') || 1);
@@ -24,43 +24,39 @@ function FourthPage({
 
     const fourthpage_messages = getFourthPageMessages();
 
+    useEffect(()=>{
+        if(isInReadOnlyMode) {
+            setIsLoading(true);
+            setCurrentChatValue(6);
+            localStorage.removeItem('selected_week');
+            localStorage.removeItem('project_title');
+            setIsLoading(false);
+        }
+    }, [isInReadOnlyMode])
+
     const handleSliderChange = (value) => {
         console.log('Selected week:', value);
     };
 
     const handleContinueClick = async () => {
-        if (isInReadOnlyMode) return;
         console.log('Project selected week:', selectedWeek);
+        console.log("currentChatValue: ", currentChatValue);
+        
         if (currentChatValue === 6 && selectedWeek){
             setIsLoading(true);
             setEncodedLocalStorage("selected_week", selectedWeek);
-            setChatHistory(prevValue => {
-                const createdAt = getNewLocalTime();
-                const botMessage = fourthpage_messages[8]?.[0];
-                const userMessage = {role: 'user', message: JSON.stringify(selectedWeek), created_at: createdAt};
-            
-                if (botMessage) {
-                    botMessage.created_at = createdAt;
-                    if (botMessage.created_at === userMessage.created_at) {
-                        userMessage.created_at = new Date(new Date(botMessage.created_at).getTime() + 1);
-                    }
-                }
-            
-                const updatedChatHistory = [...prevValue, botMessage, userMessage];
-            
-                const session = getEncodedLocalStorage("session");
-                if (session) {
-                    saveUserChatsInDB(updatedChatHistory, session)
-                        .then(response => {
-                            if (response && response?.status) {
-                                setCurrentChatValue(7);
-                                setCurrentPageValue(4);
-                            }
-                        });
-                }
-            
-                return updatedChatHistory;
-            });
+            const botMessage = fourthpage_messages[8]?.[0];
+            const currentSession = getEncodedLocalStorage('session');
+            console.log("botMessage: ", botMessage)
+
+            saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
+            .then(() => {
+                saveUserChatsInDB(JSON.stringify(selectedWeek), currentSession, 'user'); 
+            })
+            .then(() => {
+                setCurrentChatValue(7);
+                setCurrentPageValue(4);
+            })
         }
     }
 
@@ -85,9 +81,9 @@ function FourthPage({
                     handleSpeakerOff={handleSpeakerOff}
                     audioId={4.1}
                 />
-                <Slider min={1} max={6} onValueChange={handleSliderChange} value={selectedWeek} setValue={setSelectedWeek} isDisabled={isInReadOnlyMode} />
+                <Slider min={1} max={6} onValueChange={handleSliderChange} value={selectedWeek} setValue={setSelectedWeek} />
                 <div className="fourthpage-next-div">
-                    <button className={`thirdpage-select-bttn ${isInReadOnlyMode&& "custom-disable-button"}`}
+                    <button className={`thirdpage-select-bttn`}
                         onClick={handleContinueClick}
                     >
                         Continue <IoArrowForward className="thirdpage-cont-arrow-icon" />

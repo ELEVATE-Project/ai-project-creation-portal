@@ -9,7 +9,7 @@ import Header from "../header/Header";
 import "../stylesheet/chatStyle.css";
 import { getNewLocalTime, ShowLoader } from "../MainPage";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
-import { getActionList } from "../../../api services/chat_flow_api";
+import { getActionList, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getThirdPageMessages } from "../question script/bot_user_questions";
 
 
@@ -34,7 +34,7 @@ function ThirdPage({
     const [swipeDirection, setSwipeDirection] = useState(null);
     const [wantsToMoveForward, setWantsToMoveForward] = useState(false);
     const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(()=>{
-        const storedActionList = getEncodedLocalStorage('actionList');
+        const storedActionList = getEncodedLocalStorage('selected_action');
         if (storedActionList) {
             if(storedActionList.length===1) {
                 return true;
@@ -79,7 +79,7 @@ function ThirdPage({
             if (!actionList || actionList.length===0) {
                 setIsLoading(true)
                 const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
-                const objective = getEncodedLocalStorage('objective')
+                const objective = getEncodedLocalStorage('selected_objective')
                 const fetchedActionList = await getActionList(userProblemStatement, objective);
                 if (fetchedActionList) {
                     setActionList(fetchedActionList);
@@ -103,6 +103,15 @@ function ThirdPage({
             return () => clearTimeout(timeout);
         }
     }, [swipeDirection]);
+
+    useEffect(()=>{
+        if(isInReadOnlyMode) {
+            setIsLoading(true);
+            setCurrentChatValue(5);
+            localStorage.removeItem('selected_action');
+            setIsLoading(false);
+        }
+    }, [isInReadOnlyMode])
 
 
     const getActionListArray = ()=> {
@@ -140,40 +149,34 @@ function ThirdPage({
             }, 3000)
             return; 
         }
-
+        console.log(currentChatValue)
+        console.log(actionList)
         if (currentChatValue === 5 && actionList){
             setIsLoading(true);
-            setEncodedLocalStorage("actionList", [{
+            setEncodedLocalStorage("selected_action", [{
                 duration: "", actionSteps: action_to_store.map((action)=>action.content)
             }]);
-            setChatHistory(prevValue => {
-                const createdAt = getNewLocalTime();
 
-                const botMessage = hasClickedOnAddmore?  
-                {
-                    role: thirdpage_messages[7]?.[0]?.role,
-                    message: thirdpage_messages[6]?.[0]?.message
-                    + " " + thirdpage_messages[7]?.[0]?.message 
-                    + " " + thirdpage_messages[7]?.[1]?.message,
-                    messageId: thirdpage_messages[7]?.[0]?.messageId
-                } : thirdpage_messages[6]?.[0]
-                console.log("botMessage: ", botMessage)
+            const currentSession = getEncodedLocalStorage('session');
+            const botMessage = hasClickedOnAddmore?  
+            {
+                role: thirdpage_messages[7]?.[0]?.role,
+                message: thirdpage_messages[6]?.[0]?.message
+                + " " + thirdpage_messages[7]?.[0]?.message 
+                + " " + thirdpage_messages[7]?.[1]?.message,
+                messageId: thirdpage_messages[7]?.[0]?.messageId
+            } : thirdpage_messages[6]?.[0]
+            console.log("botMessage: ", botMessage)
 
-                const userMessage = {role: 'user', message: JSON.stringify(action_to_store), created_at: createdAt}
-
-                if (botMessage) {
-                    botMessage.created_at = createdAt;  
-                    if (botMessage.created_at === userMessage.created_at) {
-                        userMessage.created_at = new Date(new Date(botMessage.created_at).getTime() + 1);
-                    }
-                }
-
-                // Filter out already saved messages
-                return [...prevValue, botMessage, userMessage];
-            });
-            setCurrentChatValue(6);
-            setCurrentPageValue(3);
-            setIsLoading(false);
+            saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
+            .then(() => {
+                saveUserChatsInDB(JSON.stringify(action_to_store), currentSession, 'user'); 
+            })
+            .then(() => {
+                setCurrentChatValue(6);
+                setCurrentPageValue(3);
+                setIsLoading(false);
+            })
         }
     }
 
@@ -182,8 +185,6 @@ function ThirdPage({
             {isLoading&& <ShowLoader />}
 
             <Header shouldEnableGoBack={true} shouldEnableCross={true} handleGoBack={()=>handleGoBack(3)}
-                handleGoForward={()=>handleGoForward(3)} 
-                shouldEnableGoForward = {getEncodedLocalStorage('actionList') ? true : false}
             />
             <div className="secondpage-div">
                 {(!hasClickedOnAddmore && !wantsToMoveForward && actionList && !isLoading)?
@@ -252,7 +253,21 @@ function ThirdPage({
                                     )}
                                 </div>
                             </div>
-                            {(!isInReadOnlyMode)&&<div className="thirdpage-div1">
+                            {<div className="thirdpage-div1">
+                                {(!visibleCount)&&
+                                    <div className="secondpage-add-div">
+                                        <button className="secondpage-add-bttn"
+                                            onClick={handleSuggestMore}
+                                        >
+                                            Suggest More
+                                        </button>
+                                    </div>
+                                }
+                                <div className="secondpage-add-div">
+                                        <p className="secondpage-or-text">
+                                            Or
+                                        </p>
+                                </div>
                                 <div className="secondpage-add-div">
                                     <button className="secondpage-add-bttn"
                                         onClick={()=>{
@@ -263,23 +278,12 @@ function ThirdPage({
                                         Add Your Own
                                     </button>
                                 </div>
-                                {(!visibleCount)&&
-                                    <div className="secondpage-add-div">
-                                        <button className="secondpage-add-bttn"
-                                            onClick={handleSuggestMore}
-                                        >
-                                            Suggest More
-                                        </button>
-                                    </div>
-                                }
                             </div>}
                         </div>
                         <div className="thirdpage-next-div">
-                            <button className={`thirdpage-select-bttn  ${isInReadOnlyMode&& "custom-disable-button"}`}
+                            <button className={`thirdpage-select-bttn`}
                                 onClick={()=>{
-                                    if (!isInReadOnlyMode){
-                                        setWantsToMoveForward(true)
-                                    }
+                                    setWantsToMoveForward(true)
                                 }}
                             >
                                 Select <IoArrowForward className="thirdpage-cont-arrow-icon"/>

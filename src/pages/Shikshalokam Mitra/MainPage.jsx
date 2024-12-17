@@ -12,6 +12,7 @@ import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../utils/stor
 function MainPage() {
     const [audioCache, setAudioCache] = useState({});
     const [isBotTalking, setIsBotTalking] = useState(false);
+    const [isProcessingAudio, setIsProcessingAudio] = useState(false);
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [isReadOnly, setIsReadOnly] = useState(getEncodedLocalStorage("isReadOnly") || false);
     const [isFetchingData, setIsFetchingData] = useState(false);
@@ -22,9 +23,10 @@ function MainPage() {
     const [chatHistory, setChatHistory] = useState(getEncodedLocalStorage("chatHistory") || []);
     const [isLoading, setIsLoading] = useState(false);
     const [userDetail, setUserDetail] = useState({
-        name: "Rahul",
-        image: "",
-    })
+        name: localStorage.getItem("name"),
+        image: localStorage.getItem("image"),
+        email: localStorage.getItem("email"),
+      })
     const [errorText, setErrorText] = useState('');
 
     const [currentPage, setCurrentPage] = useState(getEncodedLocalStorage("currentPage") || {
@@ -38,11 +40,14 @@ function MainPage() {
     const audioRef = useRef();
 
     useEffect(()=>{
-        setUserDetail((values)=>({
-            ...values,
-            name: localStorage.getItem("name") || "Rahul",
-            image: localStorage.getItem("image") || "",
-        }))
+        localStorage.setItem("name", "Rahul")
+        localStorage.setItem("image", "")
+        localStorage.setItem("email", "rahul@example.com")
+        setUserDetail({
+            name: localStorage.getItem("name"),
+            image: localStorage.getItem("image"),
+            email: localStorage.getItem("email"),
+        })
     }, [])
 
     useEffect(()=>{
@@ -146,41 +151,67 @@ function MainPage() {
               recorder.onstop = async () => {
                 console.log("Recording stopped.");
                 if (localAudioChunks.length > 0) {
-                  // Combine all audio chunks into a single Blob
-                  const audioBlob = new Blob(localAudioChunks, { type: 'audio/webm;codecs=opus' });
-                  console.log("Audio blob created:", audioBlob);
-      
-                  // Check if the audio blob contains any significant sound
-                  const wavBlob = await convertToWav(audioBlob);
-                  if (!wavBlob) {
-                    console.log("No significant audio detected. Skipping API call.");
-                    return; // Skip if no meaningful audio
-                  }
-                  setIsFetchingData(true);
-                  // Convert to Base64 and send to the ASR API
-                  const base64Audio = await convertBlobToBase64(wavBlob);
-                  const transcriptResult = await ai4BharatASR(base64Audio);
-                  // Update transcript if valid audio
-                  setUserInput((prevInput)=> [...prevInput, transcriptResult]);
-                  setIsFetchingData(false);
-                  setIsUsingMicrophone(false);
-                  if (Number.isInteger(currentChatValue)) {
+                    // Combine all audio chunks into a single Blob
+                    const audioBlob = new Blob(localAudioChunks, { type: 'audio/webm;codecs=opus' });
+                    console.log("Audio blob created:", audioBlob);
+        
+                    // Check if the audio blob contains any significant sound
+                    const wavBlob = await convertToWav(audioBlob);
+                    if (!wavBlob) {
+                        console.log("No significant audio detected. Skipping API call.");
+                        setIsFetchingData(false);
+                        setIsUsingMicrophone(false);
+                        setIsProcessingAudio(false);
+                        return; // Skip if no meaningful audio
+                    }
+                    setIsFetchingData(true);
+                    // Convert to Base64 and send to the ASR API
+                    const base64Audio = await convertBlobToBase64(wavBlob);
+                    const transcriptResult = await ai4BharatASR(base64Audio);
+                    // Update transcript if valid audio
+                    setUserInput((prevInput)=> [...prevInput, transcriptResult]);
+                    setIsFetchingData(false);
+                    if (Number.isInteger(currentChatValue)) {
                         setCurrentChatValue((prevValue) => {
                             return prevValue + 1;
                         });
                     }
+                    if(isReadOnly) {
+                        setEncodedLocalStorage('user_problem_statement', transcriptResult);
+                        setEncodedLocalStorage('currentPage', {
+                            1: false,
+                            2: false,
+                            3: false,
+                            4: false,
+                            5: false,
+                        })
+                        setCurrentPage({
+                            1: false,
+                            2: false,
+                            3: false,
+                            4: false,
+                            5: false,
+                        })
+                    }
+                    setIsUsingMicrophone(false);
+                    setIsProcessingAudio(false);
                 } else {
-                  console.warn("No audio chunks were recorded.");
-                  setIsFetchingData(false);
+                    console.warn("No audio chunks were recorded.");
+                    setIsFetchingData(false);
                 }
               };
             })
             .catch((err) => {
               console.error('Error accessing microphone:', err);
               setIsFetchingData(false);
+              setIsUsingMicrophone(false);
+              setIsProcessingAudio(false);
             });
         } else {
           console.warn("getUserMedia not supported on your browser!");
+          setIsFetchingData(false);
+          setIsUsingMicrophone(false);
+          setIsProcessingAudio(false);
         }
     };
 
@@ -188,6 +219,8 @@ function MainPage() {
         if (mediaRecorder) {
             mediaRecorder.stop();
             setHasStartedRecording(false);
+            setIsUsingMicrophone(false);
+            setIsProcessingAudio(true);
             console.log("Stopping recording...");
         }
     };
@@ -209,7 +242,6 @@ function MainPage() {
         //     setIsReadOnly(false)
         //     // setCurrentPageValue(5)
         // }
-
         if (currentChatValue<4 || currentPage['1']) {
             return (
                 <FirstPage 
@@ -232,6 +264,10 @@ function MainPage() {
                     isReadOnly={isReadOnly}
                     handleGoForward={handleGoForward}
                     setCurrentPageValue={setCurrentPageValue}
+                    isProcessingAudio={isProcessingAudio}
+                    setIsProcessingAudio={setIsProcessingAudio}
+                    setIsReadOnly={setIsReadOnly}
+                    setCurrentPage={setCurrentPage}
                 />
             )
         } else if (currentChatValue>=4 && currentChatValue<5 || currentPage['2']) {
@@ -250,6 +286,7 @@ function MainPage() {
                     setChatHistory={setChatHistory}
                     errorText={errorText}
                     setErrorText={setErrorText}
+                    isReadOnly={isReadOnly}
                 />
             )
         } else if (currentChatValue>=5 && currentChatValue<6 || currentPage['3']) {
@@ -304,7 +341,9 @@ function MainPage() {
     }
 
     return (
-        getCurrentPageView()
+        <>
+            {userDetail?.name && getCurrentPageView()}
+        </>
     );
 }
 
@@ -352,4 +391,9 @@ export function clearMitraLocalStorage() {
     localStorage.removeItem("session");
     localStorage.removeItem("user_problem_statement");
     localStorage.removeItem("user_text");
+    localStorage.removeItem("selected_action");
+    localStorage.removeItem("savedMessages");
+    localStorage.removeItem("selected_objective");
+    localStorage.removeItem("savedMessages");
+    localStorage.removeItem("profile_id");
 }

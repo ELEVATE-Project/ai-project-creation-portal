@@ -5,7 +5,6 @@ import Popup from "../../../components/popup/Popup";
 
 import "../stylesheet/chatStyle.css";
 import { useNavigate } from "react-router-dom";
-import { FRONTEND_ROUTES } from "../../../routes/routes";
 import { clearMitraLocalStorage } from "../MainPage";
 
 
@@ -17,7 +16,7 @@ function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldE
     const handleClosing = () => {
         console.log("Closing");
         clearMitraLocalStorage();
-        navigate(FRONTEND_ROUTES.EXIT_ROUTE);
+        navigate(process.env.REACT_APP_ROUTE_EXIT);
 
     };
 
