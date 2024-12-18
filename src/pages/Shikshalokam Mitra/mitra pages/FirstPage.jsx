@@ -6,7 +6,7 @@ import Header from "../header/Header";
 import "../stylesheet/chatStyle.css";
 import { getFirstPageMessages } from "../question script/bot_user_questions";
 import { getNewLocalTime, ShowLoader } from "../MainPage";
-import { createChatSession, getNewSessionID, getObjectiveList, getParaphraseText } from "../../../api services/chat_flow_api";
+import { createChatSession, getChatsFromDB, getNewSessionID, getObjectiveList, getParaphraseText, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
 
 
@@ -14,16 +14,25 @@ function FirstPage( {
     isBotTalking, handleSpeakerOn, handleSpeakerOff, 
     userInput, setUserInput, currentChatValue, setCurrentChatValue, isUsingMicrophone, setIsUsingMicrophone, 
     startRecording, stopRecording, setHasStartedRecording, userDetail, setChatHistory, isLoading, setIsLoading,
-    isReadOnly, handleGoForward, setCurrentPageValue
+    isReadOnly, handleGoForward, setCurrentPageValue, isProcessingAudio, setIsProcessingAudio, setCurrentPage
 }) {
 
     const [useTextbox, setUseTextbox] = useState(false);
     const [userProblemStatement, setUserProblemStatement] = useState(getEncodedLocalStorage('user_problem_statement') || '');
     const [showTyping, setShowTyping] = useState(false);
+    const [shouldMoveForward, setShouldMoveForward] = useState(false);
+    const [localChatHistory, setLocalChatHistory] = useState(false);
+    const [currentSession, setCurrentSession]= useState(getEncodedLocalStorage('session'));
+    const [currentProfile, setCurrentProfile] = useState(getEncodedLocalStorage('profile_id'));
 
+    const savedMessagesRef = useRef(new Set());
     const textInputRef = useRef(null);
     const scrollRef = useRef(null);
-    const firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement);
+    let firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement);
+
+    useEffect(()=>{
+        firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement);
+    }, [userDetail])
 
 
     let isnt_english = false;
@@ -39,7 +48,15 @@ function FirstPage( {
                 const session = await getNewSessionID();
                 if(session){
                     setEncodedLocalStorage('session', session);
-                    const response = await createChatSession(session);
+                    setCurrentSession(session)
+                    const email = localStorage.getItem('email');
+                    const first_name = localStorage.getItem('name');
+                    const response = await createChatSession(session, email, first_name);
+                    console.log('response: ', response)
+                    if (response) {
+                        setEncodedLocalStorage('profile_id', response?.chatsession?.profile_id);
+                        setCurrentProfile(response?.chatsession?.profile_id)
+                    }
                 }
             }
         }
@@ -53,19 +70,22 @@ function FirstPage( {
                 setShowTyping(true);
                 const paraphrased_text = await getParaphraseText(userInput[0]);
                 if (paraphrased_text) {
+                    console.log("user_problem_statement if: ", paraphrased_text)
                     setEncodedLocalStorage('user_problem_statement', paraphrased_text);
                     setUserProblemStatement(paraphrased_text);
+                    setShowTyping(false);
                 } else {
                     window.location.reload();
                 }
-                setShowTyping(false);
-            } else if (currentChatValue === 3 && userInput && userInput[2] && /no/i.test(userInput[1])) {
-                setUserProblemStatement(userInput[2]);
+            } else if (currentChatValue === 3 && userInput && userInput[2] && /no/i.test(userInput[1]) && !isReadOnly) {
                 setEncodedLocalStorage('user_problem_statement', userInput[2]);
+                console.log("user_problem_statement else if: ",  userInput[2]);
+                setUserProblemStatement(userInput[2]);
+                setShowTyping(false);
             }
         }
         fetchParaphrasedText();
-    }, [userInput, currentChatValue])
+    }, [userInput, currentChatValue, isReadOnly])
 
 
     useEffect(() => {
@@ -75,10 +95,17 @@ function FirstPage( {
     }, [useTextbox]);
 
     function handleSendText(e) {
-        setUserInput((prevInput)=>{
+
+        if(isReadOnly) {
             const keyboardTypedValue = e.target.value;
-            return [...prevInput, keyboardTypedValue]
-        });
+            setEncodedLocalStorage('user_problem_statement', keyboardTypedValue);
+            console.log("keyboardTypedValue: ", keyboardTypedValue)
+        } else {
+            setUserInput((prevInput)=>{
+                const keyboardTypedValue = e.target.value;
+                return [...prevInput, keyboardTypedValue]
+            });
+        }
 
         if (Number.isInteger(currentChatValue)) {
             setCurrentChatValue((prevValue) => {
@@ -89,8 +116,36 @@ function FirstPage( {
             e.target.value = "";
         }, 1);
 
+        if(isReadOnly) {
+            setShouldMoveForward(true);
+            setEncodedLocalStorage('currentPage', {
+                1: false,
+                2: false,
+                3: false,
+                4: false,
+                5: false,
+            })
+            setCurrentPage({
+                1: false,
+                2: false,
+                3: false,
+                4: false,
+                5: false,
+            })
+        }
+
     }
 
+    useEffect(()=>{
+        if (isReadOnly && !shouldMoveForward) {
+            setIsLoading(true);
+            setCurrentChatValue(3);
+            localStorage.removeItem('selected_objective');
+            localStorage.removeItem('objective');
+            localStorage.removeItem('userProblemStatement');
+            setIsLoading(false);
+        }
+    }, [isReadOnly, shouldMoveForward])
     
     useEffect(()=>{
         console.log("userProblemStatement", userProblemStatement)
@@ -99,20 +154,39 @@ function FirstPage( {
 
     useEffect(() => {
         console.log("CurrentChatValue: ", currentChatValue)
+        
         if (scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: "smooth" });
         }
 
         if (currentChatValue === 3 && !isReadOnly){
-            if (userInput && userInput[1] && /yes/i.test(userInput[1])) {
-                setEncodedLocalStorage('user_problem_statement', userInput[0]);
-            }
             setIsLoading(true);
             setCurrentChatValue(4);
             setCurrentPageValue(1)
         }
-        console.log("userInput[2]: ", userInput[2])
-        if (firstpage_messages[currentChatValue] && currentChatValue < 4 && userProblemStatement) {
+
+    }, [currentChatValue]);
+
+    useEffect(() => {
+        console.log("currentSession in: ", currentSession)
+        console.log("currentProfile in: ", currentProfile)
+        if(!currentSession || !currentProfile) return;
+        const savedMessages = new Set(JSON.parse(localStorage.getItem('savedMessages') || '[]'));
+
+        if (isReadOnly) {
+            async function fetchAllChats() {
+                try {
+                    const allChats = await getChatsFromDB(currentSession); 
+                    if (allChats) {
+                        setLocalChatHistory(allChats); 
+                    }
+                } catch (error) {
+                    console.error("Error fetching chats:", error);
+                }
+            }
+    
+            fetchAllChats();
+        } else {
             const processedMessages = firstpage_messages[currentChatValue].reduce((acc, curr) => {
                 const isDuplicate = 
                     acc.some(message => message.uniqueId === curr.messageId) ||
@@ -122,13 +196,6 @@ function FirstPage( {
                     return acc;
                 }
                 
-                let createdAt = getNewLocalTime()
-
-                while (acc.some(message => message.created_at === createdAt)) {
-                    // Add 1ms to create a unique timestamp
-                    createdAt = new Date(new Date(createdAt).getTime() + 1);
-                }
-
                 if (curr.role === "bot" && acc.length > 0 && acc[acc.length - 1].role === "bot") {
                     const lastMessage = acc[acc.length - 1];
                     lastMessage.message += ` ${curr.message}`;
@@ -138,35 +205,29 @@ function FirstPage( {
                     acc.push({
                         ...curr,
                         uniqueId: curr.messageId,
-                        originalMessageIds: [curr.messageId], 
-                        created_at: createdAt
+                        originalMessageIds: [curr.messageId],
                     });
                 }
-        
                 return acc;
             }, []);
-        
-            setChatHistory(prevValue => {
-                const existingUniqueIds = new Set(prevValue.map(message => message.uniqueId));
-        
-                // Filter out already saved messages
-                const filteredProcessedMessages = processedMessages.filter(
-                    message => !existingUniqueIds.has(message.uniqueId)
-                );
-        
-                return [...prevValue, ...filteredProcessedMessages];
+    
+            processedMessages.forEach(message => {
+                if (!savedMessages.has(message.uniqueId)) {
+                    saveUserChatsInDB(message?.message, currentSession, message.role); 
+                    savedMessages.add(message.uniqueId); 
+                }
             });
+    
+            localStorage.setItem('savedMessages', JSON.stringify([...savedMessages]));
         }
-        
-             
-
-    }, [currentChatValue, userProblemStatement]);
+    }, [currentChatValue, isReadOnly, currentSession, currentProfile]);
+    
 
     function showMicAndKeyboard() {
         return(
             <>
-                {(!isUsingMicrophone && !useTextbox) &&
-                    <>
+                {(!isUsingMicrophone && !useTextbox && !isProcessingAudio) &&
+                    <div className={currentChatValue === 0 ? "mic-container" : ""}>
                         <div className="thirdpara-div">
                             <button 
                                 className="microphone-button-gif-div"
@@ -192,11 +253,11 @@ function FirstPage( {
                                 Use text
                             </button>
                         </div>
-                    </>
+                    </div>
                 }
-                {(isUsingMicrophone) && (
+                {(isUsingMicrophone && !isProcessingAudio) && (
                     <div 
-                        className="audio-visualizer"
+                        className={`audio-visualizer ${currentChatValue === 0 && "mic-container"}`}
                         onClick={stopRecording}
                     >
                         <img src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/voice_loader.gif" className="voice-loader-bot" />
@@ -210,6 +271,15 @@ function FirstPage( {
                         </div>
                     </div>
                 )}
+                {(isProcessingAudio) && (
+                    <>
+                        <div className="firstpage-reply-text"
+                            onLoad={() => document.querySelector('.firstpage-reply-text')?.scrollIntoView({ behavior: 'smooth' })}
+                        >
+                            <p className="secondpage-para1">processing audio please wait...</p>
+                        </div>
+                    </>
+                )}
             </>
         );
     }
@@ -219,7 +289,7 @@ function FirstPage( {
         return (
             <>
                 {(useTextbox && !isUsingMicrophone)&&
-                    <div className="textbox-container">
+                    <div id="textbox-id" className={currentChatValue === 0 ? "textbox-container": ""}>
                         <div className="fourthpara-div-1">
                             <button className="use-text-button"
                                 onClick={()=>{
@@ -235,6 +305,14 @@ function FirstPage( {
                             ref={textInputRef}
                             type="text"
                             placeholder="Type your response here..."
+                            onFocus={() => {
+                                document.getElementById("textbox-id").classList.remove('textbox-container');
+                            }}
+                            onBlur={() => {
+                                if (currentChatValue === 0){
+                                    document.getElementById("textbox-id").classList.add('textbox-container');
+                                }
+                            }}
                             className="firstpage-text-input"
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
@@ -252,8 +330,8 @@ function FirstPage( {
         <>
             {isLoading&& <ShowLoader />}
 
-            <Header shouldEnableCross={true} shouldEnableGoForward = {isReadOnly ? true : false} handleGoForward={()=>handleGoForward(1)} />
-            <div className="firstpage-div" 
+            <Header shouldEnableCross={true} />
+            {<div className="firstpage-div" 
                 ref={currentChatValue === 0 ? scrollRef : null}
             >
                 <BotMessage 
@@ -364,7 +442,50 @@ function FirstPage( {
                         <UserMessage userMessage={userInput[2]} />
                     </div>
                 }
-            </div>
+                {(isReadOnly)&&(
+                    <div className="firstpage-bot-div" 
+                        ref={currentChatValue === 2 ? scrollRef : null}
+                    >
+                        <BotMessage 
+                            botMessage="Would you like to rephrase the challenge you are facing?"
+                            firstparaClass={"firstpara-div"}
+                            firstpageClass={"firstpage-para1"}
+                            useTextbox={useTextbox} 
+                            isUsingMicrophone={isUsingMicrophone} 
+                            currentChatValue={currentChatValue}
+                            showFirst={true}
+                            handleSpeakerOn={handleSpeakerOn}
+                            isBotTalking={isBotTalking}
+                            audioId={1.1}
+                            handleSpeakerOff={handleSpeakerOff}
+                        />
+                        {showMicAndKeyboard()}
+                        {showTextBox()}
+                    </div>
+                )}
+            </div>}
+            {/* {(isReadOnly && localChatHistory) && localChatHistory.map((chatItem, index) => (
+                <div className="firstpage-bot-div"> 
+                    <div key={index} className="chat-history-item">
+                        {chatItem.sender && chatItem.sender.id === 1 ? (
+                            <BotMessage 
+                                botMessage={chatItem.message}
+                                firstparaClass={"firstpara-div"}
+                                firstpageClass={"firstpage-para1"}
+                                currentChatValue={currentChatValue}
+                                showFirst={true}
+                                handleSpeakerOn={handleSpeakerOn}
+                                isBotTalking={isBotTalking}
+                                audioId={index + 1}
+                                handleSpeakerOff={handleSpeakerOff}
+                            />
+                        ) : (
+                            <UserMessage userMessage={chatItem.message} />
+                        )}
+                    </div>
+                </div>
+            ))} */}
+
         </>
     );
 }

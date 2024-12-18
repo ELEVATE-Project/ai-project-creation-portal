@@ -148,7 +148,7 @@
     }
     
     .fourthpara-div {
-        margin-top: 50px;
+        margin-top: 15px;
         align-items: center;
         display: flex;
         flex-direction: column;
@@ -157,13 +157,32 @@
     }
 
     .fourthpara-div-1 {
-        margin-top: 50px;
+        margin-top: 15px;
         align-items: center;
         display: flex;
         flex-direction: column;
         display: flex;
         justify-content: center;
     }
+
+    .textbox-container {
+        /* position: fixed; */
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        transition: bottom 0.3s ease;
+    }     
+    
+    .mic-container {
+        position: fixed;
+        bottom: 35px;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        transition: bottom 0.3s ease;
+    }     
 
     .use-text-button {
         margin-top: 10px;
@@ -241,7 +260,6 @@
         background: #192322;
         border: 0px solid;
         border-radius: 100%;
-        margin-right: 5px;
     }
 
     .firstuser-div {
@@ -249,14 +267,13 @@
         flex-direction: column;
         align-items: end;
         margin-top: 40px;
+        margin-left: 20px;
     }
 
     .firstuser-para1 {
         color: #130d1c;
         font-weight: 600;
         font-size: var(--body-font-size-mobile);
-        margin-left: 66px;
-        margin-right: 17px;
         font-family: var(--primary-font-family);
     }
 
@@ -290,7 +307,7 @@
     .secondpage-div {
         display: flex;
         flex-direction: column;
-        margin: 30px 19px 20px 10px;
+        margin: 62px 19px 20px 10px;
         /* margin: 90px 20px 20px; */
 
     }
@@ -396,12 +413,27 @@
         padding: 7px 5px 0 10px;
         font-family: var(--primary-font-family);
         font-weight: 300;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .secondpage-or-text {
+        font-family: var(--primary-font-family);
+        font-weight: 500;
+        font-size: 0.9rem;
+        font-size: 0.9rem;
+        margin: 5px 0;
+        
     }
 
     .thirdpage-div1 {
         display: flex;
         justify-content: space-between;
         padding: 7px 5px 0 10px;
+        font-family: var(--primary-font-family);
+        font-weight: 300;
+        align-items: center;
+        flex-direction: column;
     }
 
     .secondpage-add-bttn {
@@ -814,6 +846,11 @@
         justify-content: space-between;
         align-items: center;
         padding: 10px 20px;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        left: 0;
+        background-color: #fff;
     }
     
     .headerpage-arrow-icon,
@@ -1104,6 +1141,25 @@
         justify-content: center;
     }
 
+    .textbox-container {
+        /* position: fixed; */
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        transition: bottom 0.3s ease;
+    }     
+    
+    .mic-container {
+        position: fixed;
+        bottom: 35px;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        transition: bottom 0.3s ease;
+    }   
+
     .use-text-button {
         margin-top: 10px;
         background-color: #f3ebff;
@@ -1328,22 +1384,27 @@
     }
 
     .secondpage-div1 {
+
         display: flex;
         justify-content: space-between;
         padding: 7px 5px 0 10px;
         font-family: var(--primary-font-family);
         font-weight: 300;
+        align-items: center;
+        flex-direction: column;
         width: 90%;
     }
 
     .thirdpage-div1 {
+        width: 60%;
+        min-width: 570px;
         display: flex;
         justify-content: space-between;
         padding: 7px 5px 0 10px;
         font-family: var(--primary-font-family);
         font-weight: 300;
-        width: 60%;
-        min-width: 570px;
+        align-items: center;
+        flex-direction: column;
     }
 
     .secondpage-add-div1 {
@@ -1771,6 +1832,11 @@
         justify-content: space-between;
         align-items: center;
         padding: 10px 20px;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        left: 0;
+        background-color: #fff;
     }
     
     .headerpage-arrow-icon,

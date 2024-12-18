@@ -8,7 +8,7 @@ import { getNewLocalTime, ShowLoader } from "../MainPage";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
 
 import "../stylesheet/chatStyle.css";
-import { getObjectiveList } from "../../../api services/chat_flow_api";
+import { getObjectiveList, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getSecondPageMessages } from "../question script/bot_user_questions";
 
 
@@ -31,7 +31,7 @@ function SecondPage({
     const [selectedIndex, setSelectedIndex] = useState(null);
     const [inputText, setInputText] = useState('');
     const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(()=>{
-        const storedObjective = getEncodedLocalStorage('objective');
+        const storedObjective = getEncodedLocalStorage('selected_objective');
         if(storedObjective) {
             return  (typeof storedObjective === 'string') ? true : false
         }
@@ -69,6 +69,17 @@ function SecondPage({
         });
     }
 
+    useEffect(()=>{
+        if (isInReadOnlyMode) {
+            setIsLoading(true);
+            setCurrentChatValue(4);
+            localStorage.removeItem('selected_objective');
+            localStorage.removeItem('actionList');
+            localStorage.removeItem('selected_action');
+            setIsLoading(false);
+        }
+    }, [isInReadOnlyMode])
+
     const handleObjectiveClick = (index) => {
         console.log(index)
         setSelectedIndex(index);
@@ -76,37 +87,30 @@ function SecondPage({
     };
 
     const handleNextClick = () => {
-        if(isInReadOnlyMode) return;
         if (currentChatValue === 4 && inputText && inputText!==""){
             setIsLoading(true);
             setObjectiveList(inputText);
-            setEncodedLocalStorage("objective", inputText);
-            setChatHistory(prevValue => {
-
-                let createdAt = getNewLocalTime();
-
-                console.log("hasClickedOnAddmore: ", hasClickedOnAddmore)
-                const botMessage = hasClickedOnAddmore? secondpage_messages[5]?.[0] 
-                : {
-                    role: secondpage_messages[4]?.[0]?.role,
-                    message: secondpage_messages[4]?.[0]?.message + " " + secondpage_messages[4]?.[1]?.message,
-                    messageId: secondpage_messages[4]?.[0]?.messageId
-                }
-                console.log("botMessage: ", botMessage)
-
-                const userMessage = {role: 'user', message: inputText, created_at: createdAt}
-
-                if (botMessage) {
-                    botMessage.created_at = createdAt;  
-                    if (botMessage.created_at === userMessage.created_at) {
-                        userMessage.created_at = new Date(new Date(botMessage.created_at).getTime() + 1);
-                    }
-                }
-
-                return [...prevValue, botMessage, userMessage];
+            setEncodedLocalStorage("selected_objective", inputText);
+            const currentSession = getEncodedLocalStorage('session');
+            const botMessage = hasClickedOnAddmore? secondpage_messages[5]?.[0] 
+            : {
+                role: secondpage_messages[4]?.[0]?.role,
+                message: secondpage_messages[4]?.[0]?.message + " " + secondpage_messages[4]?.[1]?.message,
+                messageId: secondpage_messages[4]?.[0]?.messageId
+            }
+            console.log("botMessage: ", botMessage)
+           
+            saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
+            .then(() => {
+                saveUserChatsInDB(inputText, currentSession, 'user')
+            })
+            .then(() => {
+                setCurrentChatValue(5);
+                setCurrentPageValue(2);
+            })
+            .catch(error => {
+                console.error("Error saving chats:", error);
             });
-            setCurrentChatValue(5);
-            setCurrentPageValue(2);
         }
     }
 
@@ -131,8 +135,7 @@ function SecondPage({
             {isLoading&& <ShowLoader />}
 
             <Header shouldEnableGoBack={true} shouldEnableCross={true} 
-                handleGoBack={() => handleGoBack(2)} handleGoForward={()=>handleGoForward(2)} 
-                shouldEnableGoForward = {getEncodedLocalStorage('objective') ? true : false}
+                handleGoBack={() => handleGoBack(2)}
             />
             <div className="secondpage-div">
                 {(!hasClickedOnAddmore)?
@@ -159,7 +162,7 @@ function SecondPage({
                         <div className="secondpage-obj-fixed">
                             <div className="secondpage-obj-div">
                                 <p className="secondpage-obj-text">
-                                    {isInReadOnlyMode ? "Objective": "Objectives"}
+                                    Objectives
                                 </p>
                                 <div className="objective-list-div">
                                     {(Array.isArray(objectiveList) ? objectiveList : [])
@@ -181,7 +184,23 @@ function SecondPage({
                                     )}
                                 </div>
                             </div>
-                            {(!isInReadOnlyMode)&&<div className="secondpage-div1">
+                            {<div className="secondpage-div1">
+                                {(visibleCount !== objectiveList?.length)&&
+                                    <div className="secondpage-add-div">
+                                        <button className="secondpage-add-bttn"
+                                            onClick={handleSuggestMore}
+                                        >
+                                            Suggest More
+                                        </button>
+                                    </div>
+                                }
+                                {(visibleCount !== objectiveList?.length)&&
+                                    <div className="secondpage-add-div">
+                                            <p className="secondpage-or-text">
+                                                Or
+                                            </p>
+                                    </div>
+                                }
                                 <div className="secondpage-add-div">
                                     <button className="secondpage-add-bttn"
                                         onClick={()=>{
@@ -193,22 +212,13 @@ function SecondPage({
                                         Add Your Own
                                     </button>
                                 </div>
-                                {(visibleCount !== objectiveList?.length)&&
-                                    <div className="secondpage-add-div">
-                                        <button className="secondpage-add-bttn"
-                                            onClick={handleSuggestMore}
-                                        >
-                                            Suggest More
-                                        </button>
-                                    </div>
-                                }
                             </div>}
                         </div>
                         <div className="secondpage-next-div">
                             <button 
                                 className={
                                     `${Number.isInteger(selectedIndex) ? "secondpage-next-bttn-selected" :
-                                        "secondpage-next-bttn"}  ${isInReadOnlyMode&& "custom-disable-button"}`
+                                        "secondpage-next-bttn"} `
                                     }
                                 onClick={handleNextClick}
                             >
