@@ -1,5 +1,6 @@
 {
   "name": "mitra-fe",
+  "homepage": "create-project",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
