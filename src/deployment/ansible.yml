@@ -25,17 +25,14 @@
     - name: Fetch .env from Vault
       shell: >
         curl --location --request GET '{{ vaultAddress }}mitra-ai-env' 
-        --header 'X-Vault-Token: {{ slurpfile['content'] | b64decode }}'
+        --header 'X-Vault-Token: {{ slurpfile['content'] | b64decode }}' | jq '.data' > '{{ project_path }}/data2.json'""
       register: env_response
 
-    - name : Debug vault response for env
-      debug:
-        msg: "{{env_response.stdout }}"
-      
-    - name: Extract and write the entire data.data to .env
-      copy:
-        content: "{{ env_response.stdout | from_json | json_query('data.data')}}"
-        dest: "{{ project_path}}/.env"
+    - name: generate .env 
+      shell: cat {{ project_path }}/data2.json | {{ project_path }}/src/scripts/json2env.sh > {{ project_path }}/.env
+      register: envConfig 
+    - debug: 
+        msg: " cred {{ envConfig }} "
 
     - name: Fetch .env-cmdrc from Vault
       shell: >
