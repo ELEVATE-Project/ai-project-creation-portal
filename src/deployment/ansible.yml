@@ -9,16 +9,33 @@
         src: "/opt/backend/deployment/.token"
       register: slurpfile
 
+    - name: Ensure project directory exists
+      file:
+        path: "{{ project_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Fetch the latest code
+      git:
+        repo: https://github.com/ELEVATE-Project/ai-project-creation-portal
+        dest: "{{ project_path }}"
+        version: "{{ gitBranch }}"
+        force: yes
+
+    - name: set permission
+      shell: chmod 744 {{ project_path }}/src/scripts/json2env.sh  
+
     - name: Fetch .env from Vault
       shell: >
         curl --location --request GET '{{ vaultAddress }}mitra-ai-env' 
-        --header 'X-Vault-Token: {{ slurpfile['content'] | b64decode }}'
+        --header 'X-Vault-Token: {{ slurpfile['content'] | b64decode }}' | jq '.data' > '{{ project_path }}/data2.json'""
       register: env_response
 
-    - name: Extract and write the entire data.data to .env
-      copy:
-        content: "{{ env_response.stdout | from_json | json_query('data.data')}}"
-        dest: "{{ project_path}}/.env"
+    - name: generate .env 
+      shell: cat {{ project_path }}/data2.json | {{ project_path }}/src/scripts/json2env.sh > {{ project_path }}/.env
+      register: envConfig 
+    - debug: 
+        msg: " cred {{ envConfig }} "
 
     - name: Fetch .env-cmdrc from Vault
       shell: >
@@ -45,19 +62,6 @@
       fail:
         msg: ".env-cmdrc file was not created!"
       when: not env_file_stat.stat.exists
-
-    - name: Ensure project directory exists
-      file:
-        path: "{{ project_path }}"
-        state: directory
-        mode: "0755"
-
-    - name: Fetch the latest code
-      git:
-        repo: https://github.com/ELEVATE-Project/ai-project-creation-portal
-        dest: "{{ project_path }}"
-        version: "{{ gitBranch }}"
-        force: yes
 
     - name: Remove the old build
       shell: "rm -rf {{project_path}}/build"
