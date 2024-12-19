@@ -28,6 +28,10 @@
         --header 'X-Vault-Token: {{ slurpfile['content'] | b64decode }}'
       register: env_response
 
+    - name : Debug vault response for env
+      debug:
+        msg: "{{env_response.stdout }}"
+      
     - name: Extract and write the entire data.data to .env
       copy:
         content: "{{ env_response.stdout | from_json | json_query('data.data')}}"
