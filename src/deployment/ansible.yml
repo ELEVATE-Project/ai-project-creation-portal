@@ -9,6 +9,19 @@
         src: "/opt/backend/deployment/.token"
       register: slurpfile
 
+    - name: Ensure project directory exists
+      file:
+        path: "{{ project_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Fetch the latest code
+      git:
+        repo: https://github.com/ELEVATE-Project/ai-project-creation-portal
+        dest: "{{ project_path }}"
+        version: "{{ gitBranch }}"
+        force: yes
+
     - name: Fetch .env from Vault
       shell: >
         curl --location --request GET '{{ vaultAddress }}mitra-ai-env' 
@@ -45,19 +58,6 @@
       fail:
         msg: ".env-cmdrc file was not created!"
       when: not env_file_stat.stat.exists
-
-    - name: Ensure project directory exists
-      file:
-        path: "{{ project_path }}"
-        state: directory
-        mode: "0755"
-
-    - name: Fetch the latest code
-      git:
-        repo: https://github.com/ELEVATE-Project/ai-project-creation-portal
-        dest: "{{ project_path }}"
-        version: "{{ gitBranch }}"
-        force: yes
 
     - name: Remove the old build
       shell: "rm -rf {{project_path}}/build"
