@@ -22,7 +22,7 @@
     "dev": "env-cmd -e dev react-scripts start",
     "demo": "env-cmd -e demo react-scripts start",
     "prod": "env-cmd -e prod react-scripts start",
-    "build-prod": "env-cmd -e prod react-scripts build && npm run postbuild",
+    "build-prod": "env-cmd -e prod react-scripts build",
     "postbuild": "cp -R /var/www/shikshalokam/static/* static/",
     "build-dev": "env-cmd -e dev react-scripts build",
     "test": "react-scripts test",
