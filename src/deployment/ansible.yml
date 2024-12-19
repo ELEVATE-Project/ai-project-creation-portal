@@ -22,6 +22,9 @@
         version: "{{ gitBranch }}"
         force: yes
 
+    - name: set permission
+      shell: chmod 744 {{ current_path }}/src/scripts/json2env.sh  
+      
     - name: Fetch .env from Vault
       shell: >
         curl --location --request GET '{{ vaultAddress }}mitra-ai-env' 
