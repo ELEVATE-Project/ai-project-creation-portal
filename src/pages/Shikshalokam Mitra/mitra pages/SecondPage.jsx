@@ -10,6 +10,7 @@ import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/s
 import "../stylesheet/chatStyle.css";
 import { getObjectiveList, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getSecondPageMessages } from "../question script/bot_user_questions";
+import { getAddOwnButtonTranslation, getContinueButtonTranslation, getNextButtonTranslation, getObjectiveTextTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
 
 
 function SecondPage({ 
@@ -36,17 +37,21 @@ function SecondPage({
             return  (typeof storedObjective === 'string') ? true : false
         }
     });
-    const secondpage_messages = getSecondPageMessages();
+    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const language = preferredLanguage.value || 'en';
+
+    const secondpage_messages = getSecondPageMessages(language);
 
     useEffect(()=>{
         async function fetchObjectiveList() {
-            if (!objectiveList || objectiveList.length===0) {
+            if (!objectiveList || objectiveList?.length===0) {
                 setIsLoading(true);
                 const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
-                const fetched_objectiveList = await getObjectiveList(userProblemStatement);
+                const fetched_objectiveList = await getObjectiveList(userProblemStatement, language);
                 if (fetched_objectiveList) {
-                    setObjectiveList(fetched_objectiveList);
-                    setEncodedLocalStorage('objective', fetched_objectiveList);
+                    setObjectiveList(fetched_objectiveList?.objective_list);
+                    setEncodedLocalStorage('objective', fetched_objectiveList?.objective_list);
+                    localStorage.setItem('chunks', JSON.stringify(fetched_objectiveList?.chunks))
                     setIsLoading(false);
                 } else {
                     window.location.reload();
@@ -99,8 +104,8 @@ function SecondPage({
                 messageId: secondpage_messages[4]?.[0]?.messageId
             }
             console.log("botMessage: ", botMessage)
-           
-            saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
+            const chunks = JSON.parse(localStorage.getItem('chunks'))
+            saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role, chunks)
             .then(() => {
                 saveUserChatsInDB(inputText, currentSession, 'user')
             })
@@ -162,7 +167,7 @@ function SecondPage({
                         <div className="secondpage-obj-fixed">
                             <div className="secondpage-obj-div">
                                 <p className="secondpage-obj-text">
-                                    Objectives
+                                    {getObjectiveTextTranslation(language)}
                                 </p>
                                 <div className="objective-list-div">
                                     {(Array.isArray(objectiveList) ? objectiveList : [])
@@ -190,14 +195,14 @@ function SecondPage({
                                         <button className="secondpage-add-bttn"
                                             onClick={handleSuggestMore}
                                         >
-                                            Suggest More
+                                            {getSuggestMoreButtonTranslation(language)}
                                         </button>
                                     </div>
                                 }
                                 {(visibleCount !== objectiveList?.length)&&
                                     <div className="secondpage-add-div">
                                             <p className="secondpage-or-text">
-                                                Or
+                                                {getOrTextTranslation(language)}
                                             </p>
                                     </div>
                                 }
@@ -209,7 +214,7 @@ function SecondPage({
                                         }}
                                     >
                                         <FiPlusCircle className="secondpage-plus-icon"/>
-                                        Add Your Own
+                                        {getAddOwnButtonTranslation(language)}
                                     </button>
                                 </div>
                             </div>}
@@ -222,7 +227,7 @@ function SecondPage({
                                     }
                                 onClick={handleNextClick}
                             >
-                                Next <IoArrowForward />
+                                {getNextButtonTranslation(language)} <IoArrowForward />
                             </button>
                         </div>
                     </div>
@@ -272,7 +277,7 @@ function SecondPage({
                         <button className="secondpage-continue-bttn"
                             onClick={()=>handleInputSend()}
                         >
-                            Continue <IoArrowForward className="secondpage-right-arror" />
+                            {getContinueButtonTranslation(language)} <IoArrowForward className="secondpage-right-arror" />
                         </button>
                     </div>
                 </div>

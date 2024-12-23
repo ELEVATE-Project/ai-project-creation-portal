@@ -11,6 +11,8 @@ import { getNewLocalTime, ShowLoader } from "../MainPage";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
 import { getActionList, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getThirdPageMessages } from "../question script/bot_user_questions";
+import { getActionDefaultTranslation, getActionErrorTranslation, getActionListTextTranslation, getActionPlaceholderTranslation, getAddActionButtonTranslation, getAddOwnButtonTranslation, getSelectButtonTranslation } from "../question script/thirdpage_tanslation";
+import { getContinueButtonTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
 
 
 
@@ -43,11 +45,11 @@ function ThirdPage({
         return false;
     });
 
-    const defaultActionList = [
-        {id: "0", content: "Action 1"},
-        {id: "1", content: "Action 2"}
-    ]
-    const thirdpage_messages = getThirdPageMessages()
+    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const language = preferredLanguage.value || 'en';
+
+    const defaultActionList = getActionDefaultTranslation(language)
+    const thirdpage_messages = getThirdPageMessages(language)
 
     const handleRightArrowClick = () => {
         setSelectedIndex(prevIndex => {
@@ -76,11 +78,11 @@ function ThirdPage({
 
     useEffect(()=>{
         async function fetchActionList() {
-            if (!actionList || actionList.length===0) {
+            if (!actionList || actionList?.length===0) {
                 setIsLoading(true)
                 const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
                 const objective = getEncodedLocalStorage('selected_objective')
-                const fetchedActionList = await getActionList(userProblemStatement, objective);
+                const fetchedActionList = await getActionList(userProblemStatement, objective, language);
                 if (fetchedActionList) {
                     setActionList(fetchedActionList);
                     setEncodedLocalStorage('actionList', fetchedActionList);
@@ -143,7 +145,7 @@ function ThirdPage({
         console.log("action_to_store: ", action_to_store)
 
         if (isActionEmptyOrDefault(action_to_store)) {
-            setErrorText("Please add at least one valid action before proceeding.")
+            setErrorText(getActionErrorTranslation(language))
             setTimeout(()=>{
                 setErrorText('')
             }, 3000)
@@ -205,7 +207,9 @@ function ThirdPage({
                         />
                         <div className="thirdpage-obj-fixed">
                             <div className="secondpage-obj-div">
-                                <p className="secondpage-obj-text">Action list</p>
+                                <p className="secondpage-obj-text">
+                                    {getActionListTextTranslation(language)}
+                                </p>
                                 {(visibleCount)&&
                                     <div className="thirdpage-arrow-div">
                                         <RiArrowLeftSFill
@@ -259,13 +263,13 @@ function ThirdPage({
                                         <button className="secondpage-add-bttn"
                                             onClick={handleSuggestMore}
                                         >
-                                            Suggest More
+                                            {getSuggestMoreButtonTranslation(language)}
                                         </button>
                                     </div>
                                 }
                                 <div className="secondpage-add-div">
                                         <p className="secondpage-or-text">
-                                            Or
+                                            {getOrTextTranslation(language)}
                                         </p>
                                 </div>
                                 <div className="secondpage-add-div">
@@ -275,7 +279,7 @@ function ThirdPage({
                                         }}
                                     >
                                         <FiPlusCircle className="secondpage-plus-icon"/>
-                                        Add Your Own
+                                        {getAddOwnButtonTranslation(language)}
                                     </button>
                                 </div>
                             </div>}
@@ -286,7 +290,8 @@ function ThirdPage({
                                     setWantsToMoveForward(true)
                                 }}
                             >
-                                Select <IoArrowForward className="thirdpage-cont-arrow-icon"/>
+                                {getSelectButtonTranslation(language)} 
+                                <IoArrowForward className="thirdpage-cont-arrow-icon"/>
                             </button>
                         </div>
                     </div>
@@ -318,7 +323,10 @@ export function FinalActionPage({
 }) {
 
     const [actionList, setActionList] = useState(actionListArray || []);
-    const thirdpage_messages = getThirdPageMessages()
+    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const language = preferredLanguage.value || 'en';
+
+    const thirdpage_messages = getThirdPageMessages(language)
 
     const handleDragEnd = (result) => {
         if (!result.destination) return;
@@ -377,7 +385,9 @@ export function FinalActionPage({
             />
             <div className="secondpage-obj-fixed">
                 <div className="secondpage-obj-div">
-                    <p className="secondpage-obj-text">Action list</p>
+                    <p className="secondpage-obj-text">
+                        {getActionListTextTranslation(language)}
+                    </p>
                     {(errorText && errorText!=='') && 
                         <>
                             <div className="thirdpage-error-div">
@@ -410,7 +420,7 @@ export function FinalActionPage({
                                                     </div>
                                                     <input
                                                         type="text"
-                                                        placeholder="Write action here..."
+                                                        placeholder={getActionPlaceholderTranslation(language)}
                                                         value={action?.content}
                                                         className="final-action-input"
                                                         onChange={(e) =>
@@ -445,14 +455,15 @@ export function FinalActionPage({
                             }}
                         >
                             <FiPlusCircle className="secondpage-plus-icon"/>
-                            Add Action
+                            {getAddActionButtonTranslation(language)}
                         </button>
                     </div>
                     <div className="thirdpage-continue-div">
                         <button className="thirdpage-select-bttn"
                             onClick={()=>{handleContinueClick(actionList)}}
                         >
-                            Continue <IoArrowForward className="thirdpage-cont-arrow-icon"/>
+                            {getContinueButtonTranslation(language)} 
+                            <IoArrowForward className="thirdpage-cont-arrow-icon"/>
                         </button>
                     </div>
                 </div>

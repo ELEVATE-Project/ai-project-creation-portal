@@ -2,11 +2,11 @@
 import axiosInstance from "../utils/axios";
 
 
-export async function getAI4BharatAudio(text, sourceLanguage = 'en', gender = 'female') {
+export async function getAI4BharatAudio(text, language = 'en', gender = 'female') {
     try {
         const response = await axiosInstance.post('/api/ai4bharat/', {
             text: text,
-            source_language: sourceLanguage,
+            source_language: language,
             gender: gender,
         });
         
@@ -17,7 +17,7 @@ export async function getAI4BharatAudio(text, sourceLanguage = 'en', gender = 'f
     }
 }
 
-export const handleAI4BharatTTSRequest = async (text, id, sourceLanguage, audioCache, setAudioCache, audioRef, setIsBotTalking) => {
+export const handleAI4BharatTTSRequest = async (text, id, language, audioCache, setAudioCache, audioRef, setIsBotTalking) => {
     console.log("USING: ", text)
     try {
         let cachedAudioUrl = audioCache[id];
@@ -26,7 +26,7 @@ export const handleAI4BharatTTSRequest = async (text, id, sourceLanguage, audioC
 
         // Fetch the audio result using AI4Bharat TTS service if not cached
         if (!cachedAudioUrl) {
-            audio_result = await getAI4BharatAudio(text, sourceLanguage);
+            audio_result = await getAI4BharatAudio(text, language);
             if (audio_result?.length) {
                 cachedAudioUrl = `data:audio/wav;base64,${audio_result}`;
                 setAudioCache((prevCache) => ({
@@ -46,7 +46,7 @@ export const handleAI4BharatTTSRequest = async (text, id, sourceLanguage, audioC
                 setIsBotTalking(false);
             };
         } else {
-            audio_result = await getAI4BharatAudio(text, sourceLanguage);
+            audio_result = await getAI4BharatAudio(text, language);
             if (audio_result?.length) {
             cachedAudioUrl = `data:audio/wav;base64,${audio_result}`;
             setAudioCache((prevCache) => ({
@@ -68,16 +68,12 @@ export const handleAI4BharatTTSRequest = async (text, id, sourceLanguage, audioC
     }
 };
 
-export async function ai4BharatASR(base64, isnt_english, gender = 'female'){
+export async function ai4BharatASR(base64, language, gender = 'female'){
     console.log("CALLING Ai 4 bharat")
-    let sourceLanguage = 'en';
     try {
-      if (isnt_english) {
-        sourceLanguage = 'hi';
-      }
       const response = await axiosInstance.post('/api/ai4bharat/asr', {
         base_64: base64,
-        source_language: sourceLanguage,
+        source_language: language,
         gender: gender,
       });
       

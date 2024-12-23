@@ -4,7 +4,6 @@ import MainPage from "./pages/Shikshalokam Mitra/MainPage";
 
 
 function ProtectedRoute({ element }) {
-  // const isAuthenticated = !!localStorage.getItem("accToken");
   const isAuthenticated = true;
   return isAuthenticated ? element : <Navigate to={process.env.REACT_APP_ROUTE_LOGIN} />;
 }

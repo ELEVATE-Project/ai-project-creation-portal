@@ -9,6 +9,7 @@ import "../stylesheet/chatStyle.css";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
 import { getFourthPageMessages } from "../question script/bot_user_questions";
 import { saveUserChatsInDB } from "../../../api services/chat_flow_api";
+import { getContinueButtonTranslation } from "../question script/secondpage_tanslation";
 
 
 
@@ -22,7 +23,10 @@ function FourthPage({
         getEncodedLocalStorage('selected_week') ? true : false
     );
 
-    const fourthpage_messages = getFourthPageMessages();
+    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const language = preferredLanguage.value || 'en';
+
+    const fourthpage_messages = getFourthPageMessages(language);
 
     useEffect(()=>{
         if(isInReadOnlyMode) {
@@ -45,11 +49,12 @@ function FourthPage({
         if (currentChatValue === 6 && selectedWeek){
             setIsLoading(true);
             setEncodedLocalStorage("selected_week", selectedWeek);
-            const botMessage = fourthpage_messages[8]?.[0];
+            const botMessage = fourthpage_messages[8]?.[0]?.message + 
+            " " + fourthpage_messages[8]?.[1]?.message;
             const currentSession = getEncodedLocalStorage('session');
             console.log("botMessage: ", botMessage)
 
-            saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
+            saveUserChatsInDB(botMessage, currentSession, 'bot')
             .then(() => {
                 saveUserChatsInDB(JSON.stringify(selectedWeek), currentSession, 'user'); 
             })
@@ -65,15 +70,15 @@ function FourthPage({
             {isLoading&& <ShowLoader />}
 
             <Header shouldEnableGoBack={true} shouldEnableCross={true} handleGoBack={()=>handleGoBack(4)}
-                handleGoForward={()=>handleGoForward(4)} 
-                shouldEnableGoForward = {isInReadOnlyMode}
             />
             <div className="fourthpage-div">
                 <BotMessage 
                     firstparaClass={"firstpara-div"}
                     firstpageClass={"firstpage-para1"}
                     botMessage={
-                        fourthpage_messages[8]?.[0]?.message
+                        fourthpage_messages[8]?.[0]?.message + 
+                        "<br/>" + 
+                        fourthpage_messages[8]?.[1]?.message
                     }
                     showFirst={true}
                     handleSpeakerOn={handleSpeakerOn}
@@ -86,7 +91,8 @@ function FourthPage({
                     <button className={`thirdpage-select-bttn`}
                         onClick={handleContinueClick}
                     >
-                        Continue <IoArrowForward className="thirdpage-cont-arrow-icon" />
+                        {getContinueButtonTranslation(language)} 
+                        <IoArrowForward className="thirdpage-cont-arrow-icon" />
                     </button>
                 </div>
             </div>

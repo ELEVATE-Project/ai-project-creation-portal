@@ -2,10 +2,11 @@ import { BACKEND_ROUTES } from "../routes/routes";
 import axiosInstance from "../utils/axios";
 
 
-export async function getParaphraseText(user_input){
+export async function getParaphraseText(user_input, language){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.PARAPHRASE_API, {
-            user_input
+            user_input,
+            language
         });
         
         return response?.data?.paraphrased_output;
@@ -15,24 +16,26 @@ export async function getParaphraseText(user_input){
     } 
 }
 
-export async function getObjectiveList(user_input){
+export async function getObjectiveList(user_input, language){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.OBJECTIVE_API, {
-            user_input
+            user_input,
+            language
         });
         
-        return response?.data?.objective_list;
+        return response?.data;
     } catch (error) {
         console.error('Error fetching Objective api:', error);
         throw error;
     } 
 }
 
-export async function getActionList(user_problem_statement, user_objective){
+export async function getActionList(user_problem_statement, user_objective, language){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.ACTION_LIST_API, {
             user_problem_statement,
-            user_objective
+            user_objective,
+            language
         });
         
         return response?.data?.action_list;
@@ -42,12 +45,13 @@ export async function getActionList(user_problem_statement, user_objective){
     } 
 }
 
-export async function getTitle(user_problem_statement, user_objective, user_action_list){
+export async function getTitle(user_problem_statement, user_objective, user_action_list, language){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.TITLE_API, {
             user_problem_statement,
             user_objective,
-            user_action_list
+            user_action_list,
+            language
         });
       
         return response?.data?.title;
@@ -57,12 +61,13 @@ export async function getTitle(user_problem_statement, user_objective, user_acti
     } 
 }
 
-export async function saveUserChatsInDB(message, session, role){
+export async function saveUserChatsInDB(message, session, role, chunks=null){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.SAVE_COMPANY_CHAT, {
             message,
             role,
             session,
+            chunks
         });
       
         return response?.data;
@@ -96,12 +101,15 @@ export async function getNewSessionID(){
     } 
 }
 
-export async function createChatSession(session, email, first_name){
+export async function createChatSession(session, email, access_token){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.CREATE_CHAT_SESSION, {
             session,
             email,
-            first_name
+        },{
+            headers: {
+                'X-auth-token': access_token,
+            },
         });
       
         return response?.data;
@@ -113,7 +121,7 @@ export async function createChatSession(session, email, first_name){
 
 export async function createProject(
     access_token, user_problem_statement, user_action_steps, project_duration, 
-    project_title, profile_id, session, user_objective
+    project_title, profile_id, session, user_objective, chunks
 ){
     try {
         const response = await axiosInstance.post(
@@ -126,7 +134,8 @@ export async function createProject(
                 project_title,
                 profile_id,
                 session,
-                user_objective
+                user_objective,
+                chunks
             }
         );
       

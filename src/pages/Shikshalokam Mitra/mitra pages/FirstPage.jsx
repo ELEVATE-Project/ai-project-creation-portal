@@ -8,6 +8,8 @@ import { getFirstPageMessages } from "../question script/bot_user_questions";
 import { getNewLocalTime, ShowLoader } from "../MainPage";
 import { createChatSession, getChatsFromDB, getNewSessionID, getObjectiveList, getParaphraseText, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
+import { getDenyButtonTranslation, getInputPlaceholderTranslation, getKeyboardButtonTranslation, 
+    getVoiceButtonTranslation, getVoiceStopButtonTranslation } from "../question script/firstpage_translation";
 
 
 function FirstPage( { 
@@ -28,30 +30,28 @@ function FirstPage( {
     const savedMessagesRef = useRef(new Set());
     const textInputRef = useRef(null);
     const scrollRef = useRef(null);
-    let firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement);
+
+    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const language = preferredLanguage.value || 'en';
+
+    let firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement, language);
 
     useEffect(()=>{
         firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement);
     }, [userDetail])
 
 
-    let isnt_english = false;
-
-    useEffect(()=>{
-        const language = JSON.parse(localStorage.getItem('languages'));
-        isnt_english = !(language === 'en');
-    }, [])
-
     useEffect(()=>{
         async function getUpdateSession() {
+            console.log("HERE")
             if(!getEncodedLocalStorage('session')) {
                 const session = await getNewSessionID();
                 if(session){
                     setEncodedLocalStorage('session', session);
                     setCurrentSession(session)
                     const email = localStorage.getItem('email');
-                    const first_name = localStorage.getItem('name');
-                    const response = await createChatSession(session, email, first_name);
+                    const access_token = localStorage.getItem(process.env.REACT_APP_ACCESS_TOKEN_KEY);
+                    const response = await createChatSession(session, email, access_token);
                     console.log('response: ', response)
                     if (response) {
                         setEncodedLocalStorage('profile_id', response?.chatsession?.profile_id);
@@ -66,9 +66,11 @@ function FirstPage( {
 
     useEffect(()=>{
         async function fetchParaphrasedText() {
+            const denyMessage = getDenyButtonTranslation(language).toLowerCase();
             if (userInput && userInput[0] && currentChatValue === 1 && userProblemStatement === '') {
                 setShowTyping(true);
-                const paraphrased_text = await getParaphraseText(userInput[0]);
+                console.log("Thereee")
+                const paraphrased_text = await getParaphraseText(userInput[0], language);
                 if (paraphrased_text) {
                     console.log("user_problem_statement if: ", paraphrased_text)
                     setEncodedLocalStorage('user_problem_statement', paraphrased_text);
@@ -77,7 +79,7 @@ function FirstPage( {
                 } else {
                     window.location.reload();
                 }
-            } else if (currentChatValue === 3 && userInput && userInput[2] && /no/i.test(userInput[1]) && !isReadOnly) {
+            } else if (currentChatValue === 3 && userInput && userInput[2] && (/नहीं/i.test(userInput[1]) || /no/i.test(userInput[1])) && !isReadOnly) {
                 setEncodedLocalStorage('user_problem_statement', userInput[2]);
                 console.log("user_problem_statement else if: ",  userInput[2]);
                 setUserProblemStatement(userInput[2]);
@@ -170,8 +172,9 @@ function FirstPage( {
     useEffect(() => {
         console.log("currentSession in: ", currentSession)
         console.log("currentProfile in: ", currentProfile)
-        if(!currentSession || !currentProfile) return;
+        if(!currentSession || !currentProfile || !firstpage_messages) return;
         const savedMessages = new Set(JSON.parse(localStorage.getItem('savedMessages') || '[]'));
+
 
         if (isReadOnly) {
             async function fetchAllChats() {
@@ -187,7 +190,7 @@ function FirstPage( {
     
             fetchAllChats();
         } else {
-            const processedMessages = firstpage_messages[currentChatValue].reduce((acc, curr) => {
+            const processedMessages = (firstpage_messages[currentChatValue] || []).reduce((acc, curr) => {
                 const isDuplicate = 
                     acc.some(message => message.uniqueId === curr.messageId) ||
                     acc.some(message => message.originalMessageIds?.includes(curr.messageId));
@@ -250,7 +253,7 @@ function FirstPage( {
                                 }}
                             >
                                 <RxKeyboard />
-                                Use text
+                                {getKeyboardButtonTranslation(language)}
                             </button>
                         </div>
                     </div>
@@ -266,7 +269,7 @@ function FirstPage( {
                                 onClick={stopRecording}
                             >
                                 <FaMicrophoneSlash />
-                                Stop
+                                {getVoiceStopButtonTranslation(language)}
                             </button>
                         </div>
                     </div>
@@ -298,13 +301,13 @@ function FirstPage( {
                                 }}
                             >
                                 <FaMicrophone />
-                                Use voice
+                                {getVoiceButtonTranslation(language)}
                             </button>
                         </div>
                         <input
                             ref={textInputRef}
                             type="text"
-                            placeholder="Type your response here..."
+                            placeholder={getInputPlaceholderTranslation(language)}
                             onFocus={() => {
                                 document.getElementById("textbox-id").classList.remove('textbox-container');
                             }}
@@ -409,7 +412,7 @@ function FirstPage( {
                 {(currentChatValue>=2)&&
                     <>
                         <UserMessage userMessage={(userInput && userInput[1]) ? userInput[1]: ""} />
-                        {((userInput && userInput[1].toLowerCase() === 'no'))&& 
+                        {((userInput && userInput[1].toLowerCase() === getDenyButtonTranslation(language).toLowerCase()))&& 
                             <div className="firstpage-bot-div" 
                                 ref={currentChatValue === 2 ? scrollRef : null}
                             >
@@ -444,10 +447,10 @@ function FirstPage( {
                 }
                 {(isReadOnly)&&(
                     <div className="firstpage-bot-div" 
-                        ref={currentChatValue === 2 ? scrollRef : null}
+                        ref={isReadOnly ? scrollRef : null}
                     >
-                        <BotMessage 
-                            botMessage="Would you like to rephrase the challenge you are facing?"
+                        <BotMessage
+                            botMessage={firstpage_messages[10]?.[0]?.message}
                             firstparaClass={"firstpara-div"}
                             firstpageClass={"firstpage-para1"}
                             useTextbox={useTextbox} 
