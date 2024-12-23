@@ -6,17 +6,22 @@ import Popup from "../../../components/popup/Popup";
 import "../stylesheet/chatStyle.css";
 import { useNavigate } from "react-router-dom";
 import { clearMitraLocalStorage } from "../MainPage";
+import { getBodyText, getConfirmText, getDiscardText, getHeaderText } from "../question script/header_translation";
 
 
 function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldEnableGoForward = false , handleGoBack, handleGoForward }) {
 
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
+    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const language = preferredLanguage.value || 'en';
+
 
     const handleClosing = () => {
         console.log("Closing");
         clearMitraLocalStorage();
-        navigate(process.env.REACT_APP_ROUTE_EXIT);
+        window.location.href=process.env.REACT_APP_ROUTE_LOGIN;
+        // navigate(process.env.REACT_APP_ROUTE_LOGIN);
 
     };
 
@@ -53,10 +58,10 @@ function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldE
             )}
             <Popup 
                 isOpen={isOpen} 
-                headerText="Discard Creation?" 
-                bodyText="Your progress will not be saved if you exit now. Do you want to discard this journey?"
-                confirmButtonText="Stay"
-                discardButtonText="Discard"
+                headerText={getHeaderText(language)} 
+                bodyText={getBodyText(language)}
+                confirmButtonText={getConfirmText(language)}
+                discardButtonText={getDiscardText(language)}
                 handleDiscard={handleClosing}
                 togglePopup={tooglePopup}
                 handleConfirm={tooglePopup}

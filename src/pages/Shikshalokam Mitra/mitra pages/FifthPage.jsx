@@ -6,8 +6,9 @@ import Header from "../header/Header";
 import { clearMitraLocalStorage, ShowLoader } from "../MainPage";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
 import { createProject, getTitle, saveUserChatsInDB, updateChatSession } from "../../../api services/chat_flow_api";
-import { getFifthhPageMessages } from "../question script/bot_user_questions";
+import { getFifthPageMessages } from "../question script/bot_user_questions";
 import { useNavigate } from "react-router-dom";
+import { getCreateMicroButtonTranslation } from "../question script/thirdpage_tanslation";
 
 
 function FifthPage({
@@ -20,10 +21,14 @@ function FifthPage({
         return title
     });
 
+    const [isLocalLoading, setIsLocalLoading] = useState(false);
+
+    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const language = preferredLanguage.value || 'en';
+
+    const fifthpage_messages = getFifthPageMessages(language);
     const navigate = useNavigate()
 
-    const fifthpage_messages = getFifthhPageMessages();
-    
     useEffect(()=>{
         async function fetchTitle() {
             let title = getEncodedLocalStorage('project_title');
@@ -31,7 +36,7 @@ function FifthPage({
                 const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
                 const user_objective = getEncodedLocalStorage('selected_objective');
                 const user_action_list = getEncodedLocalStorage('selected_action');
-                title = await getTitle(user_problem_statement, user_objective, user_action_list);
+                title = await getTitle(user_problem_statement, user_objective, user_action_list, language);
                 if (title) {
                     setInputText(title)
                     setEncodedLocalStorage('project_title', title);
@@ -69,7 +74,7 @@ function FifthPage({
 
     async function handleCreateImprovement() {
         if (currentChatValue === 7 && inputText && inputText!==""){
-            setIsLoading(true);
+            setIsLocalLoading(true);
             setEncodedLocalStorage("project_title", inputText);
             const session = getEncodedLocalStorage("session");
             const profile_id = getEncodedLocalStorage("profile_id");
@@ -82,29 +87,41 @@ function FifthPage({
                 message: fifthpage_messages[9]?.[0]?.message + " " + fifthpage_messages[9]?.[1]?.message,
                 role: fifthpage_messages[9]?.[0]?.role,
             };
-            saveUserChatsInDB(botMessage?.message, session, botMessage?.role)
-            .then(() => {
-                saveUserChatsInDB(inputText, session, 'user'); 
-            })
+            await saveUserChatsInDB(botMessage?.message, session, botMessage?.role)
+            await saveUserChatsInDB(inputText, session, 'user'); 
 
-            const response = await updateChatSession(session, field_to_update)
-            if(response) {
-                const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
-                const project_duration = getEncodedLocalStorage('selected_week');
-                const user_objective = getEncodedLocalStorage('selected_objective');
-                const user_action_list = getEncodedLocalStorage('selected_action')[0]?.actionSteps;
-                const access_token = JSON.parse(localStorage.getItem(process.env.REACT_APP_ACCESS_TOKEN_KEY));
-                console.log("env key name:", process.env.REACT_APP_ACCESS_TOKEN_KEY)
-                const project_response = await createProject(
-                    access_token, user_problem_statement, user_action_list, project_duration, 
-                    inputText, profile_id, session, user_objective
-                )
+            try{
 
-                if(project_response) {
-                    clearMitraLocalStorage();
-                    setIsLoading(false);
-                    navigate(process.env.REACT_APP_ROUTE_EXIT);
+                const response = await updateChatSession(session, field_to_update)
+                if(response) {
+                    const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
+                    const project_duration = getEncodedLocalStorage('selected_week');
+                    const user_objective = getEncodedLocalStorage('selected_objective');
+                    const user_action_list = getEncodedLocalStorage('selected_action')[0]?.actionSteps;
+                    const access_token = localStorage.getItem(process.env.REACT_APP_ACCESS_TOKEN_KEY);
+                    const chunks = JSON.parse(localStorage.getItem('chunks'))
+                    console.log("env key name:", process.env.REACT_APP_ACCESS_TOKEN_KEY)
+                    const project_response = await createProject(
+                        access_token, user_problem_statement, user_action_list, project_duration, 
+                        inputText, profile_id, session, user_objective, chunks
+                    )
+
+                    if(project_response) {
+                        clearMitraLocalStorage();
+                        setIsLocalLoading(false);
+
+                        console.log('project_response: ', project_response)
+                        const projectId = project_response?.projectId;
+                        console.log(projectId)
+                        window.location.href=`${process.env.REACT_APP_ROUTE_EXIT}${projectId}`;
+                        // navigate(process.env.REACT_APP_ROUTE_EXIT);
+                    }
                 }
+            }  catch (error) {
+                console.error('Error: ', error);
+                setIsLocalLoading(false);
+                window.location.href=process.env.REACT_APP_ROUTE_LOGIN;
+                // navigate(process.env.REACT_APP_ROUTE_EXIT);
             }
         }
     }
@@ -112,6 +129,7 @@ function FifthPage({
     return (
         <>
             {isLoading&& <ShowLoader />}
+            {isLocalLoading&& <ShowLoader showFirstLoader={false} />}
 
             <Header shouldEnableGoBack={true} shouldEnableCross={true} handleGoBack={()=>handleGoBack(5)}
             />
@@ -148,7 +166,7 @@ function FifthPage({
                     <button className="fifthpage-select-bttn"
                         onClick={handleCreateImprovement}
                     >
-                        Create Micro-Improvement Plan
+                        {getCreateMicroButtonTranslation(language)}
                     </button>
                 </div>
             </div>

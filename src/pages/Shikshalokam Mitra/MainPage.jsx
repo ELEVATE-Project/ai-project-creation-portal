@@ -40,9 +40,6 @@ function MainPage() {
     const audioRef = useRef();
 
     useEffect(()=>{
-        localStorage.setItem("name", "Rahul")
-        localStorage.setItem("image", "")
-        localStorage.setItem("email", "rahul@example.com")
         setUserDetail({
             name: localStorage.getItem("name"),
             image: localStorage.getItem("image"),
@@ -75,10 +72,14 @@ function MainPage() {
         setEncodedLocalStorage("currentPage", currentPage);
     }, [currentPage])
 
+
     function handleSpeakerOn(messageToUse, audioId) {
         if (!messageToUse || !audioId) return;
         setIsBotTalking(true);
-        handleAI4BharatTTSRequest(messageToUse, audioId, 'en', audioCache, setAudioCache, audioRef, setIsBotTalking)
+        const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+        const language = preferredLanguage.value || 'en';
+
+        handleAI4BharatTTSRequest(messageToUse, audioId, language, audioCache, setAudioCache, audioRef, setIsBotTalking)
     }
 
     function handleGoBack(key) {
@@ -166,8 +167,11 @@ function MainPage() {
                     }
                     setIsFetchingData(true);
                     // Convert to Base64 and send to the ASR API
+                    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+                    const language = preferredLanguage.value || 'en';
+
                     const base64Audio = await convertBlobToBase64(wavBlob);
-                    const transcriptResult = await ai4BharatASR(base64Audio);
+                    const transcriptResult = await ai4BharatASR(base64Audio, language);
                     // Update transcript if valid audio
                     setUserInput((prevInput)=> [...prevInput, transcriptResult]);
                     setIsFetchingData(false);
@@ -350,13 +354,23 @@ function MainPage() {
 export default MainPage;
 
 
-export function ShowLoader({isLoading}) {
-    console.log("LOADER PAGFE: ", isLoading)
+export function ShowLoader({showFirstLoader=true}) {
+    console.log("showFirstLoader PAGFE: ", showFirstLoader)
     return (
         <>
                 <div className="login-load-spinner">
                 <div className="login-div67">
-                    <img className="first-loader" src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/loading%20animation.gif" />
+                    {(showFirstLoader)?
+                        <img 
+                            className="first-loader" 
+                            src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/loading%20animation.gif" 
+                        />
+                        : 
+                        <img 
+                            className="first-loader" 
+                            src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/second_loader.gif" 
+                        />
+                    }
                 </div>
                 </div> 
         </>
@@ -396,4 +410,5 @@ export function clearMitraLocalStorage() {
     localStorage.removeItem("selected_objective");
     localStorage.removeItem("savedMessages");
     localStorage.removeItem("profile_id");
+    localStorage.removeItem("chunks");
 }

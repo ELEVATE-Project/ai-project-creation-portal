@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { RiMic2Fill } from "react-icons/ri";
 import { RxSpeakerOff } from "react-icons/rx";
+import { getComfirmButtonTranslation, getDenyButtonTranslation } from "./question script/firstpage_translation";
 
 export function BotMessage({
     botMessage,
@@ -23,10 +24,13 @@ export function BotMessage({
     handleSpeakerOn,
     isBotTalking,
     audioId,
-    handleSpeakerOff
+    handleSpeakerOff,
 }) {
 
     const [isSpeakerOn, setIsSpeakerOn] = useState(false);
+
+    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const language = preferredLanguage.value || 'en';
 
     useEffect(()=>{
         console.log("Is Bot Talking? Ans: ", isBotTalking)
@@ -83,12 +87,12 @@ export function BotMessage({
                                     setCurrentChatValue((prevValue) => {
                                         return prevValue + 2;
                                     });
-                                    setUserInput((prevInput)=> [...prevInput, 'Yes!']);
+                                    setUserInput((prevInput)=> [...prevInput, `${getComfirmButtonTranslation(language)}!`]);
 
                                 }}
                                 disabled={currentChatValue>1}
                             >
-                                Yes
+                                {language&& getComfirmButtonTranslation(language)}
                             </button>
                             <button 
                                 className="firstpage-deny-button"
@@ -98,11 +102,12 @@ export function BotMessage({
                                     });
                                     setIsUsingMicrophone(false)
                                     setUseTextbox(false)
-                                    setUserInput((prevInput)=> [...prevInput, 'No']);
+                                    setUserInput((prevInput)=> [...prevInput, getDenyButtonTranslation(language)]);
                                 }}
                                 disabled={currentChatValue>1}
                             >
-                                No
+                                {language&& getDenyButtonTranslation(language)}
+
                             </button>
                         </div>
                     }
