@@ -24,7 +24,7 @@ function ThirdPage({
     const [actionList, setActionList] = useState(() => {
         const storedActions = getEncodedLocalStorage('actionList');
         if (Array.isArray(storedActions)) {
-            console.log('storedActionsL: ', storedActions)
+            
             return storedActions
         }
         return [];
@@ -95,10 +95,6 @@ function ThirdPage({
         fetchActionList();
     }, [actionList])
 
-    useEffect(()=>{
-        console.log("actionList: ", getEncodedLocalStorage("actionList"))
-    }, [])
-
     useEffect(() => {
         if (swipeDirection) {
             const timeout = setTimeout(() => setSwipeDirection(null), 500);
@@ -142,7 +138,7 @@ function ThirdPage({
     };
 
     const handleContinueClick = (action_to_store) => {
-        console.log("action_to_store: ", action_to_store)
+        
 
         if (isActionEmptyOrDefault(action_to_store)) {
             setErrorText(getActionErrorTranslation(language))
@@ -151,8 +147,8 @@ function ThirdPage({
             }, 3000)
             return; 
         }
-        console.log(currentChatValue)
-        console.log(actionList)
+        
+        
         if (currentChatValue === 5 && actionList){
             setIsLoading(true);
             setEncodedLocalStorage("selected_action", [{
@@ -168,7 +164,7 @@ function ThirdPage({
                 + " " + thirdpage_messages[7]?.[1]?.message,
                 messageId: thirdpage_messages[7]?.[0]?.messageId
             } : thirdpage_messages[6]?.[0]
-            console.log("botMessage: ", botMessage)
+            
 
             saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
             .then(() => {
@@ -331,7 +327,7 @@ export function FinalActionPage({
     const handleDragEnd = (result) => {
         if (!result.destination) return;
         if (result.source.index === result.destination.index) return;
-        console.log("HEREEE")
+        
         const items = Array.from(actionList);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
@@ -340,7 +336,7 @@ export function FinalActionPage({
     };
 
     const handleInputChange = (id, value) => {
-        console.log("HEREEE INOUTT")
+        
         setActionList((prev) =>
             prev.map((item) =>
                 item.id === id ? { ...item, content: value } : item
@@ -349,7 +345,7 @@ export function FinalActionPage({
     };
 
     const handleDelete = (id) => {
-        console.log("Deleting action with ID:", id);
+        
         setActionList((prev) => prev.filter((item) => item.id !== id));
     };
 
@@ -361,7 +357,7 @@ export function FinalActionPage({
     };
 
     useEffect(()=>{
-        console.log("action list: ", actionList)
+        
     }, [actionList])
 
     return (

@@ -18,7 +18,7 @@ export async function getAI4BharatAudio(text, language = 'en', gender = 'female'
 }
 
 export const handleAI4BharatTTSRequest = async (text, id, language, audioCache, setAudioCache, audioRef, setIsBotTalking) => {
-    console.log("USING: ", text)
+    
     try {
         let cachedAudioUrl = audioCache[id];
         let audio_result = "";
@@ -42,7 +42,7 @@ export const handleAI4BharatTTSRequest = async (text, id, language, audioCache, 
 
             // Attach event listener to detect when audio finishes playing
             audio.onended = () => {
-                console.log("Audio play complete");
+                
                 setIsBotTalking(false);
             };
         } else {
@@ -69,7 +69,7 @@ export const handleAI4BharatTTSRequest = async (text, id, language, audioCache, 
 };
 
 export async function ai4BharatASR(base64, language, gender = 'female'){
-    console.log("CALLING Ai 4 bharat")
+    
     try {
       const response = await axiosInstance.post('/api/ai4bharat/asr', {
         base_64: base64,
