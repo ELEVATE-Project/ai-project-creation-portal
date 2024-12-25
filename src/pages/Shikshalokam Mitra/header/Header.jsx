@@ -18,7 +18,7 @@ function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldE
 
 
     const handleClosing = () => {
-        console.log("Closing");
+        
         clearMitraLocalStorage();
         window.location.href=process.env.REACT_APP_ROUTE_LOGIN;
         // navigate(process.env.REACT_APP_ROUTE_LOGIN);
@@ -26,7 +26,7 @@ function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldE
     };
 
     const tooglePopup = () => {
-        console.log("toogle");
+        
         setIsOpen(!isOpen);
     };
 

@@ -100,7 +100,7 @@ function FifthPage({
                     const user_action_list = getEncodedLocalStorage('selected_action')[0]?.actionSteps;
                     const access_token = localStorage.getItem(process.env.REACT_APP_ACCESS_TOKEN_KEY);
                     const chunks = JSON.parse(localStorage.getItem('chunks'))
-                    console.log("env key name:", process.env.REACT_APP_ACCESS_TOKEN_KEY)
+                    
                     const project_response = await createProject(
                         access_token, user_problem_statement, user_action_list, project_duration, 
                         inputText, profile_id, session, user_objective, chunks
@@ -110,9 +110,9 @@ function FifthPage({
                         clearMitraLocalStorage();
                         setIsLocalLoading(false);
 
-                        console.log('project_response: ', project_response)
+                        
                         const projectId = project_response?.projectId;
-                        console.log(projectId)
+                        
                         window.location.href=`${process.env.REACT_APP_ROUTE_EXIT}${projectId}`;
                         // navigate(process.env.REACT_APP_ROUTE_EXIT);
                     }

@@ -39,12 +39,10 @@ function FourthPage({
     }, [isInReadOnlyMode])
 
     const handleSliderChange = (value) => {
-        console.log('Selected week:', value);
+        
     };
 
     const handleContinueClick = async () => {
-        console.log('Project selected week:', selectedWeek);
-        console.log("currentChatValue: ", currentChatValue);
         
         if (currentChatValue === 6 && selectedWeek){
             setIsLoading(true);
@@ -52,7 +50,7 @@ function FourthPage({
             const botMessage = fourthpage_messages[8]?.[0]?.message + 
             " " + fourthpage_messages[8]?.[1]?.message;
             const currentSession = getEncodedLocalStorage('session');
-            console.log("botMessage: ", botMessage)
+            
 
             saveUserChatsInDB(botMessage, currentSession, 'bot')
             .then(() => {

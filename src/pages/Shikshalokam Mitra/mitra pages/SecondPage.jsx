@@ -20,7 +20,7 @@ function SecondPage({
 
     const [objectiveList, setObjectiveList] = useState(()=>{
         const storedObjective = getEncodedLocalStorage('objective');
-        console.log('storedObjective: ', storedObjective)
+        
         if(storedObjective) {
             return  (typeof storedObjective === 'string') ? [storedObjective] : storedObjective
         }
@@ -86,7 +86,7 @@ function SecondPage({
     }, [isInReadOnlyMode])
 
     const handleObjectiveClick = (index) => {
-        console.log(index)
+        
         setSelectedIndex(index);
         setInputText(objectiveList[index])
     };
@@ -103,7 +103,7 @@ function SecondPage({
                 message: secondpage_messages[4]?.[0]?.message + " " + secondpage_messages[4]?.[1]?.message,
                 messageId: secondpage_messages[4]?.[0]?.messageId
             }
-            console.log("botMessage: ", botMessage)
+            
             const chunks = JSON.parse(localStorage.getItem('chunks'))
             saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role, chunks)
             .then(() => {
@@ -130,7 +130,7 @@ function SecondPage({
                 setErrorText('')
             }, 3000)
         } else {
-            console.log("Sending: ", inputText)
+            
             handleNextClick()
         }
     }

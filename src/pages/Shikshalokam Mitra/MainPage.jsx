@@ -48,27 +48,27 @@ function MainPage() {
     }, [])
 
     useEffect(()=>{
-        console.log("ChatHistory: ", chatHistory)
+        
         setEncodedLocalStorage("chatHistory", chatHistory);
     }, [chatHistory])
 
     useEffect(()=>{
-        console.log("isReadOnly: ", isReadOnly)
+        
         setEncodedLocalStorage("isReadOnly", isReadOnly);
     }, [isReadOnly])
 
     useEffect(()=>{
-        console.log("UserInput: ", userInput)
+        
         setEncodedLocalStorage("user_text", userInput);
     }, [userInput])
 
     useEffect(()=>{
-        console.log("currentChatValue: ", currentChatValue)
+        
         setEncodedLocalStorage("currentChatValue", currentChatValue);
     }, [currentChatValue])
 
     useEffect(()=>{
-        console.log("currentPage: ", currentPage)
+        
         setEncodedLocalStorage("currentPage", currentPage);
     }, [currentPage])
 
@@ -83,7 +83,7 @@ function MainPage() {
     }
 
     function handleGoBack(key) {
-        console.log("Key: ", key)
+        
         if (key <= 1) return;
         setIsReadOnly(true);
         setCurrentPage((prevValue) => ({
@@ -94,7 +94,7 @@ function MainPage() {
     }
 
     function handleGoForward(key) {
-        console.log("Key: ", key)
+        
         if (key >=5) return;
         setIsReadOnly(true);
         setCurrentPage((prevValue) => ({
@@ -119,13 +119,13 @@ function MainPage() {
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
-            console.log("Audio stopped");
+            
         }
     }
 
     useEffect(()=>{
-        console.log("isLoading Mainpage: ", isLoading)
-        console.log("currentChatValue Mainpage: ", currentChatValue)
+        
+        
     }, [isLoading, currentChatValue])
 
     const startRecording = () => {
@@ -141,25 +141,25 @@ function MainPage() {
       
               recorder.start();
               setHasStartedRecording(true);
-              console.log("Recording started...");
+              
       
               recorder.ondataavailable = (event) => {
                 // Collect audio data chunks in the local array
                 localAudioChunks.push(event.data);
-                console.log("Audio chunk received:", event.data);
+                
               };
       
               recorder.onstop = async () => {
-                console.log("Recording stopped.");
+                
                 if (localAudioChunks.length > 0) {
                     // Combine all audio chunks into a single Blob
                     const audioBlob = new Blob(localAudioChunks, { type: 'audio/webm;codecs=opus' });
-                    console.log("Audio blob created:", audioBlob);
+                    
         
                     // Check if the audio blob contains any significant sound
                     const wavBlob = await convertToWav(audioBlob);
                     if (!wavBlob) {
-                        console.log("No significant audio detected. Skipping API call.");
+                        
                         setIsFetchingData(false);
                         setIsUsingMicrophone(false);
                         setIsProcessingAudio(false);
@@ -225,7 +225,7 @@ function MainPage() {
             setHasStartedRecording(false);
             setIsUsingMicrophone(false);
             setIsProcessingAudio(true);
-            console.log("Stopping recording...");
+            
         }
     };
 
@@ -355,7 +355,7 @@ export default MainPage;
 
 
 export function ShowLoader({showFirstLoader=true}) {
-    console.log("showFirstLoader PAGFE: ", showFirstLoader)
+    
     return (
         <>
                 <div className="login-load-spinner">

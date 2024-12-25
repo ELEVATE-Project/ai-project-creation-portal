@@ -43,7 +43,7 @@ function FirstPage( {
 
     useEffect(()=>{
         async function getUpdateSession() {
-            console.log("HERE")
+            
             if(!getEncodedLocalStorage('session')) {
                 const session = await getNewSessionID();
                 if(session){
@@ -52,7 +52,7 @@ function FirstPage( {
                     const email = localStorage.getItem('email');
                     const access_token = localStorage.getItem(process.env.REACT_APP_ACCESS_TOKEN_KEY);
                     const response = await createChatSession(session, email, access_token);
-                    console.log('response: ', response)
+                    
                     if (response) {
                         setEncodedLocalStorage('profile_id', response?.chatsession?.profile_id);
                         setCurrentProfile(response?.chatsession?.profile_id)
@@ -69,10 +69,10 @@ function FirstPage( {
             const denyMessage = getDenyButtonTranslation(language).toLowerCase();
             if (userInput && userInput[0] && currentChatValue === 1 && userProblemStatement === '') {
                 setShowTyping(true);
-                console.log("Thereee")
+                
                 const paraphrased_text = await getParaphraseText(userInput[0], language);
                 if (paraphrased_text) {
-                    console.log("user_problem_statement if: ", paraphrased_text)
+                    
                     setEncodedLocalStorage('user_problem_statement', paraphrased_text);
                     setUserProblemStatement(paraphrased_text);
                     setShowTyping(false);
@@ -81,7 +81,7 @@ function FirstPage( {
                 }
             } else if (currentChatValue === 3 && userInput && userInput[2] && (/नहीं/i.test(userInput[1]) || /no/i.test(userInput[1])) && !isReadOnly) {
                 setEncodedLocalStorage('user_problem_statement', userInput[2]);
-                console.log("user_problem_statement else if: ",  userInput[2]);
+                
                 setUserProblemStatement(userInput[2]);
                 setShowTyping(false);
             }
@@ -101,7 +101,7 @@ function FirstPage( {
         if(isReadOnly) {
             const keyboardTypedValue = e.target.value;
             setEncodedLocalStorage('user_problem_statement', keyboardTypedValue);
-            console.log("keyboardTypedValue: ", keyboardTypedValue)
+            
         } else {
             setUserInput((prevInput)=>{
                 const keyboardTypedValue = e.target.value;
@@ -150,12 +150,12 @@ function FirstPage( {
     }, [isReadOnly, shouldMoveForward])
     
     useEffect(()=>{
-        console.log("userProblemStatement", userProblemStatement)
+        
     }, [userProblemStatement])
 
 
     useEffect(() => {
-        console.log("CurrentChatValue: ", currentChatValue)
+        
         
         if (scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: "smooth" });
@@ -170,8 +170,8 @@ function FirstPage( {
     }, [currentChatValue]);
 
     useEffect(() => {
-        console.log("currentSession in: ", currentSession)
-        console.log("currentProfile in: ", currentProfile)
+        
+        
         if(!currentSession || !currentProfile || !firstpage_messages) return;
         const savedMessages = new Set(JSON.parse(localStorage.getItem('savedMessages') || '[]'));
 

@@ -33,7 +33,7 @@ export function BotMessage({
     const language = preferredLanguage.value || 'en';
 
     useEffect(()=>{
-        console.log("Is Bot Talking? Ans: ", isBotTalking)
+        
         if (!isBotTalking) {
             setIsSpeakerOn(false)
         }
