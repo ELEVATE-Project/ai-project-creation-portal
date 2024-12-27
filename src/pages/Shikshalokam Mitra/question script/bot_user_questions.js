@@ -33,6 +33,13 @@ export function getFirstPageMessages(userDetail, userInput, userProblemStatement
                     message: "Would you like to rephrase the challenge you are facing?", 
                     messageId: '10_0'
                 },
+            ],
+            11: [
+                { 
+                    role: "bot", 
+                    message: "No Improvement to suggest for you!", 
+                    messageId: '11_0'
+                },
             ]
         };
     } else if(language === 'hi') {
@@ -66,6 +73,13 @@ export function getFirstPageMessages(userDetail, userInput, userProblemStatement
                     role: "bot", 
                     message: "क्या आप अपनी समस्या को दोबारा स्पष्ट करना चाहेंगे?", 
                     messageId: '10_0'
+                },
+            ],
+            11: [
+                { 
+                    role: "bot", 
+                    message: "आपके लिए कोई सुधार सुझाने की आवश्यकता नहीं है!", 
+                    messageId: '11_0'
                 },
             ]
         };        

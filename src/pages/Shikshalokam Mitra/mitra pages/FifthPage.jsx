@@ -113,7 +113,7 @@ function FifthPage({
                         
                         const projectId = project_response?.projectId;
                         
-                        window.location.href=`${process.env.REACT_APP_ROUTE_EXIT}${projectId}`;
+                        window.location.replace(`${process.env.REACT_APP_ROUTE_EXIT}${projectId}`);
                         // navigate(process.env.REACT_APP_ROUTE_EXIT);
                     }
                 }
