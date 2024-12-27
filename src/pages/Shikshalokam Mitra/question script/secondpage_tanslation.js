@@ -4,11 +4,11 @@ export function getNextButtonTranslation(language) {
 
     switch(language) {
         case "en":
-            return "next"
+            return "Next"
         case "hi":
             return "आगे बड़े"
         default:
-            return "next"
+            return "Next"
     }
 }
 

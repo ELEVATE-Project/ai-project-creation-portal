@@ -72,7 +72,6 @@ function FirstPage( {
                 
                 const paraphrased_text = await getParaphraseText(userInput[0], language);
                 if (paraphrased_text) {
-                    
                     setEncodedLocalStorage('user_problem_statement', paraphrased_text);
                     setUserProblemStatement(paraphrased_text);
                     setShowTyping(false);
@@ -378,36 +377,68 @@ function FirstPage( {
                     </div>
                 }
                 {(currentChatValue>0 && userProblemStatement)&&
-                    <div className="firstpage-bot-div" 
-                        ref={currentChatValue === 1 ? scrollRef : null}
-                    >
-                        <BotMessage 
-                            botMessage={
-                                firstpage_messages[1]?.[1]?.message
-                            }
-                            botSecondMessage={
-                                firstpage_messages[1]?.[2]?.message
-                            }
-                            secondMessageClass={"firstpage-para2"}
-                            firstparaClass={"firstpara-div"}
-                            firstpageClass={"firstpage-para1"}
-                            secondParaClass={"secondpara-div"}
-                            useTextbox={useTextbox}
-                            isUsingMicrophone={isUsingMicrophone} 
-                            currentChatValue={currentChatValue}
-                            showFirst={true}
-                            showSecond={true}
-                            showThird={true}
-                            setCurrentChatValue={setCurrentChatValue}
-                            setIsUsingMicrophone={setIsUsingMicrophone}
-                            setUseTextbox={setUseTextbox}
-                            setUserInput={setUserInput}
-                            handleSpeakerOn={handleSpeakerOn}
-                            isBotTalking={isBotTalking}
-                            audioId={1.2}
-                            handleSpeakerOff={handleSpeakerOff}
-                        />
-                    </div>
+                    <>
+                        {(userProblemStatement.toLowerCase() !== 'no')?
+                            <div className="firstpage-bot-div" 
+                                ref={currentChatValue === 1 ? scrollRef : null}
+                            >
+                                <BotMessage 
+                                    botMessage={
+                                        firstpage_messages[1]?.[1]?.message
+                                    }
+                                    botSecondMessage={
+                                        firstpage_messages[1]?.[2]?.message
+                                    }
+                                    secondMessageClass={"firstpage-para2"}
+                                    firstparaClass={"firstpara-div"}
+                                    firstpageClass={"firstpage-para1"}
+                                    secondParaClass={"secondpara-div"}
+                                    useTextbox={useTextbox}
+                                    isUsingMicrophone={isUsingMicrophone} 
+                                    currentChatValue={currentChatValue}
+                                    showFirst={true}
+                                    showSecond={true}
+                                    showThird={true}
+                                    setCurrentChatValue={setCurrentChatValue}
+                                    setIsUsingMicrophone={setIsUsingMicrophone}
+                                    setUseTextbox={setUseTextbox}
+                                    setUserInput={setUserInput}
+                                    handleSpeakerOn={handleSpeakerOn}
+                                    isBotTalking={isBotTalking}
+                                    audioId={1.2}
+                                    handleSpeakerOff={handleSpeakerOff}
+                                />
+                            </div>
+                            :
+                            <>
+                            <div className="firstpage-bot-div" 
+                                ref={currentChatValue === 1 ? scrollRef : null}
+                            >
+                                <BotMessage 
+                                    botMessage={
+                                        firstpage_messages[11]?.[0]?.message
+                                    }
+                                    secondMessageClass={"firstpage-para2"}
+                                    firstparaClass={"firstpara-div"}
+                                    firstpageClass={"firstpage-para1"}
+                                    secondParaClass={"secondpara-div"}
+                                    useTextbox={useTextbox}
+                                    isUsingMicrophone={isUsingMicrophone} 
+                                    currentChatValue={currentChatValue}
+                                    showFirst={true}
+                                    setCurrentChatValue={setCurrentChatValue}
+                                    setIsUsingMicrophone={setIsUsingMicrophone}
+                                    setUseTextbox={setUseTextbox}
+                                    setUserInput={setUserInput}
+                                    handleSpeakerOn={handleSpeakerOn}
+                                    isBotTalking={isBotTalking}
+                                    audioId={1.2}
+                                    handleSpeakerOff={handleSpeakerOff}
+                                />
+                            </div>
+                            </>
+                        }
+                    </>
                 }
                 {(currentChatValue>=2)&&
                     <>
@@ -459,7 +490,7 @@ function FirstPage( {
                             showFirst={true}
                             handleSpeakerOn={handleSpeakerOn}
                             isBotTalking={isBotTalking}
-                            audioId={1.1}
+                            audioId={1.10}
                             handleSpeakerOff={handleSpeakerOff}
                         />
                         {showMicAndKeyboard()}
