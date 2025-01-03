@@ -448,4 +448,6 @@ export function clearMitraLocalStorage() {
     localStorage.removeItem("profile_id");
     localStorage.removeItem("chunks");
     localStorage.removeItem("errorText");
+    localStorage.removeItem("user_problem_statement");
+    localStorage.removeItem("paraphrased_problem");
 }                
