@@ -22,6 +22,11 @@ function FirstPage( {
 
     const [useTextbox, setUseTextbox] = useState(false);
     const [userProblemStatement, setUserProblemStatement] = useState(getEncodedLocalStorage('user_problem_statement') || '');
+    const [paraphrasedProblem, setParaphrasedProblem] = useState(
+        getEncodedLocalStorage('paraphrased_problem') 
+        || getEncodedLocalStorage('user_problem_statement')
+        || ''
+    );
     const [shouldMoveForward, setShouldMoveForward] = useState(false);
     const [localChatHistory, setLocalChatHistory] = useState(false);
     const [currentSession, setCurrentSession]= useState(getEncodedLocalStorage('session'));
@@ -34,10 +39,10 @@ function FirstPage( {
     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
     const language = preferredLanguage.value || 'en';
 
-    let firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement, language);
+    let firstpage_messages = getFirstPageMessages(userDetail, userInput, paraphrasedProblem, language);
 
     useEffect(()=>{
-        firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement);
+        firstpage_messages = getFirstPageMessages(userDetail, userInput, paraphrasedProblem);
     }, [userDetail])
 
 
@@ -74,6 +79,8 @@ function FirstPage( {
                 if (paraphrased_text) {
                     setEncodedLocalStorage('user_problem_statement', paraphrased_text);
                     setUserProblemStatement(paraphrased_text);
+                    setEncodedLocalStorage('paraphrased_problem', paraphrased_text);
+                    setParaphrasedProblem(paraphrased_text);
                     setShowTyping(false);
                 } else {
                     window.location.reload();
