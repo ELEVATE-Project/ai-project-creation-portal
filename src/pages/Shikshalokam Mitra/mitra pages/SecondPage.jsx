@@ -10,7 +10,7 @@ import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/s
 import "../stylesheet/chatStyle.css";
 import { getObjectiveList, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getSecondPageMessages } from "../question script/bot_user_questions";
-import { getAddOwnButtonTranslation, getContinueButtonTranslation, getNextButtonTranslation, getObjectiveTextTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
+import { getAddOwnButtonTranslation, getContinueButtonTranslation, getNextButtonTranslation, getObjectivePlaceholderTranslation, getObjectiveTextTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
 
 
 function SecondPage({ 
@@ -91,6 +91,7 @@ function SecondPage({
         setInputText(objectiveList[index])
     };
 
+
     const handleNextClick = () => {
         if (currentChatValue === 4 && inputText && inputText!==""){
             setIsLoading(true);
@@ -100,7 +101,9 @@ function SecondPage({
             const botMessage = hasClickedOnAddmore? secondpage_messages[5]?.[0] 
             : {
                 role: secondpage_messages[4]?.[0]?.role,
-                message: secondpage_messages[4]?.[0]?.message + " " + secondpage_messages[4]?.[1]?.message,
+                message: secondpage_messages[4]?.[0]?.message + " " + 
+                secondpage_messages[4]?.[1]?.message + " " + 
+                JSON.stringify(getEncodedLocalStorage('objective')),
                 messageId: secondpage_messages[4]?.[0]?.messageId
             }
             
@@ -249,7 +252,7 @@ function SecondPage({
                     <div className="secondpage-textbox-container">
                         <input
                             type="text"
-                            // placeholder="Enter objective"
+                            placeholder={getObjectivePlaceholderTranslation(language)}
                             className="secondpage-text-input"
                             value={inputText}
                             onChange={(e)=>handleInputText(e)}

@@ -71,3 +71,15 @@ export function getObjectiveTextTranslation(language) {
             return "Objectives"
     }
 }
+
+export function getObjectivePlaceholderTranslation(language) {
+
+    switch(language) {
+        case "en":
+            return "Enter objectives"
+        case "hi":
+            return "उद्देश्य दर्ज करें"
+        default:
+            return "Enter objectives"
+    }
+}

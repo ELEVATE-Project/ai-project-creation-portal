@@ -16,12 +16,12 @@ function FirstPage( {
     isBotTalking, handleSpeakerOn, handleSpeakerOff, 
     userInput, setUserInput, currentChatValue, setCurrentChatValue, isUsingMicrophone, setIsUsingMicrophone, 
     startRecording, stopRecording, setHasStartedRecording, userDetail, setChatHistory, isLoading, setIsLoading,
-    isReadOnly, handleGoForward, setCurrentPageValue, isProcessingAudio, setIsProcessingAudio, setCurrentPage
+    isReadOnly, handleGoForward, setCurrentPageValue, isProcessingAudio, setIsProcessingAudio, setCurrentPage,
+    errorMessage, setErrorMessage, showTyping, setShowTyping
 }) {
 
     const [useTextbox, setUseTextbox] = useState(false);
     const [userProblemStatement, setUserProblemStatement] = useState(getEncodedLocalStorage('user_problem_statement') || '');
-    const [showTyping, setShowTyping] = useState(false);
     const [shouldMoveForward, setShouldMoveForward] = useState(false);
     const [localChatHistory, setLocalChatHistory] = useState(false);
     const [currentSession, setCurrentSession]= useState(getEncodedLocalStorage('session'));
@@ -70,7 +70,7 @@ function FirstPage( {
             if (userInput && userInput[0] && currentChatValue === 1 && userProblemStatement === '') {
                 setShowTyping(true);
                 
-                const paraphrased_text = await getParaphraseText(userInput[0], language);
+                const paraphrased_text = await getParaphraseText(userInput[0], language, true);
                 if (paraphrased_text) {
                     setEncodedLocalStorage('user_problem_statement', paraphrased_text);
                     setUserProblemStatement(paraphrased_text);
@@ -95,29 +95,58 @@ function FirstPage( {
         }
     }, [useTextbox]);
 
-    function handleSendText(e) {
-
+    async function handleSendText(e) {
+        let validatedText;
         if(isReadOnly) {
-            const keyboardTypedValue = e.target.value;
-            setEncodedLocalStorage('user_problem_statement', keyboardTypedValue);
+            setShowTyping(true);            
+            const keyboardTypedValue = e?.target?.value;
+            validatedText = await getParaphraseText(e?.target?.value, language);
+            if(validatedText && validatedText.toLowerCase() === 'no') {
+                setEncodedLocalStorage('user_problem_statement', validatedText);
+                setUserProblemStatement(validatedText);
+                setEncodedLocalStorage('errorText', validatedText);
+                setErrorMessage(validatedText)
+            } else {
+                setEncodedLocalStorage('user_problem_statement', keyboardTypedValue);
+                setUserProblemStatement(keyboardTypedValue);
+            }
+            setShowTyping(false);            
             
         } else {
             setUserInput((prevInput)=>{
-                const keyboardTypedValue = e.target.value;
+                const keyboardTypedValue = e?.target?.value;
                 return [...prevInput, keyboardTypedValue]
             });
+            if(currentChatValue >= 2) {
+                setShowTyping(true);            
+                validatedText = await getParaphraseText(e?.target?.value, language);
+                
+                if(validatedText && validatedText.toLowerCase() === 'no') {
+                    setEncodedLocalStorage('errorText', validatedText);
+                    setErrorMessage(validatedText)
+                }
+            }
+            setShowTyping(false);
         }
 
-        if (Number.isInteger(currentChatValue)) {
+        if(isReadOnly) {
+            if (Number.isInteger(currentChatValue) && validatedText.toLowerCase() !=='no') {
+                setCurrentChatValue((prevValue) => {
+                    return prevValue + 1;
+                });
+            }
+        }else if (Number.isInteger(currentChatValue)) {
             setCurrentChatValue((prevValue) => {
                 return prevValue + 1;
             });
         }
+
+        
         setTimeout(() => {
             e.target.value = "";
         }, 1);
 
-        if(isReadOnly) {
+        if(isReadOnly && validatedText !== 'no') {
             setShouldMoveForward(true);
             setEncodedLocalStorage('currentPage', {
                 1: false,
@@ -138,19 +167,22 @@ function FirstPage( {
     }
 
     useEffect(()=>{
-        if (isReadOnly && !shouldMoveForward) {
+        if (isReadOnly && errorMessage !== 'no') {
             setIsLoading(true);
             setCurrentChatValue(3);
             localStorage.removeItem('selected_objective');
             localStorage.removeItem('objective');
-            localStorage.removeItem('userProblemStatement');
+            localStorage.removeItem('user_problem_statement');
+            setUserProblemStatement('');
             setIsLoading(false);
         }
-    }, [isReadOnly, shouldMoveForward])
+    }, [isReadOnly, errorMessage])
     
     useEffect(()=>{
-        
-    }, [userProblemStatement])
+        console.log("Error Message: ", errorMessage)
+        console.log("Currentchatvalue: ", currentChatValue)
+        console.log('userInput: ', userInput)
+    }, [errorMessage])
 
 
     useEffect(() => {
@@ -159,9 +191,11 @@ function FirstPage( {
         if (scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: "smooth" });
         }
-
-        if (currentChatValue === 3 && !isReadOnly){
+        const errorText = getEncodedLocalStorage('errorText');
+        if (currentChatValue === 3 && !isReadOnly && errorMessage === '') {
+            // if((errorText === '' || !errorText))
             setIsLoading(true);
+            localStorage.removeItem("errorText");
             setCurrentChatValue(4);
             setCurrentPageValue(1)
         }
@@ -249,6 +283,7 @@ function FirstPage( {
                                 onClick={()=>{
                                     setUseTextbox(true);
                                     setIsUsingMicrophone(false);
+                                    
                                 }}
                             >
                                 <RxKeyboard />
@@ -316,9 +351,14 @@ function FirstPage( {
                                 }
                             }}
                             className="firstpage-text-input"
-                            onKeyDown={(e) => {
+                            onKeyDown={async (e) => {
                                 if (e.key === "Enter") {
-                                    handleSendText(e)
+                                    try {
+                                        await handleSendText(e);
+                                    } catch (error) {
+                                        console.error("Error handling text:", error);
+                                    }
+                            
                                 }
                             }}
                         />
@@ -327,6 +367,39 @@ function FirstPage( {
             </>
         );
     }
+
+    function showErrorBotMessage() {
+
+        return (
+            <div className="firstpage-bot-div" 
+                ref={currentChatValue === 1 ? scrollRef : null}
+            >
+                <BotMessage 
+                    botMessage={
+                        firstpage_messages[11]?.[0]?.message
+                    }
+                    secondMessageClass={"firstpage-para2"}
+                    firstparaClass={"firstpara-div"}
+                    firstpageClass={"firstpage-para1"}
+                    secondParaClass={"secondpara-div"}
+                    useTextbox={useTextbox}
+                    isUsingMicrophone={isUsingMicrophone} 
+                    currentChatValue={currentChatValue}
+                    showFirst={true}
+                    setCurrentChatValue={setCurrentChatValue}
+                    setIsUsingMicrophone={setIsUsingMicrophone}
+                    setUseTextbox={setUseTextbox}
+                    setUserInput={setUserInput}
+                    handleSpeakerOn={handleSpeakerOn}
+                    isBotTalking={isBotTalking}
+                    audioId={1.2}
+                    handleSpeakerOff={handleSpeakerOff}
+                />
+            </div>
+        );
+   
+    }
+
     
     return (
         <>
@@ -357,7 +430,7 @@ function FirstPage( {
                     audioId={1.1}
                     handleSpeakerOff={handleSpeakerOff}
                 />
-                {(currentChatValue == 0) &&
+                {(currentChatValue == 0 && !showTyping && errorMessage === '') &&
                     <>
                         {showMicAndKeyboard()}
                         {showTextBox()}
@@ -367,82 +440,57 @@ function FirstPage( {
                 {(currentChatValue > 0)&&
                     <UserMessage userMessage={
                         (userInput && userInput[0]) ? userInput[0]: ""}
+                        userDetail={userDetail}
                     />
                 }
-                {(showTyping)&&
-                    <div className="firstpage-reply-text"
-                        onLoad={() => document.querySelector('.firstpage-reply-text')?.scrollIntoView({ behavior: 'smooth' })}
-                    >
-                        <p className="secondpage-para1">typing...</p>
-                    </div>
-                }
-                {(currentChatValue>0 && userProblemStatement)&&
+                {(currentChatValue>0 && (userProblemStatement || isReadOnly))&&
                     <>
-                        {(userProblemStatement.toLowerCase() !== 'no')?
-                            <div className="firstpage-bot-div" 
-                                ref={currentChatValue === 1 ? scrollRef : null}
-                            >
-                                <BotMessage 
-                                    botMessage={
-                                        firstpage_messages[1]?.[1]?.message
-                                    }
-                                    botSecondMessage={
-                                        firstpage_messages[1]?.[2]?.message
-                                    }
-                                    secondMessageClass={"firstpage-para2"}
-                                    firstparaClass={"firstpara-div"}
-                                    firstpageClass={"firstpage-para1"}
-                                    secondParaClass={"secondpara-div"}
-                                    useTextbox={useTextbox}
-                                    isUsingMicrophone={isUsingMicrophone} 
-                                    currentChatValue={currentChatValue}
-                                    showFirst={true}
-                                    showSecond={true}
-                                    showThird={true}
-                                    setCurrentChatValue={setCurrentChatValue}
-                                    setIsUsingMicrophone={setIsUsingMicrophone}
-                                    setUseTextbox={setUseTextbox}
-                                    setUserInput={setUserInput}
-                                    handleSpeakerOn={handleSpeakerOn}
-                                    isBotTalking={isBotTalking}
-                                    audioId={1.2}
-                                    handleSpeakerOff={handleSpeakerOff}
-                                />
-                            </div>
+                        {(userProblemStatement.toLowerCase() === 'no')?
+                            <>
+                                {showErrorBotMessage()}
+                            </>
                             :
                             <>
-                            <div className="firstpage-bot-div" 
-                                ref={currentChatValue === 1 ? scrollRef : null}
-                            >
-                                <BotMessage 
-                                    botMessage={
-                                        firstpage_messages[11]?.[0]?.message
-                                    }
-                                    secondMessageClass={"firstpage-para2"}
-                                    firstparaClass={"firstpara-div"}
-                                    firstpageClass={"firstpage-para1"}
-                                    secondParaClass={"secondpara-div"}
-                                    useTextbox={useTextbox}
-                                    isUsingMicrophone={isUsingMicrophone} 
-                                    currentChatValue={currentChatValue}
-                                    showFirst={true}
-                                    setCurrentChatValue={setCurrentChatValue}
-                                    setIsUsingMicrophone={setIsUsingMicrophone}
-                                    setUseTextbox={setUseTextbox}
-                                    setUserInput={setUserInput}
-                                    handleSpeakerOn={handleSpeakerOn}
-                                    isBotTalking={isBotTalking}
-                                    audioId={1.2}
-                                    handleSpeakerOff={handleSpeakerOff}
-                                />
-                            </div>
+                                <div className="firstpage-bot-div" 
+                                    ref={currentChatValue === 1 ? scrollRef : null}
+                                >
+                                    <BotMessage 
+                                        botMessage={
+                                            firstpage_messages[1]?.[1]?.message
+                                        }
+                                        botSecondMessage={
+                                            firstpage_messages[1]?.[2]?.message
+                                        }
+                                        secondMessageClass={"firstpage-para2"}
+                                        firstparaClass={"firstpara-div"}
+                                        firstpageClass={"firstpage-para1"}
+                                        secondParaClass={"secondpara-div"}
+                                        useTextbox={useTextbox}
+                                        isUsingMicrophone={isUsingMicrophone} 
+                                        currentChatValue={currentChatValue}
+                                        showFirst={true}
+                                        showSecond={true}
+                                        showThird={true}
+                                        setCurrentChatValue={setCurrentChatValue}
+                                        setIsUsingMicrophone={setIsUsingMicrophone}
+                                        setUseTextbox={setUseTextbox}
+                                        setUserInput={setUserInput}
+                                        handleSpeakerOn={handleSpeakerOn}
+                                        isBotTalking={isBotTalking}
+                                        audioId={1.2}
+                                        handleSpeakerOff={handleSpeakerOff}
+                                    />
+                                </div>
                             </>
                         }
                     </>
                 }
                 {(currentChatValue>=2)&&
                     <>
-                        <UserMessage userMessage={(userInput && userInput[1]) ? userInput[1]: ""} />
+                        <UserMessage 
+                            userMessage={(userInput && userInput[1]) ? userInput[1]: ""}
+                            userDetail={userDetail}
+                        />
                         {((userInput && userInput[1].toLowerCase() === getDenyButtonTranslation(language).toLowerCase()))&& 
                             <div className="firstpage-bot-div" 
                                 ref={currentChatValue === 2 ? scrollRef : null}
@@ -465,18 +513,26 @@ function FirstPage( {
                                 />
                             </div>
                         }
-                        {(currentChatValue===2)&& showMicAndKeyboard()}
-                        {(currentChatValue===2)&& showTextBox()}
+                        {(currentChatValue===2 && !showTyping && errorMessage === '')&& showMicAndKeyboard()}
+                        {(currentChatValue===2 && !showTyping && errorMessage === '')&& showTextBox()}
                     </>
                 }
-                {(currentChatValue>=3 && (userInput && userInput[2]))&& 
+                {(currentChatValue>=3 || (userInput && userInput[2]))&& 
                     <div
                         ref={currentChatValue === 3 ? scrollRef : null}
                     >
-                        <UserMessage userMessage={userInput[2]} />
+                        {(userInput && userInput[2])&&
+                            <UserMessage 
+                                userMessage={userInput[2]} 
+                                userDetail={userDetail}
+                            />
+                        }
+                        {(errorMessage.toLowerCase() === 'no')&&
+                            showErrorBotMessage()
+                        }
                     </div>
-                }
-                {(isReadOnly)&&(
+                }   
+                {(isReadOnly && errorMessage === '')&&(
                     <div className="firstpage-bot-div" 
                         ref={isReadOnly ? scrollRef : null}
                     >
@@ -493,8 +549,18 @@ function FirstPage( {
                             audioId={1.10}
                             handleSpeakerOff={handleSpeakerOff}
                         />
-                        {showMicAndKeyboard()}
-                        {showTextBox()}
+                        {(!showTyping && errorMessage === '')&&
+                            <>
+                                {showMicAndKeyboard()}
+                                {showTextBox()}
+                            </>
+                        }
+                        {(userProblemStatement)&&
+                            <UserMessage 
+                                userMessage={userProblemStatement} 
+                                userDetail={userDetail}
+                            />
+                        }
                     </div>
                 )}
             </div>}
@@ -519,7 +585,15 @@ function FirstPage( {
                     </div>
                 </div>
             ))} */}
-
+            {(showTyping)&&
+                <div className="firstpage-div1">
+                    <div className="firstpage-reply-text"
+                        onLoad={() => document.querySelector('.firstpage-reply-text')?.scrollIntoView({ behavior: 'smooth' })}
+                    >
+                        <p className="secondpage-para1">typing...</p>
+                    </div>
+                </div>
+            }
         </>
     );
 }

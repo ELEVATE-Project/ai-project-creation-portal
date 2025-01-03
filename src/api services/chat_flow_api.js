@@ -2,11 +2,12 @@ import { BACKEND_ROUTES } from "../routes/routes";
 import axiosInstance from "../utils/axios";
 
 
-export async function getParaphraseText(user_input, language){
+export async function getParaphraseText(user_input, language, paraphrase_text=false){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.PARAPHRASE_API, {
             user_input,
-            language
+            language,
+            paraphrase_text
         });
         
         return response?.data?.paraphrased_output;

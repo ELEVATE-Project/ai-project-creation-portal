@@ -22,7 +22,7 @@ export function getEncodedLocalStorage(key) {
 
     const encodedString = localStorage.getItem(key);
     if (!encodedString) {
-        console.warn(`No data found in localStorage for key: ${key}`);
+        // console.warn(`No data found in localStorage for key: ${key}`);
         return null;
     }
 

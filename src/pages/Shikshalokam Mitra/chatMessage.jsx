@@ -119,12 +119,17 @@ export function BotMessage({
 }
 
 export function UserMessage({
-    userMessage
+    userMessage,
+    userDetail
 }) {
     return (
         <>
             <div className="firstuser-div">
-                <div className="user-image"></div>
+                {/* <div className="user-image"></div> */}
+                <img 
+                    src={userDetail?.image}
+                    className="user-image" 
+                />
                 <p className="firstuser-para1">
                     {userMessage}
                 </p>
