@@ -7,6 +7,7 @@ import FifthPage from "./mitra pages/FifthPage";
 import { handleAI4BharatTTSRequest, ai4BharatASR } from "../../api services/ai4bharat_services";
 import {convertBlobToBase64, convertToWav } from "../../utils/audio_utils"
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../utils/storage_utils";
+import { getParaphraseText } from "../../api services/chat_flow_api";
 
 
 function MainPage() {
@@ -27,7 +28,8 @@ function MainPage() {
         image: localStorage.getItem("image"),
         email: localStorage.getItem("email"),
       })
-    const [errorText, setErrorText] = useState('');
+    const [errorText, setErrorText] = useState(getEncodedLocalStorage("errorText") || "");
+    const [showTyping, setShowTyping] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(getEncodedLocalStorage("currentPage") || {
         1: false,
@@ -173,14 +175,42 @@ function MainPage() {
                     const base64Audio = await convertBlobToBase64(wavBlob);
                     const transcriptResult = await ai4BharatASR(base64Audio, language);
                     // Update transcript if valid audio
-                    setUserInput((prevInput)=> [...prevInput, transcriptResult]);
-                    setIsFetchingData(false);
-                    if (Number.isInteger(currentChatValue)) {
+                    setShowTyping(true);
+                    let validatedText;
+                    if(isReadOnly) {
+                        setShowTyping(true);            
+                        validatedText = await getParaphraseText(transcriptResult, language);
+                        if(validatedText && validatedText.toLowerCase() === 'no') {
+                            setEncodedLocalStorage('user_problem_statement', validatedText);
+                            setEncodedLocalStorage('errorText', validatedText);
+                            setErrorText(validatedText)
+                        } else {
+                            setEncodedLocalStorage('user_problem_statement', transcriptResult);
+                        }
+                    } else {
+                        setUserInput((prevInput)=> [...prevInput, transcriptResult]);
+                        if(currentChatValue >= 2) {
+                            setShowTyping(true);            
+                            validatedText = await getParaphraseText(transcriptResult, language);
+                            if(validatedText && validatedText.toLowerCase() === 'no') {
+                                setEncodedLocalStorage('errorText', validatedText);
+                                setErrorText(validatedText)
+                            }
+                        }
+                    }
+                    if(isReadOnly) {
+                        if (Number.isInteger(currentChatValue) && validatedText.toLowerCase() !=='no') {
+                            setCurrentChatValue((prevValue) => {
+                                return prevValue + 1;
+                            });
+                        }
+                    }else if (Number.isInteger(currentChatValue)) {
                         setCurrentChatValue((prevValue) => {
                             return prevValue + 1;
                         });
                     }
-                    if(isReadOnly) {
+
+                    if(isReadOnly && validatedText !== 'no') {
                         setEncodedLocalStorage('user_problem_statement', transcriptResult);
                         setEncodedLocalStorage('currentPage', {
                             1: false,
@@ -197,6 +227,8 @@ function MainPage() {
                             5: false,
                         })
                     }
+                    setShowTyping(false);
+                    setIsFetchingData(false);
                     setIsUsingMicrophone(false);
                     setIsProcessingAudio(false);
                 } else {
@@ -272,6 +304,10 @@ function MainPage() {
                     setIsProcessingAudio={setIsProcessingAudio}
                     setIsReadOnly={setIsReadOnly}
                     setCurrentPage={setCurrentPage}
+                    errorMessage={errorText}
+                    setErrorMessage={setErrorText}
+                    showTyping={showTyping}
+                    setShowTyping={setShowTyping}
                 />
             )
         } else if (currentChatValue>=4 && currentChatValue<5 || currentPage['2']) {
@@ -411,4 +447,5 @@ export function clearMitraLocalStorage() {
     localStorage.removeItem("savedMessages");
     localStorage.removeItem("profile_id");
     localStorage.removeItem("chunks");
-}
+    localStorage.removeItem("errorText");
+}                

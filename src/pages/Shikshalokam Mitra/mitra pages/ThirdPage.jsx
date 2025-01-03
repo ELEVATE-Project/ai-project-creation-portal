@@ -154,16 +154,18 @@ function ThirdPage({
             setEncodedLocalStorage("selected_action", [{
                 duration: "", actionSteps: action_to_store.map((action)=>action.content)
             }]);
-
+            console.log(JSON.stringify(getEncodedLocalStorage('actionList')))
+            console.log(thirdpage_messages[7]?.[0]?.message)
             const currentSession = getEncodedLocalStorage('session');
-            const botMessage = hasClickedOnAddmore?  
+            const botMessage =
             {
                 role: thirdpage_messages[7]?.[0]?.role,
                 message: thirdpage_messages[6]?.[0]?.message
-                + " " + thirdpage_messages[7]?.[0]?.message 
-                + " " + thirdpage_messages[7]?.[1]?.message,
+                + "\n" + thirdpage_messages[7]?.[0]?.message 
+                + "\n" + thirdpage_messages[7]?.[1]?.message
+                + "\n" + JSON.stringify(getEncodedLocalStorage('actionList')),
                 messageId: thirdpage_messages[7]?.[0]?.messageId
-            } : thirdpage_messages[6]?.[0]
+            }
             
 
             saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)

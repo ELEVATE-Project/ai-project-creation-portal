@@ -19,6 +19,12 @@
         margin: 90px 20px 20px;
     }
 
+    .firstpage-div1 {
+        display: flex;
+        flex-direction: column;
+        margin: 0 20px 20px;
+    }
+
     .firstpara-div {
         display: flex;
         gap: 12px;
@@ -241,7 +247,7 @@
     .firstpage-text-input {
         width: 100%;
         height: 40px;
-        text-align: center;
+        text-align: left;
         background-color: #f5f3fa;
         margin: 20px 0;
         border-radius: 20px;
@@ -987,6 +993,15 @@
         width: 100%;
     }
 
+    .firstpage-div1 {
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto 20px;
+        padding: 0 15%;
+        justify-content: center;
+        width: 100%;
+    }
+
     .firstpara-div {
         display: flex;
         gap: 12px;
@@ -1221,7 +1236,7 @@
     .firstpage-text-input {
         width: 100%;
         height: 40px;
-        text-align: center;
+        text-align: left;
         background-color: #f5f3fa;
         margin: 20px 0;
         border-radius: 20px;
