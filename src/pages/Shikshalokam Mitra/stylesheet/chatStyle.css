@@ -10,6 +10,7 @@
     --secondary-font-family: "Urbanist", sans-serif;
     --body-font-size-mobile: 1rem;
     --body-font-size-pc: 1rem;
+    --primary-highlighted-color: #f1ebfa;
 }
 
 @media screen and (max-width: 768px) {
@@ -387,7 +388,7 @@
     }
 
     .secondpage-obj-selected-button-div {
-        background-color: var(--primary-color)21;
+        background-color: var(--primary-highlighted-color);
         border: solid 1px #6a00ff70;
         border-radius: 5px;
         margin-bottom: 6px;
@@ -471,6 +472,8 @@
 
     .secondpage-add-div1 {
         margin-top: 19px;
+        display: flex;
+        justify-content: center;
     }
 
     .thirdpage-next-div {
@@ -799,7 +802,7 @@
         text-align: left;
         border: none;
         color: black;
-        background-color: var(--primary-color)1f;
+        background-color: var(--primary-highlighted-color);
         font-size: var(--body-font-size-mobile);
         padding: 5px 10px;
         border-radius: 2px;
@@ -842,9 +845,27 @@
         font-family: var(--secondary-font-family);
     }
 
+    .fifthpage-disable-button {
+        background-color: #d6d6d6;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        border-radius: 5px;
+        width: 85%;
+        justify-content: center;
+        padding: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: var(--secondary-font-family);
+    }
+
     .fifthpage-bot-msg {
         margin-right: 10px;
         margin-top: 5px;
+    }
+
+    .fifthpage-error-div {
+        margin: 11px 0 0 17px;
     }
 
     .headerpage-div {
@@ -1372,7 +1393,7 @@
     }
 
     .secondpage-obj-selected-button-div {
-        background-color: var(--primary-color)21;
+        background-color: var(--primary-highlighted-color);
         border: solid 1px #6a00ff70;
         border-radius: 5px;
         margin-bottom: 9px;
@@ -1424,6 +1445,10 @@
 
     .secondpage-add-div1 {
         margin-top: 19px;
+        display: flex;
+        justify-content: center;
+        width: 90%;
+        max-width: 630px;
     }
 
     .secondpage-add-bttn {
@@ -1789,7 +1814,7 @@
         text-align: left;
         border: none;
         color: black;
-        background-color: var(--primary-color)1f;
+        background-color: var(--primary-highlighted-color);
         font-size: var(--body-font-size-pc);
         padding: 5px 10px;
         border-radius: 2px;
@@ -1837,9 +1862,27 @@
         font-family: var(--secondary-font-family);
     }
 
+    .fifthpage-disable-button {
+        background-color: #d6d6d6;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        border-radius: 5px;
+        width: 43%;
+        justify-content: center;
+        padding: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: var(--secondary-font-family);
+    }
+
     .fifthpage-bot-msg {
         margin-right: 10px;
         margin-top: 5px;
+    }
+
+    .fifthpage-error-div {
+        margin: 11px 0 0 17px;
     }
 
     .headerpage-div {

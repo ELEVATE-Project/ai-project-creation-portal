@@ -9,6 +9,7 @@ import { createProject, getTitle, saveUserChatsInDB, updateChatSession } from ".
 import { getFifthPageMessages } from "../question script/bot_user_questions";
 import { useNavigate } from "react-router-dom";
 import { getCreateMicroButtonTranslation } from "../question script/thirdpage_tanslation";
+import { getEmptyTitleErrorTranslation, getTitleErrorTranslation, getTitlePlaceholderTranslation } from "../question script/fifthpage_translation";
 
 
 function FifthPage({
@@ -21,12 +22,15 @@ function FifthPage({
         return title
     });
 
+    const titleCharacterLimit = 100;
+
     const [isLocalLoading, setIsLocalLoading] = useState(false);
 
     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
     const language = preferredLanguage.value || 'en';
 
     const fifthpage_messages = getFifthPageMessages(language);
+    const [localErrorText, setLocalErrorText] = useState('');
     const navigate = useNavigate()
 
     useEffect(()=>{
@@ -51,7 +55,16 @@ function FifthPage({
 
 
     function handleInputText(e) {
-        setInputText(e?.target?.value);
+        const newText = e?.target?.value;
+
+        if (newText.length > titleCharacterLimit) {
+            setLocalErrorText(getTitleErrorTranslation(language));
+        } else if (newText === '') {
+            setLocalErrorText(getEmptyTitleErrorTranslation(language));
+        } else {
+            setLocalErrorText('');
+        }
+        setInputText(newText);
     }
 
     useEffect(() => {
@@ -73,7 +86,7 @@ function FifthPage({
     
 
     async function handleCreateImprovement() {
-        if (currentChatValue === 7 && inputText && inputText!==""){
+        if (currentChatValue === 7 && inputText && inputText!=="" && localErrorText === '') {
             setIsLocalLoading(true);
             setEncodedLocalStorage("project_title", inputText);
             const session = getEncodedLocalStorage("session");
@@ -155,15 +168,29 @@ function FifthPage({
                         <textarea
                             id="autoGrow"
                             type="text"
-                            placeholder="[AI-generated Title for the story]"
+                            placeholder={getTitlePlaceholderTranslation(language)}
                             className="secondpage-text-input"
                             value={inputText}
                             onChange={(e)=>handleInputText(e)}
                         />
                     </div>
+                    {(localErrorText && localErrorText !== '') &&
+                        <>
+                            <div className="fifthpage-error-div">
+                                <p className="secondpage-error-text">{localErrorText}</p>
+                            </div>
+                        </>
+                    }
 
                 <div className="fourthpage-next-div">
-                    <button className="fifthpage-select-bttn"
+                    <button 
+                        className={
+                            `${(!localErrorText || localErrorText === '') ? 
+                                "fifthpage-select-bttn" :
+                                "fifthpage-disable-button"
+                            } `
+                        }
+                    // className="fifthpage-select-bttn"
                         onClick={handleCreateImprovement}
                     >
                         {getCreateMicroButtonTranslation(language)}

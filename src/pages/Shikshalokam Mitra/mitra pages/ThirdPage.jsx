@@ -12,7 +12,7 @@ import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/s
 import { getActionList, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getThirdPageMessages } from "../question script/bot_user_questions";
 import { getActionDefaultTranslation, getActionErrorTranslation, getActionListTextTranslation, getActionPlaceholderTranslation, getAddActionButtonTranslation, getAddOwnButtonTranslation, getSelectButtonTranslation } from "../question script/thirdpage_tanslation";
-import { getContinueButtonTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
+import { getContinueButtonTranslation, getNextButtonTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
 
 
 
@@ -49,7 +49,7 @@ function ThirdPage({
     const language = preferredLanguage.value || 'en';
 
     const defaultActionList = getActionDefaultTranslation(language)
-    const thirdpage_messages = getThirdPageMessages(language)
+    const thirdpage_messages = getThirdPageMessages(language, hasClickedOnAddmore)
 
     const handleRightArrowClick = () => {
         setSelectedIndex(prevIndex => {
@@ -106,23 +106,33 @@ function ThirdPage({
         if(isInReadOnlyMode) {
             setIsLoading(true);
             setCurrentChatValue(5);
-            localStorage.removeItem('selected_action');
+            // localStorage.removeItem('selected_action');
             setIsLoading(false);
         }
     }, [isInReadOnlyMode])
 
 
     const getActionListArray = ()=> {
-        let arrayValue = defaultActionList;
-    
-        if (!hasClickedOnAddmore && actionList[selectedIndex]?.actionSteps) {
-            arrayValue = actionList[selectedIndex]?.actionSteps.map((step, index) => ({
+        
+        if (isInReadOnlyMode) {
+            let stored_action  = getEncodedLocalStorage('selected_action')[0]?.actionSteps?.map((action, index) => ({
                 id: index.toString(),  
-                content: step
+                content: action
             }));
-        }
 
-        return arrayValue
+            return stored_action;
+        } else {
+            let arrayValue = defaultActionList;
+    
+            if (!hasClickedOnAddmore && actionList[selectedIndex]?.actionSteps) {
+                arrayValue = actionList[selectedIndex]?.actionSteps.map((step, index) => ({
+                    id: index.toString(),  
+                    content: step
+                }));
+            }
+    
+            return arrayValue
+        }
     }
 
     const isActionEmptyOrDefault = (action_to_store) => {
@@ -148,14 +158,13 @@ function ThirdPage({
             return; 
         }
         
-        
         if (currentChatValue === 5 && actionList){
             setIsLoading(true);
             setEncodedLocalStorage("selected_action", [{
                 duration: "", actionSteps: action_to_store.map((action)=>action.content)
             }]);
-            console.log(JSON.stringify(getEncodedLocalStorage('actionList')))
-            console.log(thirdpage_messages[7]?.[0]?.message)
+            // console.log(JSON.stringify(getEncodedLocalStorage('actionList')))
+            // console.log(thirdpage_messages[7]?.[0]?.message)
             const currentSession = getEncodedLocalStorage('session');
             const botMessage =
             {
@@ -187,7 +196,7 @@ function ThirdPage({
             <Header shouldEnableGoBack={true} shouldEnableCross={true} handleGoBack={()=>handleGoBack(3)}
             />
             <div className="secondpage-div">
-                {(!hasClickedOnAddmore && !wantsToMoveForward && actionList && !isLoading)?
+                {(!hasClickedOnAddmore && !wantsToMoveForward && actionList && !isLoading && !isInReadOnlyMode)?
                     <div className="secondpage-bot-div" 
                         // ref={currentChatValue === 2 ? scrollRef : null}
                     >
@@ -256,19 +265,21 @@ function ThirdPage({
                                 </div>
                             </div>
                             {<div className="thirdpage-div1">
-                                {(!visibleCount)&&
-                                    <div className="secondpage-add-div">
-                                        <button className="secondpage-add-bttn"
-                                            onClick={handleSuggestMore}
-                                        >
-                                            {getSuggestMoreButtonTranslation(language)}
-                                        </button>
-                                    </div>
+                                {(!visibleCount && actionList?.length>1)&&
+                                    <>
+                                        <div className="secondpage-add-div">
+                                            <button className="secondpage-add-bttn"
+                                                onClick={handleSuggestMore}
+                                            >
+                                                {getSuggestMoreButtonTranslation(language)}
+                                            </button>
+                                        </div>
+                                    </>
                                 }
                                 <div className="secondpage-add-div">
-                                        <p className="secondpage-or-text">
-                                            {getOrTextTranslation(language)}
-                                        </p>
+                                    <p className="secondpage-or-text">
+                                        {getOrTextTranslation(language)}
+                                    </p>
                                 </div>
                                 <div className="secondpage-add-div">
                                     <button className="secondpage-add-bttn"
@@ -295,7 +306,7 @@ function ThirdPage({
                     </div>
                 :
                     <>
-                        {(actionList && actionList.length !== 0)&& 
+                        {(!isInReadOnlyMode && actionList && actionList.length !== 0)&& 
                             <div className="secondpage-bot-div">
                                 <FinalActionPage 
                                     actionListArray={getActionListArray()}
@@ -304,8 +315,20 @@ function ThirdPage({
                                     handleSpeakerOff={handleSpeakerOff}
                                     handleContinueClick={handleContinueClick}
                                     errorText={errorText}
+                                    hasClickedOnAddmore={hasClickedOnAddmore}
                                 />
                             </div>
+                        }
+                        {(isInReadOnlyMode) && 
+                            <FinalActionPage 
+                                actionListArray={getActionListArray()}
+                                isBotTalking={isBotTalking}
+                                handleSpeakerOn={handleSpeakerOn}
+                                handleSpeakerOff={handleSpeakerOff}
+                                handleContinueClick={handleContinueClick}
+                                errorText={errorText}
+                                hasClickedOnAddmore={hasClickedOnAddmore}
+                            />
                         }
                     </>
                 }
@@ -317,14 +340,14 @@ function ThirdPage({
 export default ThirdPage;
 
 export function FinalActionPage({
-    actionListArray, isBotTalking, handleSpeakerOn, handleSpeakerOff, handleContinueClick, errorText
+    actionListArray, isBotTalking, handleSpeakerOn, handleSpeakerOff, handleContinueClick, errorText, hasClickedOnAddmore
 }) {
 
     const [actionList, setActionList] = useState(actionListArray || []);
     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
     const language = preferredLanguage.value || 'en';
 
-    const thirdpage_messages = getThirdPageMessages(language)
+    const thirdpage_messages = getThirdPageMessages(language, hasClickedOnAddmore)
 
     const handleDragEnd = (result) => {
         if (!result.destination) return;
@@ -369,6 +392,7 @@ export function FinalActionPage({
                 firstpageClass={"firstpage-para1"}
                 secondMessageClass={"secondpage-para2"}
                 botMessage={
+
                     thirdpage_messages[7]?.[0]?.message
                 }
                 botSecondMessage={
@@ -460,7 +484,11 @@ export function FinalActionPage({
                         <button className="thirdpage-select-bttn"
                             onClick={()=>{handleContinueClick(actionList)}}
                         >
-                            {getContinueButtonTranslation(language)} 
+                            {(hasClickedOnAddmore)?
+                                getContinueButtonTranslation(language)
+                                :
+                                getNextButtonTranslation(language)
+                            } 
                             <IoArrowForward className="thirdpage-cont-arrow-icon"/>
                         </button>
                     </div>

@@ -27,7 +27,7 @@ function SecondPage({
 
         return [];
     });
-    const [visibleCount, setVisibleCount] = useState(3);
+    
     const [hasClickedOnAddmore, setHasClickedOnAddmore] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(null);
     const [inputText, setInputText] = useState('');
@@ -35,6 +35,22 @@ function SecondPage({
         const storedObjective = getEncodedLocalStorage('selected_objective');
         if(storedObjective) {
             return  (typeof storedObjective === 'string') ? true : false
+        }
+    });
+    const [visibleCount, setVisibleCount] = useState(() => {
+        const defaultValueToShow = 3;
+        if (!isInReadOnlyMode) {
+            return defaultValueToShow; 
+        } else {
+            const objectiveList = getEncodedLocalStorage('objective') || [];
+            const selectedObjective = getEncodedLocalStorage('selected_objective');
+    
+            const selectedIndex = Array.isArray(objectiveList) 
+                ? objectiveList.indexOf(selectedObjective) 
+                : -1;
+            setSelectedIndex(selectedIndex);
+            setInputText(objectiveList[selectedIndex])
+            return (selectedIndex !== -1 && selectedIndex>defaultValueToShow )? selectedIndex + 1 : defaultValueToShow;
         }
     });
     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
@@ -78,7 +94,6 @@ function SecondPage({
         if (isInReadOnlyMode) {
             setIsLoading(true);
             setCurrentChatValue(4);
-            localStorage.removeItem('selected_objective');
             localStorage.removeItem('actionList');
             localStorage.removeItem('selected_action');
             setIsLoading(false);
@@ -177,9 +192,13 @@ function SecondPage({
                                         .slice(0, visibleCount).map((obj, objIndex) => (
                                             <div key={objIndex}
                                                 className = {
-                                                    objIndex === selectedIndex
-                                                        ? 'secondpage-obj-selected-button-div'
-                                                        : 'secondpage-obj-bttn-div'
+                                                    (selectedIndex === null || selectedIndex === undefined)
+                                                        ? (getEncodedLocalStorage('selected_objective') === obj 
+                                                            ? 'secondpage-obj-selected-button-div' 
+                                                            : 'secondpage-obj-bttn-div')
+                                                        : (objIndex === selectedIndex 
+                                                            ? 'secondpage-obj-selected-button-div' 
+                                                            : 'secondpage-obj-bttn-div')
                                                 }
                                                 onClick={() => handleObjectiveClick(objIndex)}
                                             >
@@ -193,7 +212,7 @@ function SecondPage({
                                 </div>
                             </div>
                             {<div className="secondpage-div1">
-                                {(visibleCount !== objectiveList?.length)&&
+                                {(visibleCount < objectiveList?.length)&&
                                     <div className="secondpage-add-div">
                                         <button className="secondpage-add-bttn"
                                             onClick={handleSuggestMore}
@@ -202,13 +221,11 @@ function SecondPage({
                                         </button>
                                     </div>
                                 }
-                                {(visibleCount !== objectiveList?.length)&&
-                                    <div className="secondpage-add-div">
-                                            <p className="secondpage-or-text">
-                                                {getOrTextTranslation(language)}
-                                            </p>
-                                    </div>
-                                }
+                                <div className="secondpage-add-div">
+                                        <p className="secondpage-or-text">
+                                            {getOrTextTranslation(language)}
+                                        </p>
+                                </div>
                                 <div className="secondpage-add-div">
                                     <button className="secondpage-add-bttn"
                                         onClick={()=>{

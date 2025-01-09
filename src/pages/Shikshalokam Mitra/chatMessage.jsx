@@ -2,7 +2,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { RiMic2Fill } from "react-icons/ri";
 import { RxSpeakerOff } from "react-icons/rx";
-import { getComfirmButtonTranslation, getDenyButtonTranslation } from "./question script/firstpage_translation";
+import { getComfirmButtonTranslation, getDenyButtonTranslation, getExploreTranslation } from "./question script/firstpage_translation";
+import { clearMitraLocalStorage } from "./MainPage";
 
 export function BotMessage({
     botMessage,
@@ -25,6 +26,7 @@ export function BotMessage({
     isBotTalking,
     audioId,
     handleSpeakerOff,
+    showExplore=false
 }) {
 
     const [isSpeakerOn, setIsSpeakerOn] = useState(false);
@@ -108,6 +110,19 @@ export function BotMessage({
                             >
                                 {language&& getDenyButtonTranslation(language)}
 
+                            </button>
+                        </div>
+                    }
+                    {(showExplore)&& 
+                        <div className="firstpage-third-div">
+                            <button 
+                                className="firstpage-confirm-button"
+                                onClick={()=>{
+                                    clearMitraLocalStorage();
+                                    window.location.href=process.env.REACT_APP_ROUTE_EXPLORE;
+                                }}
+                            >
+                                {language&& getExploreTranslation(language)}
                             </button>
                         </div>
                     }

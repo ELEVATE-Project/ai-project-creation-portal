@@ -37,8 +37,15 @@ export function getFirstPageMessages(userDetail, userInput, userProblemStatement
             11: [
                 { 
                     role: "bot", 
-                    message: "No Improvement to suggest for you!", 
+                    message: "My focus is on helping schools grow. Can you tell me about a school-focused problem?", 
                     messageId: '11_0'
+                },
+            ],
+            12: [
+                { 
+                    role: "bot", 
+                    message: "Glad to hear that! To discover micro improvements relevant to you, start exploring here", 
+                    messageId: '12_0'
                 },
             ]
         };
@@ -78,8 +85,15 @@ export function getFirstPageMessages(userDetail, userInput, userProblemStatement
             11: [
                 { 
                     role: "bot", 
-                    message: "आपके लिए कोई सुधार सुझाने की आवश्यकता नहीं है!", 
+                    message: "मेरा ध्यान स्कूलों को बढ़ाने में मदद करने पर है। क्या आप मुझे स्कूल से जुड़ी किसी समस्या के बारे में बता सकते हैं?", 
                     messageId: '11_0'
+                },
+            ],
+            12: [
+                { 
+                    role: "bot", 
+                    message: "यह सुनकर खुशी हुई! आपके लिए प्रासंगिक सूक्ष्म सुधारों को खोजने के लिए, यहाँ से खोज शुरू करें।", 
+                    messageId: '12_0'
                 },
             ]
         };        
@@ -99,7 +113,7 @@ export function getSecondPageMessages(language) {
                 },
                 { 
                     role: "bot", 
-                    message: "Select one to proceed", 
+                    message: "Select one to get started.", 
                     messageId: '4_1' 
                 },
             ],
@@ -130,7 +144,7 @@ export function getSecondPageMessages(language) {
 }
 
 
-export function getThirdPageMessages(language) {
+export function getThirdPageMessages(language, add_own=false) {
     if(language === 'en') {
         return {
             6: [
@@ -141,7 +155,15 @@ export function getThirdPageMessages(language) {
                 },
     
             ],
-            7: [
+            7: add_own? 
+            [
+                { role: "bot", message: "Craft your own action plan", messageId: '7_0' },
+                { 
+                    role: "bot", 
+                    message: "Add each step you'd like to take.", 
+                    messageId: '7_1' 
+                },
+            ]: [
                 { role: "bot", message: "Finalize Action List", messageId: '7_0' },
                 { 
                     role: "bot", 
