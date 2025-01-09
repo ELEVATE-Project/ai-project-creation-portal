@@ -9,7 +9,7 @@ import "../stylesheet/chatStyle.css";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
 import { getFourthPageMessages } from "../question script/bot_user_questions";
 import { saveUserChatsInDB } from "../../../api services/chat_flow_api";
-import { getContinueButtonTranslation } from "../question script/secondpage_tanslation";
+import { getNextButtonTranslation } from "../question script/secondpage_tanslation";
 
 
 
@@ -89,7 +89,8 @@ function FourthPage({
                     <button className={`thirdpage-select-bttn`}
                         onClick={handleContinueClick}
                     >
-                        {getContinueButtonTranslation(language)} 
+                        {getNextButtonTranslation(language)}
+                        
                         <IoArrowForward className="thirdpage-cont-arrow-icon" />
                     </button>
                 </div>

@@ -440,6 +440,7 @@ export function clearMitraLocalStorage() {
     localStorage.removeItem("selected_week");
     localStorage.removeItem("session");
     localStorage.removeItem("user_problem_statement");
+    localStorage.removeItem("paraphrased_problem");
     localStorage.removeItem("user_text");
     localStorage.removeItem("selected_action");
     localStorage.removeItem("savedMessages");
@@ -448,6 +449,4 @@ export function clearMitraLocalStorage() {
     localStorage.removeItem("profile_id");
     localStorage.removeItem("chunks");
     localStorage.removeItem("errorText");
-    localStorage.removeItem("user_problem_statement");
-    localStorage.removeItem("paraphrased_problem");
 }                

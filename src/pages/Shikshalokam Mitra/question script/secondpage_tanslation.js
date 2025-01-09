@@ -25,14 +25,14 @@ export function getAddOwnButtonTranslation(language) {
 }
 
 export function getSuggestMoreButtonTranslation(language) {
-
+    const defaultEnglishText = "Suggest More?"
     switch(language) {
         case "en":
-            return "Suggest More"
+            return defaultEnglishText
         case "hi":
-            return "और सुझाव दें"
+            return "और सुझाव दें?"
         default:
-            return "Suggest More"
+            return defaultEnglishText
     }
 }
 

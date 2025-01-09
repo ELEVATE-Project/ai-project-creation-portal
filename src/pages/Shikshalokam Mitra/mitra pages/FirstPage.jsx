@@ -22,15 +22,11 @@ function FirstPage( {
 
     const [useTextbox, setUseTextbox] = useState(false);
     const [userProblemStatement, setUserProblemStatement] = useState(getEncodedLocalStorage('user_problem_statement') || '');
-    const [paraphrasedProblem, setParaphrasedProblem] = useState(
-        getEncodedLocalStorage('paraphrased_problem') 
-        || getEncodedLocalStorage('user_problem_statement')
-        || ''
-    );
     const [shouldMoveForward, setShouldMoveForward] = useState(false);
     const [localChatHistory, setLocalChatHistory] = useState(false);
     const [currentSession, setCurrentSession]= useState(getEncodedLocalStorage('session'));
     const [currentProfile, setCurrentProfile] = useState(getEncodedLocalStorage('profile_id'));
+    const [validatedType, setValidatedType] = useState('');
 
     const savedMessagesRef = useRef(new Set());
     const textInputRef = useRef(null);
@@ -39,10 +35,10 @@ function FirstPage( {
     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
     const language = preferredLanguage.value || 'en';
 
-    let firstpage_messages = getFirstPageMessages(userDetail, userInput, paraphrasedProblem, language);
+    let firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement, language);
 
     useEffect(()=>{
-        firstpage_messages = getFirstPageMessages(userDetail, userInput, paraphrasedProblem);
+        firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement);
     }, [userDetail])
 
 
@@ -75,12 +71,14 @@ function FirstPage( {
             if (userInput && userInput[0] && currentChatValue === 1 && userProblemStatement === '') {
                 setShowTyping(true);
                 
-                const paraphrased_text = await getParaphraseText(userInput[0], language, true);
+                let paraphrased_text = await getParaphraseText(userInput[0], language, true);
                 if (paraphrased_text) {
+                    if (typeof paraphrased_text !== 'string') {
+                        setValidatedType(paraphrased_text?.type);
+                        paraphrased_text = paraphrased_text.is_validated;
+                    }
                     setEncodedLocalStorage('user_problem_statement', paraphrased_text);
                     setUserProblemStatement(paraphrased_text);
-                    setEncodedLocalStorage('paraphrased_problem', paraphrased_text);
-                    setParaphrasedProblem(paraphrased_text);
                     setShowTyping(false);
                 } else {
                     window.location.reload();
@@ -108,6 +106,8 @@ function FirstPage( {
             setShowTyping(true);            
             const keyboardTypedValue = e?.target?.value;
             validatedText = await getParaphraseText(e?.target?.value, language);
+            setValidatedType(validatedText?.type);
+            validatedText = validatedText?.is_validated;
             if(validatedText && validatedText.toLowerCase() === 'no') {
                 setEncodedLocalStorage('user_problem_statement', validatedText);
                 setUserProblemStatement(validatedText);
@@ -127,7 +127,8 @@ function FirstPage( {
             if(currentChatValue >= 2) {
                 setShowTyping(true);            
                 validatedText = await getParaphraseText(e?.target?.value, language);
-                
+                setValidatedType(validatedText?.type);
+                validatedText = validatedText?.is_validated;
                 if(validatedText && validatedText.toLowerCase() === 'no') {
                     setEncodedLocalStorage('errorText', validatedText);
                     setErrorMessage(validatedText)
@@ -185,11 +186,11 @@ function FirstPage( {
         }
     }, [isReadOnly, errorMessage])
     
-    useEffect(()=>{
-        console.log("Error Message: ", errorMessage)
-        console.log("Currentchatvalue: ", currentChatValue)
-        console.log('userInput: ', userInput)
-    }, [errorMessage])
+    // useEffect(()=>{
+    //     console.log("Error Message: ", errorMessage)
+    //     console.log("Currentchatvalue: ", currentChatValue)
+    //     console.log('userInput: ', userInput)
+    // }, [errorMessage])
 
 
     useEffect(() => {
@@ -383,6 +384,8 @@ function FirstPage( {
             >
                 <BotMessage 
                     botMessage={
+                        validatedType === 'NO_PROBLEM_STATEMENT' ? 
+                        firstpage_messages[12]?.[0]?.message :
                         firstpage_messages[11]?.[0]?.message
                     }
                     secondMessageClass={"firstpage-para2"}
@@ -399,8 +402,9 @@ function FirstPage( {
                     setUserInput={setUserInput}
                     handleSpeakerOn={handleSpeakerOn}
                     isBotTalking={isBotTalking}
-                    audioId={1.2}
+                    audioId={11}
                     handleSpeakerOff={handleSpeakerOff}
+                    showExplore={validatedType === 'NO_PROBLEM_STATEMENT' ? true: false}
                 />
             </div>
         );

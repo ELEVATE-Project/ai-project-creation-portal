@@ -70,3 +70,15 @@ export function getInputPlaceholderTranslation(language) {
             return "Type your response here..."
     }
 }
+
+export function getExploreTranslation(language) {
+    const defaultText = 'Explore'
+    switch(language) {
+        case "en":
+            return defaultText
+        case "hi":
+            return "खोजें"
+        default:
+            return defaultText
+    }
+}
