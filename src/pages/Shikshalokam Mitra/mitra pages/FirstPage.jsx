@@ -181,6 +181,7 @@ function FirstPage( {
             localStorage.removeItem('selected_objective');
             localStorage.removeItem('objective');
             localStorage.removeItem('user_problem_statement');
+            localStorage.removeItem('hasClickedObjAddMore');
             setUserProblemStatement('');
             setIsLoading(false);
         }

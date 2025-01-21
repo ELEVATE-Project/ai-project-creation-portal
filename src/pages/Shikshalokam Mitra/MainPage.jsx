@@ -449,4 +449,5 @@ export function clearMitraLocalStorage() {
     localStorage.removeItem("profile_id");
     localStorage.removeItem("chunks");
     localStorage.removeItem("errorText");
+    localStorage.removeItem('hasClickedObjAddMore');
 }                

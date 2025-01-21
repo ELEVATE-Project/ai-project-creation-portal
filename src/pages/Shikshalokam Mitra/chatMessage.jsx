@@ -141,10 +141,15 @@ export function UserMessage({
         <>
             <div className="firstuser-div">
                 {/* <div className="user-image"></div> */}
-                <img 
-                    src={userDetail?.image}
-                    className="user-image" 
-                />
+                {(userDetail?.image)?
+                    <img 
+                        src={userDetail?.image}
+                        className="user-image" 
+                    />
+                    :
+                    <div className="user-image" >
+                    </div>
+                }
                 <p className="firstuser-para1">
                     {userMessage}
                 </p>

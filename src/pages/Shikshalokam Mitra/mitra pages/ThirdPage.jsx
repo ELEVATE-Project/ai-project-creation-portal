@@ -151,10 +151,10 @@ function ThirdPage({
         
 
         if (isActionEmptyOrDefault(action_to_store)) {
-            setErrorText(getActionErrorTranslation(language))
-            setTimeout(()=>{
-                setErrorText('')
-            }, 3000)
+            // setErrorText(getActionErrorTranslation(language))
+            // setTimeout(()=>{
+            //     setErrorText('')
+            // }, 3000)
             return; 
         }
         
@@ -314,7 +314,7 @@ function ThirdPage({
                                     handleSpeakerOn={handleSpeakerOn}
                                     handleSpeakerOff={handleSpeakerOff}
                                     handleContinueClick={handleContinueClick}
-                                    errorText={errorText}
+                                    // errorText={errorText}
                                     hasClickedOnAddmore={hasClickedOnAddmore}
                                 />
                             </div>
@@ -326,7 +326,7 @@ function ThirdPage({
                                 handleSpeakerOn={handleSpeakerOn}
                                 handleSpeakerOff={handleSpeakerOff}
                                 handleContinueClick={handleContinueClick}
-                                errorText={errorText}
+                                // errorText={errorText}
                                 hasClickedOnAddmore={hasClickedOnAddmore}
                             />
                         }
@@ -410,13 +410,16 @@ export function FinalActionPage({
                     <p className="secondpage-obj-text">
                         {getActionListTextTranslation(language)}
                     </p>
-                    {(errorText && errorText!=='') && 
+                    <div className="thirdpage-error-div">
+                        <p className="secondpage-valid-text">{getActionErrorTranslation(language)}</p>
+                    </div>
+                    {/* {(errorText && errorText!=='') && 
                         <>
                             <div className="thirdpage-error-div">
                                 <p className="secondpage-error-text">{errorText}</p>
                             </div>
                         </>
-                    }
+                    } */}
                     <DragDropContext onDragEnd={handleDragEnd}>
                         <Droppable droppableId="actionList">
                             {(provided) => (
