@@ -50,7 +50,7 @@ function SecondPage({
                 : -1;
             setSelectedIndex(selectedIndex);
             setInputText(objectiveList[selectedIndex])
-            return (selectedIndex !== -1 && selectedIndex>defaultValueToShow )? selectedIndex + 1 : defaultValueToShow;
+            return (selectedIndex !== -1 && selectedIndex>defaultValueToShow-1 )? selectedIndex + 1 : defaultValueToShow;
         }
     });
     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
@@ -96,6 +96,8 @@ function SecondPage({
             setCurrentChatValue(4);
             localStorage.removeItem('actionList');
             localStorage.removeItem('selected_action');
+            setInputText(getEncodedLocalStorage('selected_objective') || '');
+            setHasClickedOnAddmore(getEncodedLocalStorage('hasClickedObjAddMore'));
             setIsLoading(false);
         }
     }, [isInReadOnlyMode])
@@ -148,8 +150,17 @@ function SecondPage({
                 setErrorText('')
             }, 3000)
         } else {
-            
+            setEncodedLocalStorage('hasClickedObjAddMore', true)
             handleNextClick()
+        }
+    }
+
+    function localHandleGoBack(index) {
+        if (isInReadOnlyMode && hasClickedOnAddmore) {
+            setHasClickedOnAddmore(false)
+            setEncodedLocalStorage('hasClickedObjAddMore', false)
+        } else {
+            handleGoBack(index)
         }
     }
 
@@ -158,7 +169,7 @@ function SecondPage({
             {isLoading&& <ShowLoader />}
 
             <Header shouldEnableGoBack={true} shouldEnableCross={true} 
-                handleGoBack={() => handleGoBack(2)}
+                handleGoBack={() => localHandleGoBack(2)}
             />
             <div className="secondpage-div">
                 {(!hasClickedOnAddmore)?

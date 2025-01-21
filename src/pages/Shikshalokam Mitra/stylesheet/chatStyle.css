@@ -379,6 +379,12 @@
         font-size: var(--body-font-size-mobile);
     }
 
+    .secondpage-valid-text {
+        font-family: var(--primary-font-family);
+        font-size: 0.9rem;
+        font-weight: 300;
+    }
+
     .secondpage-error-div {
         margin: 4px 0 0 17px;
     }
@@ -1995,7 +2001,13 @@
     .secondpage-error-text {
         color: #ba2c2c;
         font-family: var(--primary-font-family);
-        font-size: var(--body-font-size-pc);
+        font-size: 0.9rem;
+    }
+
+    .secondpage-valid-text {
+        font-family: var(--primary-font-family);
+        font-size: 0.9rem;
+        font-weight: 300;
     }
 
     .secondpage-error-div {

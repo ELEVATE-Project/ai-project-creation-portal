@@ -61,14 +61,12 @@ export function getActionPlaceholderTranslation(language) {
 }
 
 export function getActionErrorTranslation(language) {
-
+    const defaultText = "Please add at least one action before proceeding."
     switch(language) {
-        case "en":
-            return "Please add at least one valid action before proceeding."
         case "hi":
-            return "कृपया आगे बढ़ने से पहले कम से कम एक वैध कार्य जोड़ें।"
+            return "कृपया आगे बढ़ने से पहले कम से कम एक कार्य जोड़ें।"
         default:
-            return "Please add at least one valid action before proceeding."
+            return defaultText
     }
 }
 
