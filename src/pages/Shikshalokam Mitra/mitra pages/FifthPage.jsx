@@ -113,10 +113,12 @@ function FifthPage({
                     const user_action_list = getEncodedLocalStorage('selected_action')[0]?.actionSteps;
                     const access_token = localStorage.getItem(process.env.REACT_APP_ACCESS_TOKEN_KEY);
                     const chunks = JSON.parse(localStorage.getItem('chunks'))
+                    let language = JSON.parse(localStorage.getItem('preferred_language'))
+                    language = preferredLanguage.value;
                     
                     const project_response = await createProject(
                         access_token, user_problem_statement, user_action_list, project_duration, 
-                        inputText, profile_id, session, user_objective, chunks
+                        inputText, profile_id, session, user_objective, chunks, language
                     )
 
                     if(project_response) {

@@ -122,7 +122,7 @@ export async function createChatSession(session, email, access_token){
 
 export async function createProject(
     access_token, user_problem_statement, user_action_steps, project_duration, 
-    project_title, profile_id, session, user_objective, chunks
+    project_title, profile_id, session, user_objective, chunks, language
 ){
     try {
         const response = await axiosInstance.post(
@@ -136,7 +136,8 @@ export async function createProject(
                 profile_id,
                 session,
                 user_objective,
-                chunks
+                chunks,
+                language
             }
         );
       
