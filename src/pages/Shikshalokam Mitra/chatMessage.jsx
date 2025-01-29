@@ -141,7 +141,7 @@ export function UserMessage({
         <>
             <div className="firstuser-div">
                 {/* <div className="user-image"></div> */}
-                {(userDetail?.image)?
+                {(userDetail?.image && userDetail.image !== "null" && userDetail.image !== null)?
                     <img 
                         src={userDetail?.image}
                         className="user-image" 
