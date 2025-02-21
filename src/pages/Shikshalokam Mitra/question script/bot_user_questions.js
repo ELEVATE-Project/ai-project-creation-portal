@@ -181,7 +181,15 @@ export function getThirdPageMessages(language, add_own=false) {
                     messageId: '6_0' 
                 },
             ],
-            7: [
+            7: add_own? 
+            [
+                { role: "bot", message: "अपनी स्वयं की कार्य योजना बनाएं", messageId: '7_0' },
+                { 
+                    role: "bot", 
+                    message: "वह प्रत्येक चरण जोड़ें जो आप उठाना चाहते हैं।", 
+                    messageId: '7_1' 
+                },
+            ]: [
                 { role: "bot", message: "क्रिया सूची को अंतिम रूप दें", messageId: '7_0' },
                 { 
                     role: "bot", 

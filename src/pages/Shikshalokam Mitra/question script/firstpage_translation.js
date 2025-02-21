@@ -82,3 +82,38 @@ export function getExploreTranslation(language) {
             return defaultText
     }
 }
+export function getPlaceHolder1(language) {
+    const defaultText = 'Listening... Speak now'
+    switch(language) {
+        case "en":
+            return defaultText
+        case "hi":
+            return "सुन रही हूँ... अब बोलो"
+        default:
+            return defaultText
+    }
+}
+
+export function getPlaceHolder2(language) {
+    const defaultText = 'Processing speech... Please wait'
+    switch(language) {
+        case "en":
+            return defaultText
+        case "hi":
+            return "भाषण संसाधित हो रहा है... कृपया प्रतीक्षा करें"
+        default:
+            return defaultText
+    }
+}
+
+export function getPlaceHolder3(language) {
+    const defaultText = 'Type your message'
+    switch(language) {
+        case "en":
+            return defaultText
+        case "hi":
+            return "अपना संदेश लिखें"
+        default:
+            return defaultText
+    }
+}

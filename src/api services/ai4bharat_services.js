@@ -4,10 +4,11 @@ import axiosInstance from "../utils/axios";
 
 export async function getAI4BharatAudio(text, language = 'en', gender = 'female') {
     try {
-        const response = await axiosInstance.post('/api/ai4bharat/', {
+        const response = await axiosInstance.post('api/text_to_speech/', {
             text: text,
             source_language: language,
             gender: gender,
+            route: '/mitra-create'
         });
         
         return response.data.audio;
@@ -71,17 +72,18 @@ export const handleAI4BharatTTSRequest = async (text, id, language, audioCache, 
 export async function ai4BharatASR(base64, language, gender = 'female'){
     
     try {
-      const response = await axiosInstance.post('/api/ai4bharat/asr', {
+      const response = await axiosInstance.post('api/asr/', {
         base_64: base64,
         source_language: language,
         gender: gender,
+        route: '/mitra-create'
       });
       
       // Return the audio content
       return response.data.transcript;
     } catch (error) {
       console.error('Error fetching AI4Bharat audio:', error);
-      throw error;
+      return '';
     } 
 }
 

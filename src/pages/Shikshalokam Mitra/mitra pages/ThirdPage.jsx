@@ -9,7 +9,7 @@ import Header from "../header/Header";
 import "../stylesheet/chatStyle.css";
 import { getNewLocalTime, ShowLoader } from "../MainPage";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
-import { getActionList, saveUserChatsInDB } from "../../../api services/chat_flow_api";
+import { getActionList, saveUserChatsInDB, validateActionList } from "../../../api services/chat_flow_api";
 import { getThirdPageMessages } from "../question script/bot_user_questions";
 import { getActionDefaultTranslation, getActionErrorTranslation, getActionListTextTranslation, getActionPlaceholderTranslation, getAddActionButtonTranslation, getAddOwnButtonTranslation, getSelectButtonTranslation } from "../question script/thirdpage_tanslation";
 import { getContinueButtonTranslation, getNextButtonTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
@@ -35,6 +35,7 @@ function ThirdPage({
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [swipeDirection, setSwipeDirection] = useState(null);
     const [wantsToMoveForward, setWantsToMoveForward] = useState(false);
+    const [fetchError, setFetchError] = useState('');
     const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(()=>{
         const storedActionList = getEncodedLocalStorage('selected_action');
         if (storedActionList) {
@@ -78,18 +79,24 @@ function ThirdPage({
 
     useEffect(()=>{
         async function fetchActionList() {
-            if (!actionList || actionList?.length===0) {
-                setIsLoading(true)
-                const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
-                const objective = getEncodedLocalStorage('selected_objective')
-                const fetchedActionList = await getActionList(userProblemStatement, objective, language);
-                if (fetchedActionList) {
-                    setActionList(fetchedActionList);
-                    setEncodedLocalStorage('actionList', fetchedActionList);
-                    setIsLoading(false);
-                } else {
-                    window.location.reload();
+            try{
+                if (!actionList || actionList?.length===0) {
+                    setIsLoading(true)
+                    const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
+                    const objective = getEncodedLocalStorage('selected_objective')
+                    const fetchedActionList = await getActionList(userProblemStatement, objective, language);
+                    if (fetchedActionList) {
+                        setActionList(fetchedActionList);
+                        setEncodedLocalStorage('actionList', fetchedActionList);
+                        setIsLoading(false);
+                    } else {
+                        window.location.reload();
+                    }
                 }
+            }  catch (error) {
+                setFetchError(getEncodedLocalStorage('system_error') || 'Please try again later!')
+                setIsLoading(false)
+                console.error(error)
             }
         }
         fetchActionList();
@@ -147,45 +154,71 @@ function ThirdPage({
         });
     };
 
-    const handleContinueClick = (action_to_store) => {
+    const handleContinueClick = async (action_to_store) => {
         
-
-        if (isActionEmptyOrDefault(action_to_store)) {
-            // setErrorText(getActionErrorTranslation(language))
-            // setTimeout(()=>{
-            //     setErrorText('')
-            // }, 3000)
-            return; 
-        }
-        
-        if (currentChatValue === 5 && actionList){
-            setIsLoading(true);
-            setEncodedLocalStorage("selected_action", [{
-                duration: "", actionSteps: action_to_store.map((action)=>action.content)
-            }]);
-            // console.log(JSON.stringify(getEncodedLocalStorage('actionList')))
-            // console.log(thirdpage_messages[7]?.[0]?.message)
-            const currentSession = getEncodedLocalStorage('session');
-            const botMessage =
-            {
-                role: thirdpage_messages[7]?.[0]?.role,
-                message: thirdpage_messages[6]?.[0]?.message
-                + "\n" + thirdpage_messages[7]?.[0]?.message 
-                + "\n" + thirdpage_messages[7]?.[1]?.message
-                + "\n" + JSON.stringify(getEncodedLocalStorage('actionList')),
-                messageId: thirdpage_messages[7]?.[0]?.messageId
+        try{
+            if (isActionEmptyOrDefault(action_to_store)) {
+                // setErrorText(getActionErrorTranslation(language))
+                // setTimeout(()=>{
+                //     setErrorText('')
+                // }, 3000)
+                return; 
             }
-            
-
-            saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
-            .then(() => {
-                saveUserChatsInDB(JSON.stringify(action_to_store), currentSession, 'user'); 
-            })
-            .then(() => {
-                setCurrentChatValue(6);
-                setCurrentPageValue(3);
-                setIsLoading(false);
-            })
+            const actionListToStore = [{
+                duration: "", actionSteps: action_to_store.map((action)=>action.content)
+            }]
+            const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
+            const objective = getEncodedLocalStorage('selected_objective')
+            setIsLoading(true);
+            const validate_response = await validateActionList(
+                action_to_store.map((action)=>action.content), objective, userProblemStatement, language
+            )
+            setIsLoading(false);
+    
+            if (validate_response?.result === false) {
+                setErrorText(validate_response?.error_message)
+                setTimeout(()=>{
+                    setErrorText('')
+                }, 6000)
+                return
+            }
+    
+            if (currentChatValue === 5 && actionList){
+                setIsLoading(true);
+                setEncodedLocalStorage("selected_action", actionListToStore);
+                // console.log(JSON.stringify(getEncodedLocalStorage('actionList')))
+                // console.log(thirdpage_messages[7]?.[0]?.message)
+                const currentSession = getEncodedLocalStorage('session');
+                const botMessage =
+                {
+                    role: thirdpage_messages[7]?.[0]?.role,
+                    message: thirdpage_messages[6]?.[0]?.message
+                    + "\n" + thirdpage_messages[7]?.[0]?.message 
+                    + "\n" + thirdpage_messages[7]?.[1]?.message
+                    + "\n" + JSON.stringify(getEncodedLocalStorage('actionList')),
+                    messageId: thirdpage_messages[7]?.[0]?.messageId
+                }
+                
+    
+                saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
+                .then(() => {
+                    saveUserChatsInDB(JSON.stringify(action_to_store), currentSession, 'user'); 
+                })
+                .then(() => {
+                    setCurrentChatValue(6);
+                    setCurrentPageValue(3);
+                    setIsLoading(false);
+                })
+            }
+        } catch (error) {
+            const errorMessage = getEncodedLocalStorage('system_error') || 'Please try again later!';
+            console.log('Error:', errorMessage);
+            setErrorText(errorMessage);
+            setIsLoading(false)
+            setTimeout(()=>{
+                setErrorText('')
+            }, 10000)
+            console.error(error)
         }
     }
 
@@ -232,7 +265,7 @@ function ThirdPage({
                                         />
                                     </div>
                                 }
-                                <div className="thirdpage-obj-container">
+                                {(!fetchError || fetchError === '')&& <div className="thirdpage-obj-container">
                                     {selectedIndex !== null && (
                                         <div
                                             key={selectedIndex}
@@ -262,7 +295,14 @@ function ThirdPage({
                                             </button>
                                         </div>
                                     )}
-                                </div>
+                                </div>}
+                                {(fetchError && fetchError!=='') && 
+                                    <>
+                                        <div className="secondpage-error-div">
+                                            <p className="secondpage-error-text">{fetchError}</p>
+                                        </div>
+                                    </>
+                                }
                             </div>
                             {<div className="thirdpage-div1">
                                 {(!visibleCount && actionList?.length>1)&&
@@ -306,7 +346,7 @@ function ThirdPage({
                     </div>
                 :
                     <>
-                        {(!isInReadOnlyMode && actionList && actionList.length !== 0)&& 
+                        {(!isInReadOnlyMode)&& 
                             <div className="secondpage-bot-div">
                                 <FinalActionPage 
                                     actionListArray={getActionListArray()}
@@ -314,7 +354,7 @@ function ThirdPage({
                                     handleSpeakerOn={handleSpeakerOn}
                                     handleSpeakerOff={handleSpeakerOff}
                                     handleContinueClick={handleContinueClick}
-                                    // errorText={errorText}
+                                    errorText={errorText}
                                     hasClickedOnAddmore={hasClickedOnAddmore}
                                 />
                             </div>
@@ -326,7 +366,7 @@ function ThirdPage({
                                 handleSpeakerOn={handleSpeakerOn}
                                 handleSpeakerOff={handleSpeakerOff}
                                 handleContinueClick={handleContinueClick}
-                                // errorText={errorText}
+                                errorText={errorText}
                                 hasClickedOnAddmore={hasClickedOnAddmore}
                             />
                         }
@@ -370,7 +410,7 @@ export function FinalActionPage({
     };
 
     const handleDelete = (id) => {
-        
+        if(actionList && actionList.length <= 1) return;
         setActionList((prev) => prev.filter((item) => item.id !== id));
     };
 
@@ -413,13 +453,13 @@ export function FinalActionPage({
                     <div className="thirdpage-error-div">
                         <p className="secondpage-valid-text">{getActionErrorTranslation(language)}</p>
                     </div>
-                    {/* {(errorText && errorText!=='') && 
+                    {(errorText && errorText!=='') && 
                         <>
                             <div className="thirdpage-error-div">
                                 <p className="secondpage-error-text">{errorText}</p>
                             </div>
                         </>
-                    } */}
+                    }
                     <DragDropContext onDragEnd={handleDragEnd}>
                         <Droppable droppableId="actionList">
                             {(provided) => (

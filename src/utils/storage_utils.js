@@ -38,6 +38,6 @@ export function getEncodedLocalStorage(key) {
 
     } catch (error) {
         console.error("Error reading from localStorage:", error.message);
-        throw new Error("Failed to decode or parse the stored data.");
+        // throw new Error("Failed to decode or parse the stored data.");
     }
 }

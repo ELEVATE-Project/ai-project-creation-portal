@@ -8,9 +8,9 @@ import { getNewLocalTime, ShowLoader } from "../MainPage";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
 
 import "../stylesheet/chatStyle.css";
-import { getObjectiveList, saveUserChatsInDB } from "../../../api services/chat_flow_api";
+import { getObjectiveList, saveUserChatsInDB, validateObjective } from "../../../api services/chat_flow_api";
 import { getSecondPageMessages } from "../question script/bot_user_questions";
-import { getAddOwnButtonTranslation, getContinueButtonTranslation, getNextButtonTranslation, getObjectivePlaceholderTranslation, getObjectiveTextTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
+import { getAddOwnButtonTranslation, getContinueButtonTranslation, getNextButtonTranslation, getObjectiveEmptyTranslation, getObjectivePlaceholderTranslation, getObjectiveTextTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
 
 
 function SecondPage({ 
@@ -29,6 +29,7 @@ function SecondPage({
     });
     
     const [hasClickedOnAddmore, setHasClickedOnAddmore] = useState(false);
+    const [fetchError, setFetchError] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(null);
     const [inputText, setInputText] = useState('');
     const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(()=>{
@@ -60,18 +61,24 @@ function SecondPage({
 
     useEffect(()=>{
         async function fetchObjectiveList() {
-            if (!objectiveList || objectiveList?.length===0) {
-                setIsLoading(true);
-                const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
-                const fetched_objectiveList = await getObjectiveList(userProblemStatement, language);
-                if (fetched_objectiveList) {
-                    setObjectiveList(fetched_objectiveList?.objective_list);
-                    setEncodedLocalStorage('objective', fetched_objectiveList?.objective_list);
-                    localStorage.setItem('chunks', JSON.stringify(fetched_objectiveList?.chunks))
-                    setIsLoading(false);
-                } else {
-                    window.location.reload();
+            try{
+                if (!objectiveList || objectiveList?.length===0) {
+                    setIsLoading(true);
+                    const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
+                    const fetched_objectiveList = await getObjectiveList(userProblemStatement, language);
+                    if (fetched_objectiveList) {
+                        setObjectiveList(fetched_objectiveList?.objective_list);
+                        setEncodedLocalStorage('objective', fetched_objectiveList?.objective_list);
+                        localStorage.setItem('chunks', JSON.stringify(fetched_objectiveList?.chunks))
+                        setIsLoading(false);
+                    } else {
+                        window.location.reload();
+                    }
                 }
+            } catch (error) {
+                setFetchError(getEncodedLocalStorage('system_error') || 'Please try again later!')
+                setIsLoading(false)
+                console.error(error)
             }
         }
         fetchObjectiveList();
@@ -143,26 +150,53 @@ function SecondPage({
         setInputText(e?.target?.value);
     }
 
-    function handleInputSend() {
-        if (!inputText || inputText === '') {
-            setErrorText('Please enter an objective!')
+    async function handleInputSend() {
+        try{
+            if (!inputText || inputText === '') {
+                setErrorText(getObjectiveEmptyTranslation(language))
+                setTimeout(()=>{
+                    setErrorText('')
+                }, 3000)
+            } else {
+                setIsLoading(true);
+                const validate_response = await validateObjective(inputText, language)
+                setIsLoading(false);
+                if (validate_response?.result){
+                    setEncodedLocalStorage('hasClickedObjAddMore', true)
+                    handleNextClick()
+                } else {
+                    setErrorText(validate_response?.error_message)
+                    setTimeout(()=>{
+                        setErrorText('')
+                    }, 6000)
+                }
+            }
+        } catch (error) {
+            const errorMessage = getEncodedLocalStorage('system_error') || 'Please try again later!';
+            console.log('Error:', errorMessage);
+            
+            setErrorText(errorMessage);
             setTimeout(()=>{
                 setErrorText('')
-            }, 3000)
-        } else {
-            setEncodedLocalStorage('hasClickedObjAddMore', true)
-            handleNextClick()
+            }, 10000)
+            setIsLoading(false);
+            console.error(error)
         }
     }
 
     function localHandleGoBack(index) {
         if (isInReadOnlyMode && hasClickedOnAddmore) {
             setHasClickedOnAddmore(false)
+            setErrorText('')
             setEncodedLocalStorage('hasClickedObjAddMore', false)
         } else {
             handleGoBack(index)
         }
     }
+
+    useEffect(()=>{
+        console.log('fetchError: ', fetchError)
+    }, [fetchError])
 
     return (
         <>
@@ -198,7 +232,7 @@ function SecondPage({
                                 <p className="secondpage-obj-text">
                                     {getObjectiveTextTranslation(language)}
                                 </p>
-                                <div className="objective-list-div">
+                                {(!fetchError || fetchError === '')&&<div className="objective-list-div">
                                     {(Array.isArray(objectiveList) ? objectiveList : [])
                                         .slice(0, visibleCount).map((obj, objIndex) => (
                                             <div key={objIndex}
@@ -220,7 +254,14 @@ function SecondPage({
                                             </div>
                                         )
                                     )}
-                                </div>
+                                </div>}
+                                {(fetchError && fetchError!=='') && 
+                                    <>
+                                        <div className="secondpage-error-div">
+                                            <p className="secondpage-error-text">{fetchError}</p>
+                                        </div>
+                                    </>
+                                }
                             </div>
                             {<div className="secondpage-div1">
                                 {(visibleCount < objectiveList?.length)&&
