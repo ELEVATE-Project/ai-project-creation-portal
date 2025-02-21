@@ -158,6 +158,7 @@ function MainPage() {
                     setCurrentChatValue={setCurrentChatValue}
                     isReadOnly={isReadOnly}
                     userDetail={userDetail}
+                    handleGoForward={handleGoForward}
                 />
             )
         } else if (currentChatValue>=4 && currentChatValue<5 || currentPage['2']) {
