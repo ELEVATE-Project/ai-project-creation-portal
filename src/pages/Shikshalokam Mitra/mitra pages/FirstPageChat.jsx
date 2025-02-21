@@ -32,7 +32,7 @@ const company_bot_list_url = `/api/companybot/`;
 const wss_protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
 
 
-const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrentPageValue, isReadOnly, userDetail }) => {
+const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrentPageValue, isReadOnly, userDetail, handleGoForward }) => {
 
     const [profileToUse, setProfileToUse] = useState(localStorage.getItem('profileid') || null);
     const audioRef = useRef();
@@ -491,11 +491,11 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     useEffect(()=>{
         console.log('isReadOnly: ', isReadOnly)
 
-        if (isReadOnly) {
-            localStorage.removeItem('objective');
-            localStorage.removeItem('selected_objective');
-            setReadData();
-        }
+        // if (isReadOnly) {
+        //     localStorage.removeItem('objective');
+        //     localStorage.removeItem('selected_objective');
+        //     // setReadData();
+        // }
         
     }, [isReadOnly])
     
@@ -1010,6 +1010,11 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
         }
     };
 
+    function localHandleGoForward(index) {
+        setCurrentChatValue(4);
+        handleGoForward(index)
+    }
+
   return (
     <>
       <></>
@@ -1018,12 +1023,14 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
       }
       <div>
         <HiddenRecorder />
-        <Header shouldEnableCross={true} />
+        {(isReadOnly)&& <Header shouldEnableCross={true} shouldEnableGoForward={true} 
+            handleGoForward={() => localHandleGoForward(1)} shouldEnableGoBack={false}
+        />}
 
         <div
             className={
                 `div33 
-                ${(chatHistory[chatHistory.length-1]?.validation==='NO_PROBLEM_STATEMENT')? 
+                ${(chatHistory[chatHistory.length-1]?.validation==='NO_PROBLEM_STATEMENT' || isReadOnly)? 
                     'div9-a': 'div9'
                 }`
             }
@@ -1062,8 +1069,8 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
                     userDetail={userDetail}
                   />
                   </div>
-                  {!hasStartedListening && chatHistory[chatHistory?.length - 1].source === "user" &&
-                  i === chatHistory?.length - 1 ? (
+                  {(!hasStartedListening && chatHistory[chatHistory?.length - 1].source === "user" &&
+                  i === chatHistory?.length - 1 && !isReadOnly) ? (
                     <LoadingChat />
                   ) : (
                     ""
@@ -1073,7 +1080,7 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             </ul>
             <div id="last-chat-boundary" className="div38" />
         </div>
-        {(!isLocalLoading && chatHistory[chatHistory.length-1]?.validation!=='NO_PROBLEM_STATEMENT')&&       
+        {(!isLocalLoading && chatHistory[chatHistory.length-1]?.validation!=='NO_PROBLEM_STATEMENT' && !isReadOnly)&&       
           <form
             className="div39 form-1"
             onSubmit={handleSendMessage}

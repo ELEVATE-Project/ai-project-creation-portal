@@ -151,7 +151,8 @@ function FifthPage({
             {isLoading&& <ShowLoader />}
             {isLocalLoading&& <ShowLoader showFirstLoader={false} loadingText="Create Micro-Improvement Plan" />}
 
-            <Header shouldEnableGoBack={true} shouldEnableCross={true} handleGoBack={()=>handleGoBack(5)}
+            <Header shouldEnableGoBack={true} shouldEnableCross={true} 
+                handleGoBack={()=>handleGoBack(5)} shouldEnableGoForward={false}
             />
             <div className="fourthpage-div">
                 <BotMessage 

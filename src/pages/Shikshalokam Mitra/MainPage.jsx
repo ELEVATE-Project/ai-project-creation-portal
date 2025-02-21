@@ -65,6 +65,7 @@ function MainPage() {
     useEffect(()=>{
         
         setEncodedLocalStorage("currentPage", currentPage);
+        console.log(currentPage)
     }, [currentPage])
 
 
@@ -158,6 +159,7 @@ function MainPage() {
                     setCurrentChatValue={setCurrentChatValue}
                     isReadOnly={isReadOnly}
                     userDetail={userDetail}
+                    handleGoForward={handleGoForward}
                 />
             )
         } else if (currentChatValue>=4 && currentChatValue<5 || currentPage['2']) {

@@ -226,7 +226,8 @@ function ThirdPage({
         <>
             {isLoading&& <ShowLoader />}
 
-            <Header shouldEnableGoBack={true} shouldEnableCross={true} handleGoBack={()=>handleGoBack(3)}
+            <Header shouldEnableGoBack={true} shouldEnableCross={true} 
+                handleGoBack={()=>handleGoBack(3)} shouldEnableGoForward={false}
             />
             <div className="secondpage-div">
                 {(!hasClickedOnAddmore && !wantsToMoveForward && actionList && !isLoading && !isInReadOnlyMode)?
