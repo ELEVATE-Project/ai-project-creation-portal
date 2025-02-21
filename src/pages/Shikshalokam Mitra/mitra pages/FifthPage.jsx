@@ -28,6 +28,7 @@ function FifthPage({
 
     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
     const language = preferredLanguage.value || 'en';
+    const [fetchError, setFetchError] = useState('');
 
     const fifthpage_messages = getFifthPageMessages(language);
     const [localErrorText, setLocalErrorText] = useState('');
@@ -35,20 +36,26 @@ function FifthPage({
 
     useEffect(()=>{
         async function fetchTitle() {
-            let title = getEncodedLocalStorage('project_title');
-            if (!title) {
-                const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
-                const user_objective = getEncodedLocalStorage('selected_objective');
-                const user_action_list = getEncodedLocalStorage('selected_action');
-                title = await getTitle(user_problem_statement, user_objective, user_action_list, language);
-                if (title) {
-                    setInputText(title)
-                    setEncodedLocalStorage('project_title', title);
-                } else {
-                    window.location.reload();
+            try{
+                let title = getEncodedLocalStorage('project_title');
+                if (!title) {
+                    const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
+                    const user_objective = getEncodedLocalStorage('selected_objective');
+                    const user_action_list = getEncodedLocalStorage('selected_action');
+                    title = await getTitle(user_problem_statement, user_objective, user_action_list, language);
+                    if (title) {
+                        setInputText(title)
+                        setEncodedLocalStorage('project_title', title);
+                    } else {
+                        window.location.reload();
+                    }
                 }
+                setIsLoading(false);
+            }  catch (error) {
+                setFetchError(getEncodedLocalStorage('system_error') || 'Please try again later!')
+                setIsLoading(false)
+                console.error(error)
             }
-            setIsLoading(false);
         }
         fetchTitle();
     }, [])
@@ -90,7 +97,7 @@ function FifthPage({
             setIsLocalLoading(true);
             setEncodedLocalStorage("project_title", inputText);
             const session = getEncodedLocalStorage("session");
-            const profile_id = getEncodedLocalStorage("profile_id");
+            const profile_id = localStorage.getItem("profileid");
             const field_to_update = {
                 "title": inputText,
                 "session_status": "COMPLETED"
@@ -113,12 +120,10 @@ function FifthPage({
                     const user_action_list = getEncodedLocalStorage('selected_action')[0]?.actionSteps;
                     const access_token = localStorage.getItem(process.env.REACT_APP_ACCESS_TOKEN_KEY);
                     const chunks = JSON.parse(localStorage.getItem('chunks'))
-                    let language = JSON.parse(localStorage.getItem('preferred_language'))
-                    language = preferredLanguage.value;
                     
                     const project_response = await createProject(
                         access_token, user_problem_statement, user_action_list, project_duration, 
-                        inputText, profile_id, session, user_objective, chunks, language
+                        inputText, profile_id, session, user_objective, chunks
                     )
 
                     if(project_response) {
@@ -144,7 +149,7 @@ function FifthPage({
     return (
         <>
             {isLoading&& <ShowLoader />}
-            {isLocalLoading&& <ShowLoader showFirstLoader={false} />}
+            {isLocalLoading&& <ShowLoader showFirstLoader={false} loadingText="Create Micro-Improvement Plan" />}
 
             <Header shouldEnableGoBack={true} shouldEnableCross={true} handleGoBack={()=>handleGoBack(5)}
             />
@@ -166,7 +171,7 @@ function FifthPage({
                     handleSpeakerOff={handleSpeakerOff}
                     audioId={5.1} 
                 />
-                    <div className="secondpage-textbox-container">
+                    {(!fetchError || fetchError === '')&& <div className="secondpage-textbox-container">
                         <textarea
                             id="autoGrow"
                             type="text"
@@ -175,7 +180,14 @@ function FifthPage({
                             value={inputText}
                             onChange={(e)=>handleInputText(e)}
                         />
-                    </div>
+                    </div>}
+                    {(fetchError && fetchError!=='') && 
+                        <>
+                            <div className="secondpage-error-div">
+                                <p className="secondpage-error-text">{fetchError}</p>
+                            </div>
+                        </>
+                    }
                     {(localErrorText && localErrorText !== '') &&
                         <>
                             <div className="fifthpage-error-div">
@@ -187,12 +199,11 @@ function FifthPage({
                 <div className="fourthpage-next-div">
                     <button 
                         className={
-                            `${(!localErrorText || localErrorText === '') ? 
+                            `${(fetchError && fetchError!=='') ? "fifthpage-disable-button" : (!localErrorText || localErrorText === '') ? 
                                 "fifthpage-select-bttn" :
                                 "fifthpage-disable-button"
                             } `
                         }
-                    // className="fifthpage-select-bttn"
                         onClick={handleCreateImprovement}
                     >
                         {getCreateMicroButtonTranslation(language)}

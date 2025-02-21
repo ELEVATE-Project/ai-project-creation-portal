@@ -164,3 +164,39 @@ export async function updateChatSession(session, update_field){
         throw error;
     } 
 }
+
+export async function validateObjective(user_input, language){
+    try {
+        const response = await axiosInstance.post(
+            `${BACKEND_ROUTES.VALIDATE_OBJECTIVE}`, 
+            {
+                user_input,
+                language
+            }
+        );
+      
+        return response?.data;
+    } catch (error) {
+        console.error('Error Validating Objective:', error);
+        throw error;
+    } 
+}
+
+export async function validateActionList(user_input, user_objective, problem_statement, language){
+    try {
+        const response = await axiosInstance.post(
+            `${BACKEND_ROUTES.VALIDATE_ACTIONS}`, 
+            {
+                user_input,
+                user_objective,
+                problem_statement,
+                language
+            }
+        );
+      
+        return response?.data;
+    } catch (error) {
+        console.error('Error Validating Action list:', error);
+        throw error;
+    } 
+}

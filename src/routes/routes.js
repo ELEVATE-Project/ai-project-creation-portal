@@ -9,4 +9,6 @@ export const BACKEND_ROUTES = {
     CREATE_CHAT_SESSION: "api/create-chatsession/",
     CHAT_SESSION: "api/chatsession/",
     CREATE_PROJECT: "api/create-project/",
+    VALIDATE_OBJECTIVE: "api/validate-objective/",
+    VALIDATE_ACTIONS: "api/validate-actions/",
 };

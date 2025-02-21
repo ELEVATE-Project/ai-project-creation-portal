@@ -83,3 +83,15 @@ export function getObjectivePlaceholderTranslation(language) {
             return "Enter objectives"
     }
 }
+
+export function getObjectiveEmptyTranslation(language) {
+
+    switch(language) {
+        case "en":
+            return "Please enter an objective!"
+        case "hi":
+            return "कृपया एक उद्देश्य दर्ज करें!"
+        default:
+            return "Please enter an objective!"
+    }
+}

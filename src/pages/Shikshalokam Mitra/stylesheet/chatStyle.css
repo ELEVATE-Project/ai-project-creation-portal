@@ -98,6 +98,7 @@
         border: 0px solid;
         border-radius: 100%;
         animation: none;
+        max-width: 42px;
     }
 
     .voice-loader-bot {
@@ -107,7 +108,6 @@
     }
 
     .thirdpara-div {
-        margin-top: 50px;
         align-items: center;
         display: flex;
         flex-direction: column;
@@ -131,7 +131,7 @@
 
     .microphone-button-gif-div {
         border: none;
-        width: 60%;
+        width: 50%;
         max-width: 176px;
         display: flex;
         justify-content: center;
@@ -155,7 +155,7 @@
     }
     
     .fourthpara-div {
-        margin-top: 15px;
+        margin-top: 5px;
         align-items: center;
         display: flex;
         flex-direction: column;
@@ -184,7 +184,7 @@
     
     .mic-container {
         position: fixed;
-        bottom: 35px;
+        bottom: 6px;
         left: 0;
         width: 100%;
         padding: 10px;
@@ -264,7 +264,6 @@
     .user-image {
         width: 39px;
         height: 39px;
-        background: #192322;
         border: 0px solid;
         border-radius: 100%;
     }
@@ -375,6 +374,11 @@
 
     .secondpage-error-text {
         color: #ba2c2c;
+        font-family: var(--primary-font-family);
+        font-size: var(--body-font-size-mobile);
+    }
+
+    .loading-icon-text {
         font-family: var(--primary-font-family);
         font-size: var(--body-font-size-mobile);
     }
@@ -884,6 +888,7 @@
         width: 100%;
         left: 0;
         background-color: #fff;
+        z-index: 1000;
     }
     
     .headerpage-arrow-icon,
@@ -905,7 +910,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 4;
+        z-index: 10001;
     }
     
     .popup-box {
@@ -1103,6 +1108,7 @@
         border: 0px solid;
         border-radius: 100%;
         animation: none;
+        max-width: 42px;
     }
 
     .voice-loader-bot {
@@ -1113,7 +1119,6 @@
     }
 
     .thirdpara-div {
-        margin-top: 25px;
         margin-left: 30px;
         display: flex;
         flex-direction: column;
@@ -1195,7 +1200,7 @@
     
     .mic-container {
         position: fixed;
-        bottom: 35px;
+        bottom: 6px;
         left: 0;
         width: 100%;
         padding: 10px;
@@ -1279,7 +1284,6 @@
     .user-image {
         width: 39px;
         height: 39px;
-        background: #192322;
         border: 0px solid;
         border-radius: 100%;
         margin-right: 5px;
@@ -1901,6 +1905,7 @@
         width: 100%;
         left: 0;
         background-color: #fff;
+        z-index: 1000;
     }
     
     .headerpage-arrow-icon,
@@ -1922,7 +1927,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 4;
+        z-index: 10001;
     }
     
     .popup-box {
@@ -2000,6 +2005,11 @@
 
     .secondpage-error-text {
         color: #ba2c2c;
+        font-family: var(--primary-font-family);
+        font-size: 0.9rem;
+    }
+
+    .loading-icon-text {
         font-family: var(--primary-font-family);
         font-size: 0.9rem;
     }
