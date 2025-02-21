@@ -67,7 +67,8 @@ function FourthPage({
         <>
             {isLoading&& <ShowLoader />}
 
-            <Header shouldEnableGoBack={true} shouldEnableCross={true} handleGoBack={()=>handleGoBack(4)}
+            <Header shouldEnableGoBack={true} shouldEnableCross={true} 
+                handleGoBack={()=>handleGoBack(4)} shouldEnableGoForward={false}
             />
             <div className="fourthpage-div">
                 <BotMessage 

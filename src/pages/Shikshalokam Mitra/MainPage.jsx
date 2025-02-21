@@ -65,6 +65,7 @@ function MainPage() {
     useEffect(()=>{
         
         setEncodedLocalStorage("currentPage", currentPage);
+        console.log(currentPage)
     }, [currentPage])
 
 

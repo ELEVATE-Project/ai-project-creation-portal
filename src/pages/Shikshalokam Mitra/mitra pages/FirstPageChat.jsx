@@ -1011,7 +1011,7 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     };
 
     function localHandleGoForward(index) {
-        setCurrentChatValue(5);
+        setCurrentChatValue(4);
         handleGoForward(index)
     }
 
@@ -1023,9 +1023,9 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
       }
       <div>
         <HiddenRecorder />
-        <Header shouldEnableCross={true} shouldEnableGoForward={isReadOnly? true: false} 
-            handleGoForward={() => localHandleGoForward(1)}
-        />
+        {(isReadOnly)&& <Header shouldEnableCross={true} shouldEnableGoForward={true} 
+            handleGoForward={() => localHandleGoForward(1)} shouldEnableGoBack={false}
+        />}
 
         <div
             className={

@@ -32,19 +32,19 @@ function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldE
 
     return (
         <>
-            {(shouldEnableCross || shouldEnableGoBack) && (
+            {(shouldEnableCross || shouldEnableGoBack || shouldEnableGoForward) && (
                 <div className="headerpage-div">
                     <div className="headerpage-arrow-div">
-                        {shouldEnableGoBack && (
-                            <button onClick={handleGoBack}>
-                                <FiArrowLeft className="headerpage-arrow-icon" />
-                            </button>
-                        )}
-                        {shouldEnableGoForward && (
-                            <button onClick={handleGoForward}>
-                                <FiArrowRight className="headerpage-arrow-icon" />
-                            </button>
-                        )}
+                        <button onClick={handleGoBack} disabled={!shouldEnableGoBack} 
+                            className={`${shouldEnableGoBack ? "" : "text-gray-500"}`}
+                        >
+                            <FiArrowLeft className="headerpage-arrow-icon" />
+                        </button>
+                        <button onClick={handleGoForward} disabled={!shouldEnableGoForward}
+                            className={`${shouldEnableGoForward ? "" : "text-gray-500"}`}
+                        >
+                            <FiArrowRight className="headerpage-arrow-icon" />
+                        </button>
                     </div>
                     {shouldEnableCross && (
                         <button

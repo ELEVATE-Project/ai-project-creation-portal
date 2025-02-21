@@ -202,9 +202,10 @@ function SecondPage({
         <>
             {isLoading&& <ShowLoader />}
 
-            <Header shouldEnableGoBack={true} shouldEnableCross={true} 
+            <Header shouldEnableGoBack={true} shouldEnableCross={true} shouldEnableGoForward={false}
                 handleGoBack={() => localHandleGoBack(2)}
             />
+            
             <div className="secondpage-div">
                 {(!hasClickedOnAddmore)?
                     <div className="secondpage-bot-div" 
