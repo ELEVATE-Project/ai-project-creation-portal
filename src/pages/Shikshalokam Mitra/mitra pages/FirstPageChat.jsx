@@ -1023,9 +1023,10 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
       }
       <div>
         <HiddenRecorder />
-        {(isReadOnly)&& <Header shouldEnableCross={true} shouldEnableGoForward={true} 
-            handleGoForward={() => localHandleGoForward(1)} shouldEnableGoBack={false}
-        />}
+        <Header shouldEnableCross={true} shouldEnableGoForward={true} 
+            handleGoForward={() => localHandleGoForward(1)} shouldEnableGoBack={false} 
+            hideMovement={true}
+        />
 
         <div
             className={
