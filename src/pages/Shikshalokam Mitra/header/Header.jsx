@@ -9,7 +9,7 @@ import { clearMitraLocalStorage } from "../MainPage";
 import { getBodyText, getConfirmText, getDiscardText, getHeaderText } from "../question script/header_translation";
 
 
-function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldEnableGoForward = false , handleGoBack, handleGoForward }) {
+function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldEnableGoForward = false , handleGoBack, handleGoForward, hideMovement=false}) {
 
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
@@ -34,7 +34,7 @@ function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldE
         <>
             {(shouldEnableCross || shouldEnableGoBack || shouldEnableGoForward) && (
                 <div className="headerpage-div">
-                    <div className="headerpage-arrow-div">
+                   {(!hideMovement)&&  <div className="headerpage-arrow-div">
                         <button onClick={handleGoBack} disabled={!shouldEnableGoBack} 
                             className={`${shouldEnableGoBack ? "" : "text-gray-500"}`}
                         >
@@ -45,7 +45,7 @@ function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldE
                         >
                             <FiArrowRight className="headerpage-arrow-icon" />
                         </button>
-                    </div>
+                    </div>}
                     {shouldEnableCross && (
                         <button
                             onClick={tooglePopup}
