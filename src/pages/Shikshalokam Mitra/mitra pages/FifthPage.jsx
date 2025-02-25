@@ -9,7 +9,7 @@ import { createProject, getTitle, saveUserChatsInDB, updateChatSession, validate
 import { getFifthPageMessages } from "../question script/bot_user_questions";
 import { useNavigate } from "react-router-dom";
 import { getCreateMicroButtonTranslation } from "../question script/thirdpage_tanslation";
-import { getCreateLoadingTranslation, getEmptyTitleErrorTranslation, getTitleErrorTranslation, getTitlePlaceholderTranslation } from "../question script/fifthpage_translation";
+import { getCreateLoadingTranslation, getEmptyTitleErrorTranslation, getTitleErrorTranslation, getTitleNumberTranslation, getTitlePlaceholderTranslation } from "../question script/fifthpage_translation";
 
 
 function FifthPage({
@@ -63,8 +63,10 @@ function FifthPage({
 
     function handleInputText(e) {
         const newText = e?.target?.value;
-
-        if (newText.length > titleCharacterLimit) {
+        const specialCharRegex = /[^a-zA-Z\s]/;
+        if (specialCharRegex.test(newText)) {
+            setLocalErrorText(getTitleNumberTranslation(language));
+        } else if (newText.length > titleCharacterLimit) {
             setLocalErrorText(getTitleErrorTranslation(language));
         } else if (newText === '') {
             setLocalErrorText(getEmptyTitleErrorTranslation(language));

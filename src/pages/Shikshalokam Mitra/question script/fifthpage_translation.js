@@ -11,6 +11,19 @@ export function getTitleErrorTranslation(language) {
     }
 }
 
+export function getTitleNumberTranslation(language) {
+    const defaultText = "Title should not contain numbers or special characters."
+
+    switch(language) {
+        case "en":
+            return defaultText;
+        case "hi":
+            return "शीर्षक में संख्याएँ या विशेष वर्ण नहीं होने चाहिए।"
+        default:
+            return defaultText
+    }
+}
+
 export function getEmptyTitleErrorTranslation(language) {
     const defaultText = "Title cannot be empty."
 
