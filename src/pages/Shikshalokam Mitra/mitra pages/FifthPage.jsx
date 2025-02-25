@@ -63,7 +63,7 @@ function FifthPage({
 
     function handleInputText(e) {
         const newText = e?.target?.value;
-        const specialCharRegex = /[^a-zA-Z\s]/;
+        const specialCharRegex = /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~₹]/;
         if (specialCharRegex.test(newText)) {
             setLocalErrorText(getTitleNumberTranslation(language));
         } else if (newText.length > titleCharacterLimit) {
