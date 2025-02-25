@@ -177,9 +177,6 @@ function ThirdPage({
     
             if (validate_response?.result === false) {
                 setErrorText(validate_response?.error_message)
-                setTimeout(()=>{
-                    setErrorText('')
-                }, 6000)
                 return
             }
     
@@ -205,6 +202,7 @@ function ThirdPage({
                     saveUserChatsInDB(JSON.stringify(action_to_store), currentSession, 'user'); 
                 })
                 .then(() => {
+                    setErrorText('');
                     setCurrentChatValue(6);
                     setCurrentPageValue(3);
                     setIsLoading(false);
@@ -497,7 +495,10 @@ export function FinalActionPage({
                                                         }
                                                     />
                                                     <FiTrash2
-                                                        className="delete-icon"
+                                                        className={
+                                                            (actionList && actionList.length <= 1)?
+                                                                "delete-icon-disable":"delete-icon"
+                                                            }
                                                         onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 handleDelete(action.id);

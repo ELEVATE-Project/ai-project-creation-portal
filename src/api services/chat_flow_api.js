@@ -182,6 +182,26 @@ export async function validateObjective(user_input, language){
     } 
 }
 
+export async function validateTitle(user_input, user_objective, problem_statement, user_actions, language){
+    try {
+        const response = await axiosInstance.post(
+            `${BACKEND_ROUTES.VALIDATE_TITLE}`, 
+            {
+                user_input,
+                user_objective,
+                problem_statement,
+                user_actions,
+                language
+            }
+        );
+      
+        return response?.data;
+    } catch (error) {
+        console.error('Error Validating Title:', error);
+        throw error;
+    } 
+}
+
 export async function validateActionList(user_input, user_objective, problem_statement, language){
     try {
         const response = await axiosInstance.post(

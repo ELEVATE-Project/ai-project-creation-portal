@@ -11,6 +11,19 @@ export function getTitleErrorTranslation(language) {
     }
 }
 
+export function getTitleNumberTranslation(language) {
+    const defaultText = "Title should not contain numbers or special characters."
+
+    switch(language) {
+        case "en":
+            return defaultText;
+        case "hi":
+            return "शीर्षक में संख्याएँ या विशेष वर्ण नहीं होने चाहिए।"
+        default:
+            return defaultText
+    }
+}
+
 export function getEmptyTitleErrorTranslation(language) {
     const defaultText = "Title cannot be empty."
 
@@ -34,5 +47,17 @@ export function getTitlePlaceholderTranslation(language) {
             return "[ए.आई. द्वारा उत्पन्न टाइटल]"
         default:
             return defaultText
+    }
+}
+
+export function getCreateLoadingTranslation(language) {
+
+    switch(language) {
+        case "en":
+            return "Creating your Micro-Improvement Plan..."
+        case "hi":
+            return "आपका सूक्ष्म-सुधार योजना तैयार की जा रही है..."
+        default:
+            return "Creating your Micro-Improvement Plan..."
     }
 }

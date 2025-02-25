@@ -5,11 +5,11 @@ import "../stylesheet/chatStyle.css";
 import Header from "../header/Header";
 import { clearMitraLocalStorage, ShowLoader } from "../MainPage";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
-import { createProject, getTitle, saveUserChatsInDB, updateChatSession } from "../../../api services/chat_flow_api";
+import { createProject, getTitle, saveUserChatsInDB, updateChatSession, validateTitle } from "../../../api services/chat_flow_api";
 import { getFifthPageMessages } from "../question script/bot_user_questions";
 import { useNavigate } from "react-router-dom";
 import { getCreateMicroButtonTranslation } from "../question script/thirdpage_tanslation";
-import { getEmptyTitleErrorTranslation, getTitleErrorTranslation, getTitlePlaceholderTranslation } from "../question script/fifthpage_translation";
+import { getCreateLoadingTranslation, getEmptyTitleErrorTranslation, getTitleErrorTranslation, getTitleNumberTranslation, getTitlePlaceholderTranslation } from "../question script/fifthpage_translation";
 
 
 function FifthPage({
@@ -63,8 +63,10 @@ function FifthPage({
 
     function handleInputText(e) {
         const newText = e?.target?.value;
-
-        if (newText.length > titleCharacterLimit) {
+        const specialCharRegex = /[^a-zA-Z\s]/;
+        if (specialCharRegex.test(newText)) {
+            setLocalErrorText(getTitleNumberTranslation(language));
+        } else if (newText.length > titleCharacterLimit) {
             setLocalErrorText(getTitleErrorTranslation(language));
         } else if (newText === '') {
             setLocalErrorText(getEmptyTitleErrorTranslation(language));
@@ -94,6 +96,20 @@ function FifthPage({
 
     async function handleCreateImprovement() {
         if (currentChatValue === 7 && inputText && inputText!=="" && localErrorText === '') {
+
+            setIsLoading(true);
+            const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
+            const user_objective = getEncodedLocalStorage('selected_objective');
+            const user_action_list = getEncodedLocalStorage('selected_action');
+            const validate_response = await validateTitle(
+                inputText, user_problem_statement, user_objective, user_action_list, language
+            )
+            setIsLoading(false);
+                if (validate_response?.result){
+                } else {
+                    setLocalErrorText(validate_response?.error_message)
+                    return;
+                }
             setIsLocalLoading(true);
             setEncodedLocalStorage("project_title", inputText);
             const session = getEncodedLocalStorage("session");
@@ -149,7 +165,7 @@ function FifthPage({
     return (
         <>
             {isLoading&& <ShowLoader />}
-            {isLocalLoading&& <ShowLoader showFirstLoader={false} loadingText="Create Micro-Improvement Plan" />}
+            {isLocalLoading&& <ShowLoader showFirstLoader={false} loadingText={getCreateLoadingTranslation(language)} />}
 
             <Header shouldEnableGoBack={true} shouldEnableCross={true} 
                 handleGoBack={()=>handleGoBack(5)} shouldEnableGoForward={false}

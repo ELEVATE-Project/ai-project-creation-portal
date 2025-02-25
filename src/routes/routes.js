@@ -11,4 +11,5 @@ export const BACKEND_ROUTES = {
     CREATE_PROJECT: "api/create-project/",
     VALIDATE_OBJECTIVE: "api/validate-objective/",
     VALIDATE_ACTIONS: "api/validate-actions/",
+    VALIDATE_TITLE: "api/validate-title/",
 };
