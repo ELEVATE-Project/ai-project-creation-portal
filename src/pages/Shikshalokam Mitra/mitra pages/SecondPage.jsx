@@ -118,6 +118,7 @@ function SecondPage({
 
     const handleNextClick = () => {
         if (currentChatValue === 4 && inputText && inputText!==""){
+            setErrorText('');
             setIsLoading(true);
             setObjectiveList(inputText);
             setEncodedLocalStorage("selected_objective", inputText);
@@ -166,9 +167,6 @@ function SecondPage({
                     handleNextClick()
                 } else {
                     setErrorText(validate_response?.error_message)
-                    setTimeout(()=>{
-                        setErrorText('')
-                    }, 6000)
                 }
             }
         } catch (error) {
@@ -283,6 +281,7 @@ function SecondPage({
                                     <button className="secondpage-add-bttn"
                                         onClick={()=>{
                                             setInputText('');
+                                            localStorage.removeItem('selected_objective')
                                             setHasClickedOnAddmore(true);
                                         }}
                                     >

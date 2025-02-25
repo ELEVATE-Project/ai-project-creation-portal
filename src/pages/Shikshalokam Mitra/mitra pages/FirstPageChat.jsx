@@ -75,7 +75,7 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     const [useTextbox, setUseTextbox] = useState(false);
     const [shouldMoveForward, setShouldMoveForward] = useState('no');
 
-    const [languageToUse, setLanguageToUse] = useState("en");
+    const [languageToUse, setLanguageToUse] = useState(JSON.parse(localStorage.getItem("route")));
     const textInputRef = useRef(null);
 
     const {
@@ -232,7 +232,7 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
                     }
                     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
                     const language = preferredLanguage?.value || "en";
-                    setEncodedLocalStorage('route', language || "en");
+                    localStorage.setItem('route', JSON.stringify(language));
                     setLanguageToUse(language);
                     setEncodedLocalStorage('first_name', data?.first_name);
                     setEncodedLocalStorage('company', data?.company?.slug);
@@ -374,7 +374,7 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
               setChatSocket(socket);
                 let profileid = localStorage.getItem('profileid')
                 let sessionid = getEncodedLocalStorage('session')
-                let route = languageToUse
+                let route = JSON.parse(localStorage.getItem("route"))
                 if(profileid && sessionid){
                     socket.send(JSON.stringify({
                     type: 'authenticate',
@@ -1201,7 +1201,7 @@ function ChatMessage({
 }) {
 
     let sanitizedContent = DOMPurify.sanitize(message);
-    const languageToUse = getEncodedLocalStorage("route") || "en";
+    const languageToUse = JSON.parse(localStorage.getItem("route")) || "en";
 
   return (
     <div className="div41">

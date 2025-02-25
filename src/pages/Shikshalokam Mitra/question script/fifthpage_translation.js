@@ -36,3 +36,15 @@ export function getTitlePlaceholderTranslation(language) {
             return defaultText
     }
 }
+
+export function getCreateLoadingTranslation(language) {
+
+    switch(language) {
+        case "en":
+            return "Creating your Micro-Improvement Plan..."
+        case "hi":
+            return "आपका सूक्ष्म-सुधार योजना तैयार की जा रही है..."
+        default:
+            return "Creating your Micro-Improvement Plan..."
+    }
+}
