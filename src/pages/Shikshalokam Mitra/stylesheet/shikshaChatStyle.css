@@ -74,6 +74,10 @@
 
   /* Voice-chat page  */
 
+.drag-icon {
+    font-size: 1.7rem;
+}
+
 .div1 {
     height: 376px;
     padding: 0;

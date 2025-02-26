@@ -13,6 +13,7 @@ import { getActionList, saveUserChatsInDB, validateActionList } from "../../../a
 import { getThirdPageMessages } from "../question script/bot_user_questions";
 import { getActionDefaultTranslation, getActionErrorTranslation, getActionListTextTranslation, getActionPlaceholderTranslation, getAddActionButtonTranslation, getAddOwnButtonTranslation, getSelectButtonTranslation } from "../question script/thirdpage_tanslation";
 import { getContinueButtonTranslation, getNextButtonTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
+import { PiDotsSixVerticalBold } from "react-icons/pi";
 
 
 
@@ -480,7 +481,7 @@ export function FinalActionPage({
                                                     className="action-box"
                                                 >
                                                     <div className="drag-handle">
-                                                        <span>⋮⋮</span>
+                                                        <span><PiDotsSixVerticalBold className="drag-icon"/>                                                        </span>
                                                     </div>
                                                     <input
                                                         type="text"
