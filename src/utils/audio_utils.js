@@ -1,4 +1,3 @@
-    // Function to convert the audio to WAV and check for silence
 export const convertToWav = async (audioBlob) => {
     return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -9,11 +8,9 @@ export const convertToWav = async (audioBlob) => {
         try {
         const buffer = await audioContext.decodeAudioData(audioData.buffer);
         
-        // If no significant audio is detected, return null
         if (!containsSignificantAudio(buffer)) {
             resolve(null);
         } else {
-            // Convert to WAV and return the blob if audio is valid
             const wavData = bufferToWave(buffer, buffer.length);
             const wavBlob = new Blob([wavData], { type: 'audio/wav' });
             resolve(wavBlob);
@@ -26,7 +23,6 @@ export const convertToWav = async (audioBlob) => {
     });
 };
 
-// Function to check if the audio contains significant sound
 export const containsSignificantAudio = (audioBuffer, threshold = 0.3) => {
     const numOfChannels = audioBuffer.numberOfChannels;
     const channelData = [];
@@ -35,31 +31,28 @@ export const containsSignificantAudio = (audioBuffer, threshold = 0.3) => {
     channelData.push(audioBuffer.getChannelData(i));
     }
 
-    // Check each sample in each channel for significant sound
     for (let i = 0; i < channelData[0].length; i++) {
     for (let channel = 0; channel < numOfChannels; channel++) {
         if (Math.abs(channelData[channel][i]) > threshold) {
-        return true; // There is significant sound
+        return true;
         }
     }
     }
 
-    return false; // No significant sound detected
+    return false;
 };
 
-// Function to convert audio buffer to WAV format
 export const bufferToWave = (abuffer, len) => {
     const numOfChannels = abuffer.numberOfChannels;
     const sampleRate = abuffer.sampleRate;
-    const format = 1; // PCM
-    const bitDepth = 16; // 16-bit PCM
+    const format = 1;
+    const bitDepth = 16;
     const byteRate = sampleRate * numOfChannels * (bitDepth / 8);
     const blockAlign = numOfChannels * (bitDepth / 8);
     const wavLength = 44 + len * blockAlign;
     const buffer = new ArrayBuffer(wavLength);
     const view = new DataView(buffer);
 
-    // Write WAV header
     let offset = 0;
     const writeString = (str) => {
         for (let i = 0; i < str.length; i++) {
@@ -68,27 +61,25 @@ export const bufferToWave = (abuffer, len) => {
         offset += str.length;
     };
 
-    // RIFF header
     writeString('RIFF');
-    view.setUint32(offset, wavLength - 8, true); // file length
+    view.setUint32(offset, wavLength - 8, true);
     offset += 4;
-    writeString('WAVE'); // wave format
+    writeString('WAVE');
 
-    // Format chunk
     writeString('fmt ');
-    view.setUint32(offset, 16, true); // chunk length
+    view.setUint32(offset, 16, true);
     offset += 4;
-    view.setUint16(offset, format, true); // format type
+    view.setUint16(offset, format, true); 
     offset += 2;
-    view.setUint16(offset, numOfChannels, true); // channels
+    view.setUint16(offset, numOfChannels, true);
     offset += 2;
-    view.setUint32(offset, sampleRate, true); // sample rate
+    view.setUint32(offset, sampleRate, true); 
     offset += 4;
-    view.setUint32(offset, byteRate, true); // byte rate
+    view.setUint32(offset, byteRate, true); 
     offset += 4;
-    view.setUint16(offset, blockAlign, true); // block align
+    view.setUint16(offset, blockAlign, true);
     offset += 2;
-    view.setUint16(offset, bitDepth, true); // bits per sample
+    view.setUint16(offset, bitDepth, true); 
     offset += 2;
 
     writeString('data');

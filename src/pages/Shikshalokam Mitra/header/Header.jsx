@@ -21,7 +21,6 @@ function Header({ shouldEnableGoBack = false, shouldEnableCross = false, shouldE
         
         clearMitraLocalStorage();
         window.location.href=process.env.REACT_APP_ROUTE_LOGIN;
-        // navigate(process.env.REACT_APP_ROUTE_LOGIN);
 
     };
 

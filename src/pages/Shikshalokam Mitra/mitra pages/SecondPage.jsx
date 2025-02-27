@@ -171,7 +171,6 @@ function SecondPage({
             }
         } catch (error) {
             const errorMessage = getEncodedLocalStorage('system_error') || 'Please try again later!';
-            console.log('Error:', errorMessage);
             
             setErrorText(errorMessage);
             setTimeout(()=>{
@@ -191,10 +190,6 @@ function SecondPage({
             handleGoBack(index)
         }
     }
-
-    useEffect(()=>{
-        console.log('fetchError: ', fetchError)
-    }, [fetchError])
 
     return (
         <>

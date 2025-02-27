@@ -11,7 +11,6 @@ import WaveSurferPlayer from "../../text-voice/voice-player";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import DOMPurify from "dompurify";
-// import rehypeRaw from 'rehype-raw';
 import { BiLoader } from "react-icons/bi";
 import { HiMiniSpeakerWave, HiMiniSpeakerXMark, HiOutlineSpeakerWave } from "react-icons/hi2";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
@@ -132,7 +131,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             
             let sortedResult = quickSort(resp?.data?.results, compareById);
 
-            // Ensure intro message is added only once
             if (introMessageRef.current) {
                 const temp_intro = introMessageRef.current;
                 setSentences((prev) => [
@@ -151,10 +149,9 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
                     updated_at: 'intro_msg_id',
                 });
 
-                introMessageRef.current = ""; // Clear intro message after use
+                introMessageRef.current = "";
             }
 
-            // Process chat messages
             sortedResult.forEach((chats) => {
                 let messageToUse = chats?.message;
                 if (chats?.translated_message && chats?.translated_message !== ''){
@@ -179,14 +176,11 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
                 });
             });
 
-            // Update chat history
             const newChatHistoryItems = newChatSessionDetail.map((item) => ({
                 msg: item.msg,
                 source: item.source,
                 updated_at: item.updated_at,
             }));
-            
-            // Avoid adding duplicates
             
             setChatHistory((prev) => {
                 const existingMessages = new Set(prev.map(msg => msg.msg));
@@ -237,7 +231,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
                     setEncodedLocalStorage('first_name', data?.first_name);
                     setEncodedLocalStorage('company', data?.company?.slug);
                     let currentSession = getEncodedLocalStorage('session');
-                    console.log("currentSession: ", currentSession)
                     await handleCompanyChatCall(currentSession);
                     setUserName(JSON.stringify(data?.first_name))
                 } else {
@@ -247,7 +240,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             } catch (error) {
                 console.error(error?.response?.data || error);
                 clearMitraLocalStorage()
-                // navigate(-1)
             } finally {
                 setIsLocalLoading(false);
             }
@@ -276,24 +268,18 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     const MakeSocketConnection = useCallback((currentTextMessage, currentSocket) => {
         return new Promise((resolve, reject) => {
           try{
-            console.log("start chatSocket: ", chatSocket)
             if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-              console.log("Reusing existing WebSocket connection");
               return resolve(chatSocket);
             } else if(currentSocket && currentSocket.readyState === WebSocket.OPEN) {
-              console.log("Reusing existing WebSocket passed as connection");
               return resolve(currentSocket);
             }
-            console.log("Creating new WebSocket connection...");
             let socket;
         
             let url = `${wss_protocol}${process.env.REACT_APP_WEBSOCKET_HOST}/ws/mitra/`;
         
             socket = new WebSocket(url);
-            console.log("socket: ", socket)
     
             socket.onmessage = (e) => {
-              console.log("Ws Connection Message");
               const data = JSON.parse(e.data);
               const message = data["text"];
             
@@ -369,8 +355,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             };
     
             socket.onopen = () => {
-              console.log("Ws Connection open");
-              console.log("socket: ", socket)
               setChatSocket(socket);
                 let profileid = localStorage.getItem('profileid')
                 let sessionid = getEncodedLocalStorage('session')
@@ -388,7 +372,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             };
     
             socket.onclose = (event) => {
-              console.log("Socket connection closed", event);
             };
             
             socket.onerror = (error) => {
@@ -400,7 +383,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     
             return () => {
               if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
-                console.log("Socket connection closed")
                 chatSocket.close();
               }
             };
@@ -420,18 +402,11 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
         return;
         }
         reconnectAttempts++; 
-        console.log(`Reconnection attempt #${reconnectAttempts}...`);
-
-        console.log("Attempting WebSocket Reconnection...");
         setTimeout(() => {
         MakeSocketConnection(currentTextMessage)
         .then((newSocket) => {
-            console.log("Reconnected to WebSocket", newSocket);
             reconnectAttempts = 0;
-            console.log("currentTextMessage: ", currentTextMessage)
             if (currentTextMessage && currentTextMessage.trim() !== "") {
-            console.log("Resubmitting the form...");
-            // document.querySelector("form.div39").requestSubmit();
             handleSendMessage(null, newSocket)
             }
         })
@@ -454,7 +429,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     let data = await getTranslatedIntroMessage(storedRoute);
     let message = data[0]?.alt_introductory_message;
 
-    console.log("got translated: ", message);
 
     if (message && !!message?.trim() && (chatHistory[chatHistory?.length - 1]?.msg !== message)) {
         setEncodedLocalStorage('intro_end_context', message);
@@ -487,19 +461,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     }
   }, [chatHistory, setChatHistory, setSentences]);
   
-
-    useEffect(()=>{
-        console.log('isReadOnly: ', isReadOnly)
-
-        // if (isReadOnly) {
-        //     localStorage.removeItem('objective');
-        //     localStorage.removeItem('selected_objective');
-        //     // setReadData();
-        // }
-        
-    }, [isReadOnly])
-    
-
     useEffect(()=>{
         const botName = getEncodedLocalStorage('botName');
         setBotNameToDisplay(botName);
@@ -528,9 +489,7 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     }
 
     useEffect(()=>{
-        console.log("shouldMoveForward: ", shouldMoveForward)
         if(shouldMoveForward === 'yes') {
-            console.log("Movingggg.")
             setIsLoading(true);
             setCurrentChatValue(4);
             setCurrentPageValue(1)
@@ -677,7 +636,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
 
     const handleScrollToView = () => {
         try {
-            console.log('scrolling');
             const element = document?.querySelector("#last-chat-boundary");
             if (!element) {
                 console.error('Element #last-chat-boundary not found');
@@ -693,7 +651,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
 
     const handleSendMessage = useCallback(
         async (event, currentSocket) => {
-          console.log("Send event: ", event);
           if (event) {
             event.preventDefault();
             event.stopPropagation();
@@ -701,10 +658,8 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
           localStorage.removeItem('llmError');
       
           try {
-            console.log("message: ", textMessage);
-            const socket = await MakeSocketConnection(textMessage, currentSocket); // ✅ Ensures the latest socket is used
+            const socket = await MakeSocketConnection(textMessage, currentSocket);
       
-            console.log("Send socket: ", socket);
             setIsChatVisible(true);
             setNotMute(true);
             if (audioRef.current) {
@@ -735,7 +690,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
         e.preventDefault();
         setTextMessage(e.target.value);
         
-        // If the input is cleared, reset the recognition flags
         if (e.target.value.trim() === "") {
             setIsRecognizing(false);
             setHasStartedListening(false);
@@ -792,12 +746,10 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
         let audio_result = "";
         let audio;
     
-        // Mark sentence as narrated if override ID is not set
         if (!hasOverRideId) {
             handleMessagesForBot(text);
         }
     
-        // If muted, mark all sentences as narrated and skip TTS
         if (isMute && !hasOverRideId) {
             setSentences((prev) => {
             let all_sentences = JSON.parse(JSON.stringify([...prev]));
@@ -808,7 +760,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             return;
         }
     
-        // Fetch the audio result using AI4Bharat TTS service if not cached
         if (!cachedAudioUrl) {
             audio_result = await getAI4BharatAudio(text, sourceLanguage);
             if (audio_result?.length) {
@@ -824,12 +775,10 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             audioRef.current = new Audio(cachedAudioUrl);
             audio = audioRef.current;
     
-            // Disable next sentence narration while current audio is playing
             audio.onplay = () => {
             setIsNextAllowed(false);
             };
     
-            // Enable next sentence narration after the current audio ends
             audio.onended = () => {
             setSentences((prev) => {
                 let all_sentences = JSON.parse(JSON.stringify([...prev]));
@@ -898,7 +847,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
     const handleFirstMessage = ({ message, category }) => {
         try {
         if (category === "special") {
-            // window.location.reload();
             return;
         }
         handleScrollToView();
@@ -955,7 +903,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             const recorder = new MediaRecorder(stream);
             setMediaRecorder(recorder);
     
-            // Clear previous audio chunks before starting new recording
             const localAudioChunks = [];
     
             recorder.start();
@@ -963,7 +910,6 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             
     
             recorder.ondataavailable = (event) => {
-                // Collect audio data chunks in the local array
                 localAudioChunks.push(event.data);
                 
             };
@@ -971,21 +917,17 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
             recorder.onstop = async () => {
                 
                 if (localAudioChunks.length > 0) {
-                // Combine all audio chunks into a single Blob
                 const audioBlob = new Blob(localAudioChunks, { type: 'audio/webm;codecs=opus' });
                 
     
-                // Check if the audio blob contains any significant sound
                 const wavBlob = await convertToWav(audioBlob);
                 if (!wavBlob) {
                     
-                    return; // Skip if no meaningful audio
+                    return; 
                 }
                 setIsFetchingData(true);
-                // Convert to Base64 and send to the ASR API
                 const base64Audio = await convertBlobToBase64(wavBlob);
                 const transcriptResult = await ai4BharatASR(base64Audio, languageToUse);
-                // Update transcript if valid audio
                 setTextMessage(transcriptResult);
                 setIsFetchingData(false);
                 } else {
@@ -1279,7 +1221,6 @@ function ChatMessage({
           id={chatId}
         >
             <ReactMarkdown  children={sanitizedContent} remarkPlugins={[remarkGfm]} 
-                // rehypePlugins={[rehypeRaw]} 
             />
             {isTalking && (
               <div className="div55">

@@ -186,13 +186,6 @@ function FirstPage( {
             setIsLoading(false);
         }
     }, [isReadOnly, errorMessage])
-    
-    // useEffect(()=>{
-    //     console.log("Error Message: ", errorMessage)
-    //     console.log("Currentchatvalue: ", currentChatValue)
-    //     console.log('userInput: ', userInput)
-    // }, [errorMessage])
-
 
     useEffect(() => {
         
@@ -202,7 +195,6 @@ function FirstPage( {
         }
         const errorText = getEncodedLocalStorage('errorText');
         if (currentChatValue === 3 && !isReadOnly && errorMessage === '') {
-            // if((errorText === '' || !errorText))
             setIsLoading(true);
             localStorage.removeItem("errorText");
             setCurrentChatValue(4);
@@ -284,7 +276,6 @@ function FirstPage( {
                                 }}
                             >
                                 <img src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/mic.gif" className="mic-gif" />
-                                {/* <RiMic2Fill className="microphone-button-icon" /> */}
                             </button>
                         </div>
                         <div className="fourthpara-div">

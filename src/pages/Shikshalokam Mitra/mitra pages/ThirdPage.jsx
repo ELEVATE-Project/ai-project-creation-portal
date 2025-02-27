@@ -114,7 +114,6 @@ function ThirdPage({
         if(isInReadOnlyMode) {
             setIsLoading(true);
             setCurrentChatValue(5);
-            // localStorage.removeItem('selected_action');
             setIsLoading(false);
         }
     }, [isInReadOnlyMode])
@@ -159,10 +158,6 @@ function ThirdPage({
         
         try{
             if (isActionEmptyOrDefault(action_to_store)) {
-                // setErrorText(getActionErrorTranslation(language))
-                // setTimeout(()=>{
-                //     setErrorText('')
-                // }, 3000)
                 return; 
             }
             const actionListToStore = [{
@@ -184,8 +179,6 @@ function ThirdPage({
             if (currentChatValue === 5 && actionList){
                 setIsLoading(true);
                 setEncodedLocalStorage("selected_action", actionListToStore);
-                // console.log(JSON.stringify(getEncodedLocalStorage('actionList')))
-                // console.log(thirdpage_messages[7]?.[0]?.message)
                 const currentSession = getEncodedLocalStorage('session');
                 const botMessage =
                 {
@@ -211,7 +204,6 @@ function ThirdPage({
             }
         } catch (error) {
             const errorMessage = getEncodedLocalStorage('system_error') || 'Please try again later!';
-            console.log('Error:', errorMessage);
             setErrorText(errorMessage);
             setIsLoading(false)
             setTimeout(()=>{
@@ -231,7 +223,6 @@ function ThirdPage({
             <div className="secondpage-div">
                 {(!hasClickedOnAddmore && !wantsToMoveForward && actionList && !isLoading && !isInReadOnlyMode)?
                     <div className="secondpage-bot-div" 
-                        // ref={currentChatValue === 2 ? scrollRef : null}
                     >
                         <BotMessage 
                             firstparaClass={"firstpara-div"}
