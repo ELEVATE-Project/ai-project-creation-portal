@@ -25,7 +25,6 @@ export const handleAI4BharatTTSRequest = async (text, id, language, audioCache, 
         let audio_result = "";
         let audio;
 
-        // Fetch the audio result using AI4Bharat TTS service if not cached
         if (!cachedAudioUrl) {
             audio_result = await getAI4BharatAudio(text, language);
             if (audio_result?.length) {
@@ -41,7 +40,6 @@ export const handleAI4BharatTTSRequest = async (text, id, language, audioCache, 
             audioRef.current = new Audio(cachedAudioUrl);
             audio = audioRef.current;
 
-            // Attach event listener to detect when audio finishes playing
             audio.onended = () => {
                 
                 setIsBotTalking(false);
@@ -79,7 +77,6 @@ export async function ai4BharatASR(base64, language, gender = 'female'){
         route: '/mitra-create'
       });
       
-      // Return the audio content
       return response.data.transcript;
     } catch (error) {
       console.error('Error fetching AI4Bharat audio:', error);

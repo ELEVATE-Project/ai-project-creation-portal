@@ -63,9 +63,7 @@ function MainPage() {
     }, [currentChatValue])
 
     useEffect(()=>{
-        
         setEncodedLocalStorage("currentPage", currentPage);
-        console.log(currentPage)
     }, [currentPage])
 
 
@@ -135,22 +133,6 @@ function MainPage() {
     };
 
     function getCurrentPageView(){
-        // if (currentChatValue < 4) {
-        //     setIsReadOnly(false)
-        //     // setCurrentPageValue(1)
-        // } else if (currentChatValue>=4 && currentChatValue<5) {
-        //     setIsReadOnly(false)
-        //     // setCurrentPageValue(2)
-        // } else if (currentChatValue>=5 && currentChatValue<6) {
-        //     setIsReadOnly(false)
-        //     // setCurrentPageValue(3)
-        // } else if (currentChatValue>=6 && currentChatValue<7) {
-        //     setIsReadOnly(false)
-        //     // setCurrentPageValue(4)
-        // } else if (currentChatValue===7) {
-        //     setIsReadOnly(false)
-        //     // setCurrentPageValue(5)
-        // }
         if (currentChatValue<4 || currentPage['1']) {
             return (
                 <FirstPageVoiceBasedChat 

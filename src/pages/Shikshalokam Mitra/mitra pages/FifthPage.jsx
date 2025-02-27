@@ -144,20 +144,14 @@ function FifthPage({
 
                     if(project_response) {
                         clearMitraLocalStorage();
-                        setIsLocalLoading(false);
-
-                        
                         const projectId = project_response?.projectId;
-                        
                         window.location.replace(`${process.env.REACT_APP_ROUTE_EXIT}${projectId}`);
-                        // navigate(process.env.REACT_APP_ROUTE_EXIT);
+                       
                     }
                 }
             }  catch (error) {
                 console.error('Error: ', error);
-                setIsLocalLoading(false);
                 window.location.href=process.env.REACT_APP_ROUTE_LOGIN;
-                // navigate(process.env.REACT_APP_ROUTE_EXIT);
             }
         }
     }
