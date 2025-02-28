@@ -6,6 +6,7 @@ import FifthPage from "./mitra pages/FifthPage";
 import { handleAI4BharatTTSRequest } from "../../api services/ai4bharat_services";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../utils/storage_utils";
 import FirstPageVoiceBasedChat from "./mitra pages/FirstPageChat";
+import { useNavigate } from "react-router-dom";
 
 
 function MainPage() {
@@ -25,7 +26,7 @@ function MainPage() {
         name: localStorage.getItem("name"),
         image: localStorage.getItem("image"),
         email: localStorage.getItem("email"),
-      })
+    })
     const [errorText, setErrorText] = useState(getEncodedLocalStorage("errorText") || "");
     const [showTyping, setShowTyping] = useState(false);
 
@@ -36,6 +37,7 @@ function MainPage() {
         4: false,
         5: false,
     })
+    const navigate = useNavigate();
 
     const audioRef = useRef();
 
@@ -45,6 +47,10 @@ function MainPage() {
             image: localStorage.getItem("image"),
             email: localStorage.getItem("email"),
         })
+        if(!localStorage.getItem("name")) {
+            clearMitraLocalStorage();
+            navigate(-1)
+        }
     }, [])
 
     useEffect(()=>{
