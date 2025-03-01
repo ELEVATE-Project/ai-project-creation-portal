@@ -14,6 +14,7 @@ import { getThirdPageMessages } from "../question script/bot_user_questions";
 import { getActionDefaultTranslation, getActionErrorTranslation, getActionListTextTranslation, getActionPlaceholderTranslation, getAddActionButtonTranslation, getAddOwnButtonTranslation, getSelectButtonTranslation } from "../question script/thirdpage_tanslation";
 import { getContinueButtonTranslation, getNextButtonTranslation, getOrTextTranslation, getSuggestMoreButtonTranslation } from "../question script/secondpage_tanslation";
 import { PiDotsSixVerticalBold } from "react-icons/pi";
+import { TbTrashOff } from "react-icons/tb";
 
 
 
@@ -486,18 +487,21 @@ export function FinalActionPage({
                                                             )
                                                         }
                                                     />
-                                                    <FiTrash2
-                                                        className={
-                                                            (actionList && actionList.length <= 1)?
-                                                                "delete-icon-disable":"delete-icon"
-                                                            }
+                                                    {(actionList && actionList.length > 1)?
+                                                        <FiTrash2
+                                                        className="delete-icon"
                                                         onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 handleDelete(action.id);
                                                             }
                                                         }
                                                         onMouseDown={(e) => e.stopPropagation()}
-                                                    />
+                                                        />
+                                                        :
+                                                        <TbTrashOff
+                                                            className="delete-icon-disable"
+                                                        />
+                                                    }
                                                 </div>
                                             )}
                                         </Draggable>
