@@ -873,6 +873,7 @@
         font-size: 1rem;
         font-weight: 600;
         font-family: var(--secondary-font-family);
+        cursor: none;
     }
 
     .fifthpage-bot-msg {
@@ -1896,6 +1897,7 @@
         font-size: 1rem;
         font-weight: 600;
         font-family: var(--secondary-font-family);
+        cursor: none;
     }
 
     .fifthpage-bot-msg {

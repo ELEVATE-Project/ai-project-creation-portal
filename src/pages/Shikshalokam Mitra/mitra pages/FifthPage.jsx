@@ -25,6 +25,7 @@ function FifthPage({
     const titleCharacterLimit = 100;
 
     const [isLocalLoading, setIsLocalLoading] = useState(false);
+    const [shouldDisableButton, setShouldDisableButton] = useState(false);
 
     const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
     const language = preferredLanguage.value || 'en';
@@ -65,14 +66,18 @@ function FifthPage({
         const newText = e?.target?.value;
         const specialCharRegex = /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~₹]/;
         if (specialCharRegex.test(newText)) {
+            setShouldDisableButton(true);
             setLocalErrorText(getTitleNumberTranslation(language));
         } else if (newText.length > titleCharacterLimit) {
+            setShouldDisableButton(true);
             setLocalErrorText(getTitleErrorTranslation(language));
         } else if (newText === '') {
+            setShouldDisableButton(true);
             setLocalErrorText(getEmptyTitleErrorTranslation(language));
         } else {
-            setLocalErrorText('');
+            setShouldDisableButton(false);
         }
+        
         setInputText(newText);
     }
 
@@ -95,7 +100,7 @@ function FifthPage({
     
 
     async function handleCreateImprovement() {
-        if (currentChatValue === 7 && inputText && inputText!=="" && localErrorText === '') {
+        if (currentChatValue === 7 && inputText && inputText!=="" && inputText.length <= titleCharacterLimit && !shouldDisableButton) {
 
             setIsLoading(true);
             const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
@@ -210,10 +215,8 @@ function FifthPage({
                 <div className="fourthpage-next-div">
                     <button 
                         className={
-                            `${(fetchError && fetchError!=='') ? "fifthpage-disable-button" : (!localErrorText || localErrorText === '') ? 
-                                "fifthpage-select-bttn" :
-                                "fifthpage-disable-button"
-                            } `
+                            `${(shouldDisableButton) ? "fifthpage-disable-button" :
+                                "fifthpage-select-bttn"                            } `
                         }
                         onClick={handleCreateImprovement}
                     >
