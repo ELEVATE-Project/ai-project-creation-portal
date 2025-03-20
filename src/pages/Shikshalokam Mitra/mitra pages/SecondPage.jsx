@@ -65,7 +65,10 @@ function SecondPage({
                 if (!objectiveList || objectiveList?.length===0) {
                     setIsLoading(true);
                     const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
-                    const fetched_objectiveList = await getObjectiveList(userProblemStatement, language);
+                    const profile_id = localStorage.getItem("profileid")
+                    const fetched_objectiveList = await getObjectiveList(
+                        userProblemStatement, language, profile_id
+                    );
                     if (fetched_objectiveList) {
                         setObjectiveList(fetched_objectiveList?.objective_list);
                         setEncodedLocalStorage('objective', fetched_objectiveList?.objective_list);
@@ -160,7 +163,8 @@ function SecondPage({
                 }, 3000)
             } else {
                 setIsLoading(true);
-                const validate_response = await validateObjective(inputText, language)
+                const profile_id = localStorage.getItem("profileid")
+                const validate_response = await validateObjective(inputText, language, profile_id)
                 setIsLoading(false);
                 if (validate_response?.result){
                     setEncodedLocalStorage('hasClickedObjAddMore', true)
