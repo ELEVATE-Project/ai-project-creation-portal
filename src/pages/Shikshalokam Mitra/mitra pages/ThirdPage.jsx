@@ -86,7 +86,10 @@ function ThirdPage({
                     setIsLoading(true)
                     const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
                     const objective = getEncodedLocalStorage('selected_objective')
-                    const fetchedActionList = await getActionList(userProblemStatement, objective, language);
+                    const profile_id = localStorage.getItem("profileid")
+                    const fetchedActionList = await getActionList(
+                        userProblemStatement, objective, language, profile_id
+                    );
                     if (fetchedActionList) {
                         setActionList(fetchedActionList);
                         setEncodedLocalStorage('actionList', fetchedActionList);
@@ -167,8 +170,10 @@ function ThirdPage({
             const userProblemStatement = getEncodedLocalStorage('user_problem_statement')
             const objective = getEncodedLocalStorage('selected_objective')
             setIsLoading(true);
+            const profile_id = localStorage.getItem("profileid")
             const validate_response = await validateActionList(
-                action_to_store.map((action)=>action.content), objective, userProblemStatement, language
+                action_to_store.map((action)=>action.content), objective, userProblemStatement, language, 
+                profile_id
             )
             setIsLoading(false);
     

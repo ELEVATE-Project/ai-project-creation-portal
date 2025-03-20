@@ -17,11 +17,12 @@ export async function getParaphraseText(user_input, language, paraphrase_text=fa
     } 
 }
 
-export async function getObjectiveList(user_input, language){
+export async function getObjectiveList(user_input, language, profile_id){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.OBJECTIVE_API, {
             user_input,
-            language
+            language,
+            profile_id
         });
         
         return response?.data;
@@ -31,12 +32,13 @@ export async function getObjectiveList(user_input, language){
     } 
 }
 
-export async function getActionList(user_problem_statement, user_objective, language){
+export async function getActionList(user_problem_statement, user_objective, language, profile_id){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.ACTION_LIST_API, {
             user_problem_statement,
             user_objective,
-            language
+            language,
+            profile_id
         });
         
         return response?.data?.action_list;
@@ -46,13 +48,14 @@ export async function getActionList(user_problem_statement, user_objective, lang
     } 
 }
 
-export async function getTitle(user_problem_statement, user_objective, user_action_list, language){
+export async function getTitle(user_problem_statement, user_objective, user_action_list, language, profile_id){
     try {
         const response = await axiosInstance.post(BACKEND_ROUTES.TITLE_API, {
             user_problem_statement,
             user_objective,
             user_action_list,
-            language
+            language,
+            profile_id
         });
       
         return response?.data?.title;
@@ -165,13 +168,14 @@ export async function updateChatSession(session, update_field){
     } 
 }
 
-export async function validateObjective(user_input, language){
+export async function validateObjective(user_input, language, profile_id){
     try {
         const response = await axiosInstance.post(
             `${BACKEND_ROUTES.VALIDATE_OBJECTIVE}`, 
             {
                 user_input,
-                language
+                language,
+                profile_id
             }
         );
       
@@ -182,7 +186,7 @@ export async function validateObjective(user_input, language){
     } 
 }
 
-export async function validateTitle(user_input, user_objective, problem_statement, user_actions, language){
+export async function validateTitle(user_input, user_objective, problem_statement, user_actions, language, profile_id){
     try {
         const response = await axiosInstance.post(
             `${BACKEND_ROUTES.VALIDATE_TITLE}`, 
@@ -191,7 +195,8 @@ export async function validateTitle(user_input, user_objective, problem_statemen
                 user_objective,
                 problem_statement,
                 user_actions,
-                language
+                language,
+                profile_id
             }
         );
       
@@ -202,7 +207,7 @@ export async function validateTitle(user_input, user_objective, problem_statemen
     } 
 }
 
-export async function validateActionList(user_input, user_objective, problem_statement, language){
+export async function validateActionList(user_input, user_objective, problem_statement, language, profile_id){
     try {
         const response = await axiosInstance.post(
             `${BACKEND_ROUTES.VALIDATE_ACTIONS}`, 
@@ -210,7 +215,8 @@ export async function validateActionList(user_input, user_objective, problem_sta
                 user_input,
                 user_objective,
                 problem_statement,
-                language
+                language,
+                profile_id
             }
         );
       

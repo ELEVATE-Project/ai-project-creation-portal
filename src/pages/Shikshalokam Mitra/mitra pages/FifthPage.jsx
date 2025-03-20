@@ -43,7 +43,10 @@ function FifthPage({
                     const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
                     const user_objective = getEncodedLocalStorage('selected_objective');
                     const user_action_list = getEncodedLocalStorage('selected_action');
-                    title = await getTitle(user_problem_statement, user_objective, user_action_list, language);
+                    const profile_id = localStorage.getItem("profileid")
+                    title = await getTitle(
+                        user_problem_statement, user_objective, user_action_list, language, profile_id
+                    );
                     if (title) {
                         setInputText(title)
                         setEncodedLocalStorage('project_title', title);
@@ -106,8 +109,9 @@ function FifthPage({
             const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
             const user_objective = getEncodedLocalStorage('selected_objective');
             const user_action_list = getEncodedLocalStorage('selected_action');
+            const profile_id = localStorage.getItem("profileid")
             const validate_response = await validateTitle(
-                inputText, user_problem_statement, user_objective, user_action_list, language
+                inputText, user_problem_statement, user_objective, user_action_list, language, profile_id
             )
             setIsLoading(false);
                 if (validate_response?.result){
@@ -118,7 +122,6 @@ function FifthPage({
             setIsLocalLoading(true);
             setEncodedLocalStorage("project_title", inputText);
             const session = getEncodedLocalStorage("session");
-            const profile_id = localStorage.getItem("profileid");
             const field_to_update = {
                 "title": inputText,
                 "session_status": "COMPLETED"
