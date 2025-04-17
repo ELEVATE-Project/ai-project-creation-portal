@@ -105,7 +105,7 @@ function FifthPage({
     async function handleCreateImprovement() {
         if (currentChatValue === 7 && inputText && inputText!=="" && inputText.length <= titleCharacterLimit && !shouldDisableButton) {
 
-            setIsLoading(true);
+            setIsLocalLoading(true);
             const user_problem_statement = getEncodedLocalStorage('user_problem_statement');
             const user_objective = getEncodedLocalStorage('selected_objective');
             const user_action_list = getEncodedLocalStorage('selected_action');
@@ -113,13 +113,11 @@ function FifthPage({
             const validate_response = await validateTitle(
                 inputText, user_problem_statement, user_objective, user_action_list, language, profile_id
             )
-            setIsLoading(false);
-                if (validate_response?.result){
-                } else {
-                    setLocalErrorText(validate_response?.error_message)
-                    return;
-                }
-            setIsLocalLoading(true);
+            if (validate_response?.result){
+            } else {
+                setLocalErrorText(validate_response?.error_message)
+                return;
+            }
             setEncodedLocalStorage("project_title", inputText);
             const session = getEncodedLocalStorage("session");
             const field_to_update = {
@@ -147,7 +145,7 @@ function FifthPage({
                     
                     const project_response = await createProject(
                         access_token, user_problem_statement, user_action_list, project_duration, 
-                        inputText, profile_id, session, user_objective, chunks
+                        inputText, profile_id, session, user_objective, chunks, language
                     )
 
                     if(project_response) {
