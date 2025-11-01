@@ -117,3 +117,15 @@ export function getPlaceHolder3(language) {
             return defaultText
     }
 }
+
+export function resetButtonText(language) {
+    const defaultText = 'Restart the conversation'
+    switch(language) {
+        case "en":
+            return defaultText
+        case "hi":
+            return "बातचीत पुनः प्रारंभ करें"
+        default:
+            return defaultText
+    }
+}

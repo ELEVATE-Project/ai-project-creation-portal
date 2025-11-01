@@ -16,7 +16,7 @@ import { HiMiniSpeakerWave, HiMiniSpeakerXMark, HiOutlineSpeakerWave } from "rea
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { clearMitraLocalStorage, ShowLoader } from "../MainPage";
-import { getExploreTranslation, getInputPlaceholderTranslation, getKeyboardButtonTranslation, getPlaceHolder1, getPlaceHolder2, getPlaceHolder3, getVoiceButtonTranslation, getVoiceStopButtonTranslation } from "../question script/firstpage_translation";
+import { getExploreTranslation, getInputPlaceholderTranslation, getKeyboardButtonTranslation, getPlaceHolder1, getPlaceHolder2, getPlaceHolder3, getVoiceButtonTranslation, getVoiceStopButtonTranslation, resetButtonText } from "../question script/firstpage_translation";
 import { getNewSessionID, saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import axiosInstance from "../../../utils/axios";
 import "../stylesheet/shikshaChatStyle.css"
@@ -1116,6 +1116,20 @@ const FirstPageVoiceBasedChat = ({ setIsLoading, setCurrentChatValue, setCurrent
           </form>
         }
       </div>
+      {isReadOnly && (
+        <div className="fixed bottom-0 left-0 w-full bg-white py-4 flex justify-center shadow-md">
+            <button 
+                className="text-purple-700 border border-purple-700 rounded-md px-4 py-2 hover:bg-purple-50 transition"
+                onClick={()=>{
+                    clearMitraLocalStorage();
+                    window.location.reload();
+                }}
+            >
+                {resetButtonText(languageToUse)}
+            </button>
+        </div>
+        )}
+
     </>
   );
 };
