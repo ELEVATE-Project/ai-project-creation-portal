@@ -7,7 +7,8 @@ import { handleAI4BharatTTSRequest } from "../../api services/ai4bharat_services
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../utils/storage_utils";
 import FirstPageVoiceBasedChat from "./mitra pages/FirstPageChat";
 import { useNavigate } from "react-router-dom";
-
+import Sidebar from "./mitra pages/components/Sidebar";
+import ConversationWrapperCard from "./mitra pages/components/ConversationWrapperCard";
 
 function MainPage() {
     const [audioCache, setAudioCache] = useState({});
@@ -221,9 +222,12 @@ function MainPage() {
     }
 
     return (
-        <>
-            {userDetail?.name && getCurrentPageView()}
-        </>
+        <main className="w-full h-screen flex relative gap-10 py-24 px-48 bg-[#F0F2F5]">
+            <Sidebar />
+            <ConversationWrapperCard>
+                {userDetail?.name && getCurrentPageView()}
+            </ConversationWrapperCard>
+        </main>
     );
 }
 
