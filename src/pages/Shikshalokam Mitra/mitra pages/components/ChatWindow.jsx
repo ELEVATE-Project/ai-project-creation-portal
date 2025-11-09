@@ -1,10 +1,11 @@
 import ChatMessage from "./chat-message/ChatMessage";
 
 const LoadingChat = () => (
-  <div className="div57">
-    <div className="div58">
-      <div>Replying...</div>
-    </div>
+  <div>
+    <img
+      className="h-14"
+      src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/loading%20animation.gif"
+    />
   </div>
 );
 function ChatWindow({
@@ -19,9 +20,19 @@ function ChatWindow({
   isReadOnly,
   hasStartedListening,
   hasOverRideId,
+  isDefineChallengeSection,
 }) {
+  const getShowLoadingChat = (indexNumber) => {
+    return (
+      isDefineChallengeSection &&
+      !hasStartedListening &&
+      chatHistory[chatHistory?.length - 1].source === "user" &&
+      indexNumber === chatHistory?.length - 1 &&
+      !isReadOnly
+    );
+  };
   return (
-    <div className="h-[90%] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
+    <div className={`h-[${!isDefineChallengeSection ? "100%" : "90%"}]`}>
       <ul className="div34">
         {chatHistory?.map((chat, i) => (
           <li
@@ -44,7 +55,8 @@ function ChatWindow({
                 }
                 handleOnStopSpeaking={() => handleOnStopSpeaking()}
                 handleOnSpeaking={() => {
-                  handleOnSpeaking(chat?.msg, chat?.updated_at);
+                  setNotMute(false);
+                  handleOnSpeaking(`${chat?.msg}`, chat?.updated_at);
                 }}
                 isAnyPlaying={!!hasOverRideId || isTalking}
                 isPlaying={hasOverRideId === chat?.updated_at}
@@ -55,16 +67,7 @@ function ChatWindow({
                 userDetail={userDetail}
               />
             </div>
-            {!hasStartedListening &&
-            chatHistory[chatHistory?.length - 1].source === "user" &&
-            i === chatHistory?.length - 1 &&
-            !isReadOnly ? (
-              <>
-                <LoadingChat />
-              </>
-            ) : (
-              ""
-            )}
+            {getShowLoadingChat(i) && <LoadingChat />}
           </li>
         ))}
       </ul>

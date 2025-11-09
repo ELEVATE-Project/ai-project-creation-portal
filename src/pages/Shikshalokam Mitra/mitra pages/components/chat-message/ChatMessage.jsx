@@ -12,6 +12,8 @@ import { CONVERSATION_USER_TYPES } from "../../../constants/mitra.constants";
 import BotImage from "./BotImage";
 import UserImage from "./UserImage";
 import Speaker from "./Speaker";
+import BotMessage from "./BotMessage";
+import UserMessage from "./UserMessage";
 
 const { USER, BOT } = CONVERSATION_USER_TYPES;
 
@@ -25,9 +27,6 @@ function ChatMessage({
   handleOnStopSpeaking,
   isPlaying,
   isStreamingComplete,
-  setNotMute,
-  chat,
-  staticMessage,
   chatId,
   userDetail,
   validation,
@@ -37,60 +36,40 @@ function ChatMessage({
   let sanitizedContent = DOMPurify.sanitize(message);
   const languageToUse = JSON.parse(localStorage.getItem("route")) || "en";
 
-  console.log("sanitizedContent", sanitizedContent);
-
   const isBotConversation = userType && userType === BOT;
   const isUserConversation = userType && userType === USER;
 
   return (
-    <div className="flex items-start relative py-7">
+    <div>
       {isBotConversation && (
-        <div className="div42">
-          {isShowImages && <BotImage />}
-          {isShowBotSpeaker && (
-            <Speaker
-              isPlaying={isPlaying}
-              handleOnStopSpeaking={handleOnStopSpeaking}
-              handleOnSpeaking={() => {
-                setNotMute(false);
-                handleOnSpeaking(message, chat?.updated_at, staticMessage);
-              }}
-              disableStopButton={!isStreamingComplete}
-              disableSpeakButton={!isStreamingComplete}
-            />
-          )}
-        </div>
+        <BotMessage
+          isShowImages={isShowImages}
+          isShowBotSpeaker={isShowBotSpeaker}
+          isPlaying={isPlaying}
+          handleOnSpeaking={handleOnSpeaking}
+          handleOnStopSpeaking={handleOnStopSpeaking}
+          disableStopButton={!isStreamingComplete}
+          disableSpeakButton={!isStreamingComplete}
+          primaryMessage={sanitizedContent}
+          chatId={chatId}
+        />
       )}
-      <div className={`${isUserConversation ? "div47" : "div48"}`}>
-        {isShowImages && isUserConversation && (
-          <UserImage
-            isUserConversation={isUserConversation}
-            userDetail={userDetail}
-          />
-        )}
-        {/* {!!message && !!recording && (
-          <div className={`div50`}>
-            <WaveSurferPlayer
-              url={recording?.result}
-              {...default_wave_surfer_config}
-            />
-          </div>
-        )} */}
-        {recording ? (
-          <div className="div51">Transcription: {message}</div>
-        ) : (
-          <div
-            className={`div52 ${
-              isUserConversation ? "div73" : ""
-            }`}
-            id={chatId}
-          >
-            <ReactMarkdown
-              children={sanitizedContent}
-              remarkPlugins={[remarkGfm]}
-              className="text-black font-medium text-base leading-6 tracking-normal align-middle"
-            />
-            {/* {isTalking && <div className="div55">(Typing...)</div>}
+      {isUserConversation && (
+        <UserMessage
+          isShowImages={isShowImages}
+          userDetail={userDetail}
+          message={sanitizedContent}
+          chatId={chatId}
+        />
+      )}
+    </div>
+  );
+}
+
+export default ChatMessage;
+
+{
+  /* {isTalking && <div className="div55">(Typing...)</div>}
             {!!appendixURL?.length && (
               <div>
                 <h6 className="h6-1">Resource:</h6>
@@ -129,12 +108,5 @@ function ChatMessage({
                   </button>
                 </div>
               </>
-            )} */}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+            )} */
 }
-
-export default ChatMessage;

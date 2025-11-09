@@ -61,13 +61,14 @@ const wss_protocol =
 
 const { BOT, USER } = CONVERSATION_USER_TYPES;
 
-const FirstPageVoiceBasedChat = ({
+const DefineChallenge = ({
   setIsLoading,
   setCurrentChatValue,
   setCurrentPageValue,
   isReadOnly,
   userDetail,
   handleGoForward,
+  isDefineChallengeSection = false,
 }) => {
   const [profileToUse, setProfileToUse] = useState(
     localStorage.getItem("profileid") || null
@@ -477,6 +478,7 @@ const FirstPageVoiceBasedChat = ({
     if (chatHistory?.length !== 0) {
       setEncodedLocalStorage("isChatVisible", true);
       setIsChatVisible(true);
+
     }
   }, []);
 
@@ -720,7 +722,6 @@ const FirstPageVoiceBasedChat = ({
         event.stopPropagation();
       }
       localStorage.removeItem("llmError");
-      console.log("pankaj handleSendMessage", event, currentSocket);
       try {
         const socket = await MakeSocketConnection(textMessage, currentSocket);
 
@@ -734,8 +735,6 @@ const FirstPageVoiceBasedChat = ({
         }
 
         if (!textMessage.trim()) return;
-
-        console.log("Pankaj textMessage", textMessage);
 
         handleMessagesForUser(textMessage);
         socket.send(
@@ -1022,8 +1021,6 @@ const FirstPageVoiceBasedChat = ({
     handleGoForward(index);
   }
 
-  console.log("pankaj chatHistory", chatHistory);
-
   const isWelcomeScreen = useMemo(() => {
     return !!(
       chatHistory &&
@@ -1061,21 +1058,24 @@ const FirstPageVoiceBasedChat = ({
             isReadOnly={isReadOnly}
             hasStartedListening={hasStartedListening}
             hasOverRideId={hasOverRideId}
+            isDefineChallengeSection={isDefineChallengeSection}
           />
-          <div className="flex-shrink-0 mt-auto">
-            <ChatBox
-              textInputRef={textInputRef}
-              textMessage={textMessage}
-              handleOnInputText={handleOnInputText}
-              setUseTextbox={setUseTextbox}
-              handleSendMessage={handleSendMessage}
-              styles={{
-                formStyles: "sticky bottom-0",
-                inputStyles:
-                  "w-full sm:w-[320px] md:w-[400px] lg:w-[490px] xl:w-[490px] max-w-full sm:max-w-[320px] md:max-w-[400px] lg:max-w-[490px] xl:max-w-[490px] rounded-lg h-[24px] resize-none outline-none focus:outline-none border-0 bg-transparent placeholder:font-normal placeholder:text-base placeholder:text-[#AAAAAA] font-normal text-base leading-[100%] text-[#101010]",
-              }}
-            />
-          </div>
+          {isDefineChallengeSection && (
+            <div className="mt-auto">
+              <ChatBox
+                textInputRef={textInputRef}
+                textMessage={textMessage}
+                handleOnInputText={handleOnInputText}
+                setUseTextbox={setUseTextbox}
+                handleSendMessage={handleSendMessage}
+                styles={{
+                  formStyles: "sticky bottom-0",
+                  inputStyles:
+                    "w-full sm:w-[320px] md:w-[400px] lg:w-[490px] xl:w-[490px] max-w-full sm:max-w-[320px] md:max-w-[400px] lg:max-w-[490px] xl:max-w-[490px] rounded-lg h-[24px] resize-none outline-none focus:outline-none border-0 bg-transparent placeholder:font-normal placeholder:text-base placeholder:text-[#AAAAAA] font-normal text-base leading-[100%] text-[#101010]",
+                }}
+              />
+            </div>
+          )}
         </>
       )}
       <div>
@@ -1105,7 +1105,6 @@ const FirstPageVoiceBasedChat = ({
                 }`}
               >
                 <div className={`div36 ${chat?.source === "user" && "div37"}`}>
-                  {"Pankaj chat message"}
                   <ChatMessage
                     botNameToDisplay={botNameToDisplay}
                     userType={chat?.source}
@@ -1137,7 +1136,6 @@ const FirstPageVoiceBasedChat = ({
                 i === chatHistory?.length - 1 &&
                 !isReadOnly ? (
                   <>
-                    {"Pankaj loading chat"}
                     <LoadingChat />
                   </>
                 ) : (
@@ -1174,7 +1172,6 @@ const FirstPageVoiceBasedChat = ({
                         src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/mic.gif"
                         className="mic-gif"
                       />
-                      {"Pankaj microphone button"}
                     </button>
                   </div>
                   <div className="fourthpara-div">
@@ -1185,7 +1182,6 @@ const FirstPageVoiceBasedChat = ({
                       }}
                     >
                       <RxKeyboard />
-                      {"Pankaj keyboard button"}
                       {getKeyboardButtonTranslation(languageToUse)}
                     </button>
                   </div>
@@ -1206,7 +1202,6 @@ const FirstPageVoiceBasedChat = ({
                       }}
                     >
                       <FaMicrophoneSlash />
-                      {"Pankaj voice stop button"}
                       {getVoiceStopButtonTranslation(languageToUse)}
                     </button>
                   </div>
@@ -1225,7 +1220,6 @@ const FirstPageVoiceBasedChat = ({
                       {getVoiceButtonTranslation(languageToUse)}
                     </button>
                   </div>
-                  {"Pankaj textbox input"}
                   <input
                     ref={textInputRef}
                     type="text"
@@ -1265,7 +1259,7 @@ const FirstPageVoiceBasedChat = ({
   );
 };
 
-export default FirstPageVoiceBasedChat;
+export default DefineChallenge;
 
 // function ChatMessage({
 //   userType,
