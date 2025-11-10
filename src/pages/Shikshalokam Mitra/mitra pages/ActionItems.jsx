@@ -206,7 +206,6 @@ function ActionItems({
   };
 
   const handleContinueClick = async (action_to_store) => {
-    console.log("pankaj action_to_store", action_to_store);
     try {
       if (isActionEmptyOrDefault(action_to_store)) {
         return;
@@ -231,8 +230,6 @@ function ActionItems({
         profile_id
       );
       setIsLoading(false);
-
-      console.log("pankaj validate_response", validate_response);
 
       if (validate_response?.result === false) {
         setErrorText(validate_response?.error_message);
