@@ -26,6 +26,7 @@ import {
   getTitlePlaceholderTranslation,
 } from "../question script/fifthpage_translation";
 import ErrorText from "./components/ErrorText";
+import LoadingChat from "./components/LoadingChat";
 
 function TitleGeneration({
   isBotTalking,
@@ -219,6 +220,10 @@ function TitleGeneration({
     }
   }
 
+  if (isLoading) {
+    return <LoadingChat />;
+  }
+
   return (
     <>
       {/* {isLoading && <ShowLoader />}
@@ -241,7 +246,7 @@ function TitleGeneration({
           secondaryMessage={fifthpage_messages[9]?.[1]?.message}
         />
         {(!fetchError || fetchError === "") && (
-          <div className="secondpage-textbox-container">
+          <div className="secondpage-textbox-container sm:w-full md:w-1/2 lg:w-1/2">
             <textarea
               id="autoGrow"
               type="text"

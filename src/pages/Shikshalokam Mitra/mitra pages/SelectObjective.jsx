@@ -31,6 +31,7 @@ import {
 } from "../question script/secondpage_tanslation";
 import ErrorText from "./components/ErrorText";
 import UserMessage from "./components/chat-message/UserMessage";
+import LoadingChat from "./components/LoadingChat";
 
 function SelectObjective({
   isSelectObjectiveSection,
@@ -257,6 +258,9 @@ function SelectObjective({
 
   const selectedObjective = getEncodedLocalStorage("selected_objective");
 
+  if (isLoading && isSelectObjectiveSection) {
+    return <LoadingChat />;
+  }
 
   return (
     <>
@@ -269,7 +273,7 @@ function SelectObjective({
         handleGoBack={() => localHandleGoBack(2)}
       /> */}
 
-      <div className="">
+      <div>
         {!hasClickedOnAddmore ? (
           <div className="secondpage-bot-div">
             <BotMessage
@@ -308,9 +312,6 @@ function SelectObjective({
                 />
               )}
             </div>
-            {!isSelectObjectiveSection && (
-                <UserMessage message="Next" />
-            )}
             {isSelectObjectiveSection && (
               <div className="secondpage-next-div">
                 <button
@@ -328,46 +329,58 @@ function SelectObjective({
             )}
           </div>
         ) : (
-          <div className="secondpage-own-obj-div">
+          <div>
             <BotMessage primaryMessage={secondpage_messages[5]?.[0]?.message} />
-            <div className="secondpage-textbox-container">
-              <input
-                type="text"
-                placeholder={getObjectivePlaceholderTranslation(language)}
-                className="secondpage-text-input"
-                value={inputText}
-                onChange={(e) => handleInputText(e)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleInputSend(e);
-                  }
-                }}
-              />
-              <RxCrossCircled
-                className="secondpage-cross-icon"
-                onClick={() => {
-                  setInputText("");
-                }}
-              />
-            </div>
-            {errorText && errorText !== "" && (
+            {!!(!isSelectObjectiveSection && selectedObjective?.length > 0) ? (
+              <div className="secondpage-obj-selected-button-div">
+                <div className="secondpage-obj-line"></div>
+                <button className="secondpage-obj-bttn">
+                  {selectedObjective}
+                </button>
+              </div>
+            ) : (
               <>
-                <div className="secondpage-error-div">
-                  <p className="secondpage-error-text">{errorText}</p>
+                <div className="secondpage-textbox-container">
+                  <input
+                    type="text"
+                    placeholder={getObjectivePlaceholderTranslation(language)}
+                    className="secondpage-text-input"
+                    value={inputText}
+                    onChange={(e) => handleInputText(e)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleInputSend(e);
+                      }
+                    }}
+                  />
+                  <RxCrossCircled
+                    className="secondpage-cross-icon"
+                    onClick={() => {
+                      setInputText("");
+                    }}
+                  />
+                </div>
+                {errorText && errorText !== "" && (
+                  <>
+                    <div className="secondpage-error-div">
+                      <p className="secondpage-error-text">{errorText}</p>
+                    </div>
+                  </>
+                )}
+                <div className="secondpage-continue-div">
+                  <button
+                    className="secondpage-continue-bttn"
+                    onClick={() => handleInputSend()}
+                  >
+                    {getContinueButtonTranslation(language)}{" "}
+                    <IoArrowForward className="secondpage-right-arror" />
+                  </button>
                 </div>
               </>
             )}
-            <div className="secondpage-continue-div">
-              <button
-                className="secondpage-continue-bttn"
-                onClick={() => handleInputSend()}
-              >
-                {getContinueButtonTranslation(language)}{" "}
-                <IoArrowForward className="secondpage-right-arror" />
-              </button>
-            </div>
           </div>
         )}
+        {!isSelectObjectiveSection && <UserMessage message="Next" />}
       </div>
     </>
   );

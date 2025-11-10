@@ -37,6 +37,7 @@ import { PiDotsSixVerticalBold } from "react-icons/pi";
 import { TbTrashOff } from "react-icons/tb";
 import ActionItemsList from "./components/action-items/ActionItemsList";
 import UserMessage from "./components/chat-message/UserMessage";
+import LoadingChat from "./components/LoadingChat";
 
 function ActionItems({
   isBotTalking,
@@ -164,7 +165,7 @@ function ActionItems({
   }, [isInReadOnlyMode]);
 
   const getActionListArray = () => {
-    if (isInReadOnlyMode) {
+    if (!isSelectActionItems || isInReadOnlyMode) {
       let stored_action = getEncodedLocalStorage(
         "selected_action"
       )?.[0]?.actionSteps?.map((action, index) => ({
@@ -282,6 +283,10 @@ function ActionItems({
     }
   };
 
+  if (isLoading && isSelectActionItems) {
+    return <LoadingChat />;
+  }
+
   return (
     <>
       {/* {isLoading&& <ShowLoader />} */}
@@ -296,8 +301,7 @@ function ActionItems({
         !wantsToMoveForward &&
         actionList &&
         !isLoading &&
-        !isInReadOnlyMode &&
-        isSelectActionItems ? (
+        !isInReadOnlyMode ? (
           <div>
             <BotMessage
               primaryMessage={thirdpage_messages[6]?.[0]?.message}
@@ -333,34 +337,16 @@ function ActionItems({
             </div>
           </div>
         ) : (
-          <>
-            {!isInReadOnlyMode && (
-              <div className="secondpage-bot-div">
-                <FinalActionPage
-                  actionListArray={getActionListArray()}
-                  isBotTalking={isBotTalking}
-                  handleSpeakerOn={handleSpeakerOn}
-                  handleSpeakerOff={handleSpeakerOff}
-                  handleContinueClick={handleContinueClick}
-                  errorText={errorText}
-                  hasClickedOnAddmore={hasClickedOnAddmore}
-                  isSelectActionItems={isSelectActionItems}
-                />
-              </div>
-            )}
-            {isInReadOnlyMode && (
-              <FinalActionPage
-                actionListArray={getActionListArray()}
-                isBotTalking={isBotTalking}
-                handleSpeakerOn={handleSpeakerOn}
-                handleSpeakerOff={handleSpeakerOff}
-                handleContinueClick={handleContinueClick}
-                errorText={errorText}
-                hasClickedOnAddmore={hasClickedOnAddmore}
-                isSelectActionItems={isSelectActionItems}
-              />
-            )}
-          </>
+          <FinalActionPage
+            actionListArray={getActionListArray()}
+            isBotTalking={isBotTalking}
+            handleSpeakerOn={handleSpeakerOn}
+            handleSpeakerOff={handleSpeakerOff}
+            handleContinueClick={handleContinueClick}
+            errorText={errorText}
+            hasClickedOnAddmore={hasClickedOnAddmore}
+            isSelectActionItems={isSelectActionItems}
+          />
         )}
       </div>
       {!isSelectActionItems && <UserMessage message="Next" />}
@@ -425,17 +411,8 @@ export function FinalActionPage({
   return (
     <div className="final-action-page">
       <BotMessage
-        firstparaClass={"firstpara-div"}
-        firstpageClass={"firstpage-para1"}
-        secondMessageClass={"secondpage-para2"}
-        botMessage={thirdpage_messages[7]?.[0]?.message}
-        botSecondMessage={thirdpage_messages[7]?.[1]?.message}
-        showFirst={true}
-        showSecond={true}
-        handleSpeakerOn={handleSpeakerOn}
-        isBotTalking={isBotTalking}
-        handleSpeakerOff={handleSpeakerOff}
-        audioId={3.2}
+        primaryMessage={thirdpage_messages[7]?.[0]?.message}
+        secondaryMessage={thirdpage_messages[7]?.[1]?.message}
       />
       <div className="secondpage-obj-fixed">
         <div className="secondpage-obj-div">

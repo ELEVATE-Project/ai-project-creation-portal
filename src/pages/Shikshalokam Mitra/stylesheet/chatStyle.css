@@ -524,7 +524,7 @@
     .secondpage-textbox-container {
         display: flex;
         align-items: center;
-        width: 50%;
+        /* width: 50%; */
         border-bottom: 1px solid var(--primary-color);
         background-color: #f5f3fa;
         padding: 0 10px 0 0;
@@ -1529,7 +1529,7 @@
     .secondpage-textbox-container {
         display: flex;
         align-items: center;
-        width: 50%;
+        /* width: 50%; */
         border-bottom: 1px solid var(--primary-color);
         background-color: #f5f3fa;
         padding: 0 10px 0 0;

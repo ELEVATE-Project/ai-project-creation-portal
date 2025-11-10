@@ -14,6 +14,8 @@ import { getFourthPageMessages } from "../question script/bot_user_questions";
 import { saveUserChatsInDB } from "../../../api services/chat_flow_api";
 import { getNextButtonTranslation } from "../question script/secondpage_tanslation";
 import UserMessage from "./components/chat-message/UserMessage";
+import LoadingChat from "./components/LoadingChat";
+
 function WeeksSelection({
   isBotTalking,
   handleSpeakerOn,
@@ -55,8 +57,6 @@ function WeeksSelection({
   const handleSliderChange = (value) => {};
 
   const handleContinueClick = async () => {
-    console.log("-----clicked")
-    console.log("selectedWeek", selectedWeek, "currentChatValue", currentChatValue);
     if (currentChatValue === 6 && selectedWeek) {
       setIsLoading(true);
       setEncodedLocalStorage("selected_week", selectedWeek);
@@ -73,7 +73,6 @@ function WeeksSelection({
             currentSession,
             "user"
           );
-          console.log("inner selectedWeek", selectedWeek, "currentChatValue", currentChatValue);
         })
         .then(() => {
           setCurrentChatValue(7);
@@ -81,6 +80,10 @@ function WeeksSelection({
         });
     }
   };
+
+  if (isLoading && isWeeksSelectionSection) {
+    return <LoadingChat />;
+  }
 
   return (
     <>

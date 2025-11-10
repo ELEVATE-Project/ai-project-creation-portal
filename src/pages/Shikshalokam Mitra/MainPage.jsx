@@ -58,6 +58,7 @@ function MainPage() {
   const navigate = useNavigate();
 
   const audioRef = useRef();
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     setUserDetail({
@@ -134,6 +135,42 @@ function MainPage() {
       [key + 1]: true,
     }));
   }
+
+  // Auto-scroll to bottom when components change
+  useEffect(() => {
+    if (!scrollContainerRef.current) return;
+
+    const scrollToBottom = () => {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTo({
+          top: scrollContainerRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    };
+
+    // Use MutationObserver to detect when DOM content changes
+    const observer = new MutationObserver(() => {
+      requestAnimationFrame(scrollToBottom);
+    });
+
+    // Observe changes to the scroll container
+    observer.observe(scrollContainerRef.current, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+
+    // Initial scroll after a brief delay
+    const timeoutId = setTimeout(() => {
+      requestAnimationFrame(scrollToBottom);
+    }, 100);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeoutId);
+    };
+  }, [currentChatValue, currentPage]);
 
   function handleSpeakerOff(audioId) {
     if (!audioId) return;
@@ -288,10 +325,10 @@ function MainPage() {
   }
 
   return (
-    <main className="w-full h-screen flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 bg-[#F0F2F5]">
+    <main className="w-full h-screen flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 bg-[#F0F2F5]">
       <Sidebar setActiveTab={() => {}} />
       {activeTab === ACTIVE_TABS.CONVERSATION && (
-        <ConversationWrapperCard>
+        <ConversationWrapperCard scrollRef={scrollContainerRef}>
           {userDetail?.name && getCurrentPageView()}
         </ConversationWrapperCard>
       )}

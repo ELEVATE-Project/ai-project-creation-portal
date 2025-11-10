@@ -51,7 +51,7 @@ const ObjectivesCard = ({
             ))}
         </>
       )}
-      <Collapse className="w-[90%]" title="Source" defaultOpen={false}>
+      <Collapse title="Source" defaultOpen={false}>
         <Tabs tabs={["Parent Sensitization 1", "Parent Sensitization 2", "Parent Sensitization 3"].map(obj => ({
           label: obj,
           content: <Card />

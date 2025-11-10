@@ -8,7 +8,7 @@ const Collapse = ({ title, children, defaultOpen = false, className = "" }) => {
   };
 
   return (
-    <div className={`w-full border border-gray-200 rounded-lg overflow-hidden shadow-[0px_0px_10px_0px_#00000026] ${className}`}>
+    <div className={`sm:w-full md:w-[90%] border border-gray-200 rounded-lg overflow-hidden shadow-[0px_0px_10px_0px_#00000026] ${className}`}>
       <div
         className="flex justify-between items-center h-[50px] pt-3 pr-5 pb-3 pl-5 bg-white cursor-pointer"
         onClick={toggleCollapse}
