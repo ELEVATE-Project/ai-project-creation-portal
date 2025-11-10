@@ -12,8 +12,10 @@ import DefineChallenge from "./mitra pages/DefineChallenge";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./mitra pages/components/Sidebar";
 import ConversationWrapperCard from "./mitra pages/components/ConversationWrapperCard";
+import { ACTIVE_TABS } from "./constants/mitra.constants";
 
 function MainPage() {
+  const [activeTab, setActiveTab] = useState(ACTIVE_TABS.CONVERSATION);
   const [audioCache, setAudioCache] = useState({});
   const [isBotTalking, setIsBotTalking] = useState(false);
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
@@ -53,7 +55,6 @@ function MainPage() {
       5: false,
     }
   );
-  console.log("--- currentPage", currentPage)
   const navigate = useNavigate();
 
   const audioRef = useRef();
@@ -143,7 +144,7 @@ function MainPage() {
     }
   }
 
-//   useEffect(() => {}, [isLoading, currentChatValue]);
+  //   useEffect(() => {}, [isLoading, currentChatValue]);
 
   const stopRecording = () => {
     if (mediaRecorder) {
@@ -167,7 +168,13 @@ function MainPage() {
       (currentChatValue >= 6 && currentChatValue < 7) || currentPage["4"];
     const isTitleGenerationSection = currentChatValue === 7 || currentPage["5"];
     // Show DefineChallenge if on page 1 or any later page
-    if (isDefineChallengeSection || isSelectObjectiveSection || isSelectActionItems || isWeeksSelectionSection || isTitleGenerationSection) {
+    if (
+      isDefineChallengeSection ||
+      isSelectObjectiveSection ||
+      isSelectActionItems ||
+      isWeeksSelectionSection ||
+      isTitleGenerationSection
+    ) {
       components.push(
         <DefineChallenge
           key="first"
@@ -183,7 +190,12 @@ function MainPage() {
     }
 
     // Show SelectObjective if on page 2 or any later page
-    if (isSelectObjectiveSection || isSelectActionItems || isWeeksSelectionSection || isTitleGenerationSection) {
+    if (
+      isSelectObjectiveSection ||
+      isSelectActionItems ||
+      isWeeksSelectionSection ||
+      isTitleGenerationSection
+    ) {
       components.push(
         <SelectObjective
           key="second"
@@ -207,7 +219,11 @@ function MainPage() {
     }
 
     // Show ActionItems if on page 3 or any later page
-    if (isSelectActionItems || isWeeksSelectionSection || isTitleGenerationSection) {
+    if (
+      isSelectActionItems ||
+      isWeeksSelectionSection ||
+      isTitleGenerationSection
+    ) {
       components.push(
         <ActionItems
           key="third"
@@ -272,11 +288,13 @@ function MainPage() {
   }
 
   return (
-    <main className="w-full h-screen flex relative gap-10 py-24 px-48 bg-[#F0F2F5]">
-      <Sidebar />
-      <ConversationWrapperCard>
-        {userDetail?.name && getCurrentPageView()}
-      </ConversationWrapperCard>
+    <main className="w-full h-screen flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 bg-[#F0F2F5]">
+      <Sidebar setActiveTab={() => {}} />
+      {activeTab === ACTIVE_TABS.CONVERSATION && (
+        <ConversationWrapperCard>
+          {userDetail?.name && getCurrentPageView()}
+        </ConversationWrapperCard>
+      )}
     </main>
   );
 }

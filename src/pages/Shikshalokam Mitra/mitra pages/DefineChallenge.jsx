@@ -1068,11 +1068,6 @@ const DefineChallenge = ({
                 handleOnInputText={handleOnInputText}
                 setUseTextbox={setUseTextbox}
                 handleSendMessage={handleSendMessage}
-                styles={{
-                  formStyles: "sticky bottom-0",
-                  inputStyles:
-                    "w-full sm:w-[320px] md:w-[400px] lg:w-[490px] xl:w-[490px] max-w-full sm:max-w-[320px] md:max-w-[400px] lg:max-w-[490px] xl:max-w-[490px] rounded-lg h-[24px] resize-none outline-none focus:outline-none border-0 bg-transparent placeholder:font-normal placeholder:text-base placeholder:text-[#AAAAAA] font-normal text-base leading-[100%] text-[#101010]",
-                }}
               />
             </div>
           )}

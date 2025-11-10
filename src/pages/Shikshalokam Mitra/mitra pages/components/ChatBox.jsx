@@ -27,7 +27,7 @@ function ChatBox({
     <form
       onSubmit={handleSendMessage}
       autoComplete="off"
-      className={`cursor-pointer flex items-center gap-[10px] w-[600px] h-[46px] rounded-[50px] border border-[#DDDDDD] py-3 px-4 mx-auto ${
+      className={`cursor-pointer flex items-center gap-[10px] h-[46px] rounded-[50px] border border-[#DDDDDD] py-3 px-4 mx-auto w-full md:w-[80%] lg:w-[70%] ${
         shouldShowWhiteBg ? "bg-white" : "bg-[#F0F2F5]"
       } ${formStyles}`}
     >
@@ -35,7 +35,7 @@ function ChatBox({
         ref={textInputRef}
         type="text"
         id="chat-box-textarea"
-        className={`rounded-lg w-full h-[24px] resize-none outline-none focus:outline-none border-0 bg-transparent placeholder:font-normal placeholder:text-base placeholder:text-[#AAAAAA] font-normal text-base leading-[100%] text-[#101010] ${inputStyles}`}
+        className={`rounded-lg h-[24px] resize-none outline-none focus:outline-none border-0 bg-transparent placeholder:font-normal placeholder:text-base placeholder:text-[#AAAAAA] font-normal text-base leading-[100%] text-[#101010] w-[90%] ${inputStyles}`}
         placeholder={placeholder}
         autoFocus={autoFocus}
         value={textMessage}
@@ -60,10 +60,10 @@ function ChatBox({
         }}
       />
       <button disabled={disabled} className={voiceButtonStyles}>
-        <FaMicrophone className="w-[24px] h-[24px]" />
+        <FaMicrophone className="w-[16px] h-[16px] md:w-[20px] md:h-[20px] lg:w-[24px] lg:h-[24px]" />
       </button>
       <button disabled={disabled} type="submit" className={sendButtonStyles}>
-        <MdSend className="w-[24px] h-[24px]" />
+        <MdSend className="w-[16px] h-[16px] md:w-[20px] md:h-[20px] lg:w-[24px] lg:h-[24px]" />
       </button>
     </form>
   );
