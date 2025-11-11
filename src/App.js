@@ -1,6 +1,6 @@
 import React from "react";
 import { useRoutes, Navigate } from "react-router-dom";
-import MainPage from "./pages/Shikshalokam Mitra/MainPage";
+import MainPage from "./pages/shikshalokam-mitra/MainPage";
 
 
 function ProtectedRoute({ element }) {

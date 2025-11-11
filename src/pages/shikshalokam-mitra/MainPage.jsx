@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import SelectObjective from "./mitra pages/SelectObjective";
-import ActionItems from "./mitra pages/ActionItems";
-import WeeksSelection from "./mitra pages/WeeksSelection";
-import TitleGeneration from "./mitra pages/TitleGeneration";
+import SelectObjective from "./mitra-pages/SelectObjective";
+import ActionItems from "./mitra-pages/ActionItems";
+import WeeksSelection from "./mitra-pages/WeeksSelection";
+import TitleGeneration from "./mitra-pages/TitleGeneration";
 import { handleAI4BharatTTSRequest } from "../../api services/ai4bharat_services";
 import {
   getEncodedLocalStorage,
   setEncodedLocalStorage,
 } from "../../utils/storage_utils";
-import DefineChallenge from "./mitra pages/DefineChallenge";
+import DefineChallenge from "./mitra-pages/DefineChallenge";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "./mitra pages/components/Sidebar";
-import ConversationWrapperCard from "./mitra pages/components/ConversationWrapperCard";
+import Sidebar from "./mitra-pages/components/Sidebar";
+import ConversationWrapperCard from "./mitra-pages/components/ConversationWrapperCard";
 import { ACTIVE_TABS } from "./constants/mitra.constants";
 
 function MainPage() {
