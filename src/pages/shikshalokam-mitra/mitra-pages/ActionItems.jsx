@@ -16,7 +16,7 @@ import {
   getActionList,
   saveUserChatsInDB,
   validateActionList,
-} from "../../../api services/chat_flow_api";
+} from "../../../apiServices/chat_flow_api";
 import { getThirdPageMessages } from "../question script/bot_user_questions";
 import {
   getActionDefaultTranslation,
@@ -334,16 +334,16 @@ function ActionItems({
             </div>
           </div>
         ) : (
-          <FinalActionPage
-            actionListArray={getActionListArray()}
-            isBotTalking={isBotTalking}
-            handleSpeakerOn={handleSpeakerOn}
-            handleSpeakerOff={handleSpeakerOff}
-            handleContinueClick={handleContinueClick}
-            errorText={errorText}
-            hasClickedOnAddmore={hasClickedOnAddmore}
-            isSelectActionItems={isSelectActionItems}
-          />
+              <FinalActionPage
+                actionListArray={getActionListArray()}
+                isBotTalking={isBotTalking}
+                handleSpeakerOn={handleSpeakerOn}
+                handleSpeakerOff={handleSpeakerOff}
+                handleContinueClick={handleContinueClick}
+                errorText={errorText}
+                hasClickedOnAddmore={hasClickedOnAddmore}
+                isSelectActionItems={isSelectActionItems}
+              />
         )}
       </div>
       {!isSelectActionItems && <UserMessage message="Next" />}

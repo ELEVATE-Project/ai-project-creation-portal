@@ -32,7 +32,7 @@ import {
 import {
   getNewSessionID,
   saveUserChatsInDB,
-} from "../../../api services/chat_flow_api";
+} from "../../../apiServices/chat_flow_api";
 import axiosInstance from "../../../utils/axios";
 import "../stylesheet/shikshaChatStyle.css";
 import { RxKeyboard, RxSpeakerOff } from "react-icons/rx";
@@ -44,7 +44,7 @@ import {
 import {
   ai4BharatASR,
   getAI4BharatAudio,
-} from "../../../api services/ai4bharat_services";
+} from "../../../apiServices/ai4bharat_services";
 import { convertBlobToBase64, convertToWav } from "../../../utils/audio_utils";
 import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
 import ChatBox from "./components/ChatBox";
@@ -54,6 +54,30 @@ import ConversationWrapperCard from "./components/ConversationWrapperCard";
 import ChatMessage from "./components/chat-message/ChatMessage";
 import ChatWindow from "./components/ChatWindow";
 import Sidebar from "./components/Sidebar";
+import Notification, {
+  showNotification,
+} from "../../../components/Toast/Toast";
+import { handleS3Upload } from "../../../utils/upload";
+import { useAudio } from "../../../hooks/useAudio";
+import { ai4BharatASRApi } from "../../../apiServices/ai";
+
+const sessionFlowName = {
+  GuestDiscussion: "guest-discussion",
+  LoginDiscussion: "login-discussion",
+  GuestMiStory: "guest-mi-story",
+  LoginMiStory: "login",
+  SsoFlow: "guest-mi-story",
+  Reflection: "reflection",
+  megaPTM: "megaPTM",
+  YLC: "YLC",
+  ListeningActivity: "listening-activity",
+};
+
+const storageFlow = "guest-discussion";
+
+const sessionRoute = "/guided_guest";
+
+const languageToUse = "en";
 const company_bot_list_url = `/api/companybot/`;
 
 const wss_protocol =
@@ -68,12 +92,15 @@ const DefineChallenge = ({
   isReadOnly,
   userDetail,
   handleGoForward,
+  // startRecording,
+  // stopRecording,
+  // hasStartedRecording,
   isDefineChallengeSection = false,
 }) => {
   const [profileToUse, setProfileToUse] = useState(
     localStorage.getItem("profileid") || null
   );
-  const audioRef = useRef();
+  // const audioRef = useRef();
   const lastBotMessageIndex = useRef(-1);
   let access_token = localStorage.getItem("accToken");
 
@@ -124,6 +151,143 @@ const DefineChallenge = ({
   const textInputRef = useRef(null);
 
   const { recordings, HiddenRecorder } = useVoiceRecord();
+  const [storyData, setStoryData] = useState(null);
+  const [asrAudio, setAsrAudio] = useState(null);
+  const [seconds, setSeconds] = useState(0);
+  const [intervalId, setIntervalId] = useState(null);
+
+  const { stopAllAudio, audioRef } = useAudio();
+
+  const isSilentAudio = async (blob, silenceThreshold = 0.01) => {
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    const rawData = audioBuffer.getChannelData(0);
+
+    const rms = Math.sqrt(
+      rawData.reduce((acc, val) => acc + val * val, 0) / rawData.length
+    );
+    console.log("RMS (volume):", rms);
+
+    return rms < silenceThreshold;
+  };
+
+  const handleOnStopSpeaking = async () => {
+    try {
+      try {
+        if (audioRef.current) await audioRef.current.pause();
+      } catch (error) {
+        console.error({ error });
+      }
+      setHasOverRideId(null);
+      setSentences([]);
+      setIsNextAllowed(true);
+    } catch (error) {
+      console.error({ error });
+    }
+  };
+  const stopRecording = () => {
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setHasStartedRecording(false);
+    }
+  };
+  const startRecording = () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      handleOnStopSpeaking();
+      setTextMessage("");
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          const options = {
+            mimeType: "audio/webm;codecs=opus",
+            audioBitsPerSecond: 16000,
+          };
+          const recorder = new MediaRecorder(stream, options);
+          setMediaRecorder(recorder);
+
+          const localAudioChunks = [];
+
+          recorder.start();
+          setHasStartedRecording(true);
+
+          recorder.ondataavailable = (event) => {
+            localAudioChunks.push(event.data);
+          };
+
+          recorder.onstop = async () => {
+            if (localAudioChunks.length > 0) {
+              const audioBlob = new Blob(localAudioChunks, {
+                type: "audio/webm;codecs=opus",
+              });
+              const isSilent = await isSilentAudio(audioBlob, 0.02);
+
+              if (!audioBlob || isSilent) {
+                console.log("------ error 1");
+                showNotification({
+                  message: "Oops! We couldn't capture your speech. Try again.",
+                  type: "error",
+                  options: {
+                    position: "top-center",
+                    autoClose: 6000,
+                    style: { fontWeight: "bold" },
+                  },
+                });
+                return;
+              }
+
+              setIsFetchingData(true);
+              let transcriptResult = "";
+              const sessionId = getEncodedLocalStorage("session");
+
+              let s3Url = await handleS3Upload(
+                audioBlob,
+                `${Date.now()}`,
+                `chatbot/companychat/${sessionId}/`,
+                storyData
+              );
+              console.log("------ s3Url", s3Url);
+              if (!s3Url || s3Url === "") {
+                transcriptResult =
+                  "Oops! We couldn't capture your speech. Try again.";
+              }
+              setAsrAudio(s3Url);
+              let storedRoute = sessionRoute;
+              transcriptResult = await ai4BharatASRApi(
+                s3Url,
+                languageToUse,
+                storedRoute
+              );
+              if (!transcriptResult || transcriptResult === "") {
+                console.log("------ error 2");
+                showNotification({
+                  message: "Oops! We couldn't capture your speech. Try again.",
+                  type: "error",
+                  options: {
+                    position: "top-center",
+                    autoClose: 6000,
+                    style: { fontWeight: "bold" },
+                  },
+                });
+              } else {
+                setTextMessage(transcriptResult);
+              }
+              setIsFetchingData(false);
+            } else {
+              console.warn("No audio chunks were recorded.");
+              setIsFetchingData(false);
+            }
+          };
+        })
+        .catch((err) => {
+          console.error("Error accessing microphone:", err);
+          setIsFetchingData(false);
+        });
+    } else {
+      console.warn("getUserMedia not supported on your browser!");
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -260,21 +424,8 @@ const DefineChallenge = ({
           const data = response?.data.profile_details;
           localStorage.setItem("profileid", data?.id);
           setProfileToUse(data?.id);
-          let sessionid = getEncodedLocalStorage("session");
-          if (!sessionid) {
-            let session = await getNewSessionID();
-            setEncodedLocalStorage("session", session);
-          }
-          const preferredLanguage = JSON.parse(
-            localStorage.getItem("preferred_language") || "{}"
-          );
-          const language = preferredLanguage?.value || "en";
-          localStorage.setItem("route", JSON.stringify(language));
-          setLanguageToUse(language);
           setEncodedLocalStorage("first_name", data?.first_name);
           setEncodedLocalStorage("company", data?.company?.slug);
-          let currentSession = getEncodedLocalStorage("session");
-          await handleCompanyChatCall(currentSession);
           setUserName(JSON.stringify(data?.first_name));
         } else {
           clearMitraLocalStorage();
@@ -293,6 +444,23 @@ const DefineChallenge = ({
       setShouldFetchIntro(true);
       setIsStreamingComplete(true);
     }
+    const getSessionId = async () => {
+      let sessionid = getEncodedLocalStorage("session");
+      if (!sessionid) {
+        let session = await getNewSessionID();
+        setEncodedLocalStorage("session", session);
+      }
+      const preferredLanguage = JSON.parse(
+        localStorage.getItem("preferred_language") || "{}"
+      );
+      const language = preferredLanguage?.value || "en";
+      localStorage.setItem("route", JSON.stringify(language));
+      setLanguageToUse(language);
+
+      let currentSession = getEncodedLocalStorage("session");
+      await handleCompanyChatCall(currentSession);
+    };
+    getSessionId();
   }, [access_token, profileToUse]);
 
   useEffect(() => {
@@ -414,7 +582,7 @@ const DefineChallenge = ({
             let profileid = localStorage.getItem("profileid");
             let sessionid = getEncodedLocalStorage("session");
             let route = JSON.parse(localStorage.getItem("route"));
-            if (profileid && sessionid) {
+            if (sessionid) {
               socket.send(
                 JSON.stringify({
                   type: "authenticate",
@@ -478,7 +646,6 @@ const DefineChallenge = ({
     if (chatHistory?.length !== 0) {
       setEncodedLocalStorage("isChatVisible", true);
       setIsChatVisible(true);
-
     }
   }, []);
 
@@ -528,6 +695,7 @@ const DefineChallenge = ({
   }, []);
 
   async function getCompanyDetail() {
+    if (!profileToUse) return "shikshalokamstaging";
     const res = await axiosInstance({
       url: `/api/profileuser/${profileToUse}/`,
     });
@@ -636,9 +804,8 @@ const DefineChallenge = ({
     if (
       chatHistory?.length === 0 &&
       shouldFetchIntro &&
-      profileToUse &&
-      languageToUse &&
-      userName
+      // profileToUse &&
+      languageToUse
     ) {
       fetchBotInfo().then(() => {
         setShouldFetchIntro(false);
@@ -943,83 +1110,97 @@ const DefineChallenge = ({
     }
   };
 
-  const handleOnStopSpeaking = async () => {
-    try {
-      try {
-        if (audioRef.current) await audioRef.current.pause();
-      } catch (error) {
-        console.error({ error });
-      }
-      setHasOverRideId(null);
-      setSentences([]);
-      setIsNextAllowed(true);
-    } catch (error) {
-      console.error({ error });
-    }
-  };
+  // const handleOnStopSpeaking = async () => {
+  //   try {
+  //     try {
+  //       if (audioRef.current) await audioRef.current.pause();
+  //     } catch (error) {
+  //       console.error({ error });
+  //     }
+  //     setHasOverRideId(null);
+  //     setSentences([]);
+  //     setIsNextAllowed(true);
+  //   } catch (error) {
+  //     console.error({ error });
+  //   }
+  // };
 
-  const startRecording = () => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      setTextMessage("");
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          const recorder = new MediaRecorder(stream);
-          setMediaRecorder(recorder);
+  // const startRecording = () => {
+  //   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  //     setTextMessage("");
+  //     navigator.mediaDevices
+  //       .getUserMedia({ audio: true })
+  //       .then((stream) => {
+  //         const recorder = new MediaRecorder(stream);
+  //         setMediaRecorder(recorder);
 
-          const localAudioChunks = [];
+  //         const localAudioChunks = [];
 
-          recorder.start();
-          setHasStartedRecording(true);
+  //         recorder.start();
+  //         setHasStartedRecording(true);
 
-          recorder.ondataavailable = (event) => {
-            localAudioChunks.push(event.data);
-          };
+  //         recorder.ondataavailable = (event) => {
+  //           localAudioChunks.push(event.data);
+  //         };
 
-          recorder.onstop = async () => {
-            if (localAudioChunks.length > 0) {
-              const audioBlob = new Blob(localAudioChunks, {
-                type: "audio/webm;codecs=opus",
-              });
+  //         recorder.onstop = async () => {
+  //           if (localAudioChunks.length > 0) {
+  //             const audioBlob = new Blob(localAudioChunks, {
+  //               type: "audio/webm;codecs=opus",
+  //             });
 
-              const wavBlob = await convertToWav(audioBlob);
-              if (!wavBlob) {
-                return;
-              }
-              setIsFetchingData(true);
-              const base64Audio = await convertBlobToBase64(wavBlob);
-              const transcriptResult = await ai4BharatASR(
-                base64Audio,
-                languageToUse
-              );
-              setTextMessage(transcriptResult);
-              setIsFetchingData(false);
-            } else {
-              console.warn("No audio chunks were recorded.");
-              setIsFetchingData(false);
-            }
-          };
-        })
-        .catch((err) => {
-          console.error("Error accessing microphone:", err);
-          setIsFetchingData(false);
-        });
-    } else {
-      console.warn("getUserMedia not supported on your browser!");
-    }
-  };
+  //             const wavBlob = await convertToWav(audioBlob);
+  //             if (!wavBlob) {
+  //               return;
+  //             }
+  //             setIsFetchingData(true);
+  //             const base64Audio = await convertBlobToBase64(wavBlob);
+  //             const transcriptResult = await ai4BharatASR(
+  //               base64Audio,
+  //               languageToUse
+  //             );
+  //             setTextMessage(transcriptResult);
+  //             setIsFetchingData(false);
+  //           } else {
+  //             console.warn("No audio chunks were recorded.");
+  //             setIsFetchingData(false);
+  //           }
+  //         };
+  //       })
+  //       .catch((err) => {
+  //         console.error("Error accessing microphone:", err);
+  //         setIsFetchingData(false);
+  //       });
+  //   } else {
+  //     console.warn("getUserMedia not supported on your browser!");
+  //   }
+  // };
 
-  const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setHasStartedRecording(false);
-    }
-  };
+  // const stopRecording = () => {
+  //   if (mediaRecorder) {
+  //     mediaRecorder.stop();
+  //     setHasStartedRecording(false);
+  //   }
+  // };
 
   function localHandleGoForward(index) {
     setCurrentChatValue(4);
     handleGoForward(index);
   }
+
+  useEffect(() => {
+    if (hasStartedRecording) {
+      const id = setInterval(() => {
+        setSeconds((prev) => prev + 1);
+      }, 1000);
+      setIntervalId(id);
+    } else {
+      clearInterval(intervalId);
+      setSeconds(0);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [hasStartedRecording]);
 
   const isWelcomeScreen = useMemo(() => {
     return !!(
@@ -1033,6 +1214,7 @@ const DefineChallenge = ({
     <>
       {(isLocalLoading || isIntroLoading) && <ShowLoader />}
       <HiddenRecorder />
+      <Notification />
       {isWelcomeScreen ? (
         <>
           <WelcomeCard />
@@ -1042,6 +1224,12 @@ const DefineChallenge = ({
             handleOnInputText={handleOnInputText}
             setUseTextbox={setUseTextbox}
             handleSendMessage={handleSendMessage}
+            inputDisabled={isFetchingData || hasStartedRecording}
+            hasStartedRecording={hasStartedRecording}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            isFetchingData={isFetchingData}
+            seconds={seconds}
           />
         </>
       ) : (
@@ -1068,6 +1256,12 @@ const DefineChallenge = ({
                 handleOnInputText={handleOnInputText}
                 setUseTextbox={setUseTextbox}
                 handleSendMessage={handleSendMessage}
+                disabled={isFetchingData || hasStartedRecording}
+                hasStartedRecording={hasStartedRecording}
+                startRecording={startRecording}
+                stopRecording={stopRecording}
+                isFetchingData={isFetchingData}
+                seconds={seconds}
               />
             </div>
           )}

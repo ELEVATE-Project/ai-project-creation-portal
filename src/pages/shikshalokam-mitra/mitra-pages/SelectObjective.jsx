@@ -17,7 +17,7 @@ import {
   getObjectiveList,
   saveUserChatsInDB,
   validateObjective,
-} from "../../../api services/chat_flow_api";
+} from "../../../apiServices/chat_flow_api";
 import { getSecondPageMessages } from "../question script/bot_user_questions";
 import {
   getAddOwnButtonTranslation,

@@ -11,7 +11,7 @@ import {
   setEncodedLocalStorage,
 } from "../../../utils/storage_utils";
 import { getFourthPageMessages } from "../question script/bot_user_questions";
-import { saveUserChatsInDB } from "../../../api services/chat_flow_api";
+import { saveUserChatsInDB } from "../../../apiServices/chat_flow_api";
 import { getNextButtonTranslation } from "../question script/secondpage_tanslation";
 import UserMessage from "./components/chat-message/UserMessage";
 import LoadingChat from "./components/LoadingChat";

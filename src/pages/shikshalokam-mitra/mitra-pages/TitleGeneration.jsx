@@ -14,7 +14,7 @@ import {
   saveUserChatsInDB,
   updateChatSession,
   validateTitle,
-} from "../../../api services/chat_flow_api";
+} from "../../../apiServices/chat_flow_api";
 import { getFifthPageMessages } from "../question script/bot_user_questions";
 import { useNavigate } from "react-router-dom";
 import { getCreateMicroButtonTranslation } from "../question script/thirdpage_tanslation";

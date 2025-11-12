@@ -6,7 +6,7 @@ import Header from "../header/Header";
 import "../stylesheet/chatStyle.css";
 import { getFirstPageMessages } from "../question script/bot_user_questions";
 import { getNewLocalTime, ShowLoader } from "../MainPage";
-import { createChatSession, getChatsFromDB, getNewSessionID, getObjectiveList, getParaphraseText, saveUserChatsInDB } from "../../../api services/chat_flow_api";
+import { createChatSession, getChatsFromDB, getNewSessionID, getObjectiveList, getParaphraseText, saveUserChatsInDB } from "../../../apiServices/chat_flow_api";
 import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
 import { getDenyButtonTranslation, getInputPlaceholderTranslation, getKeyboardButtonTranslation, 
     getVoiceButtonTranslation, getVoiceStopButtonTranslation } from "../question script/firstpage_translation";

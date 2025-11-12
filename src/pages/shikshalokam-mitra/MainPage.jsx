@@ -3,7 +3,7 @@ import SelectObjective from "./mitra-pages/SelectObjective";
 import ActionItems from "./mitra-pages/ActionItems";
 import WeeksSelection from "./mitra-pages/WeeksSelection";
 import TitleGeneration from "./mitra-pages/TitleGeneration";
-import { handleAI4BharatTTSRequest } from "../../api services/ai4bharat_services";
+import { handleAI4BharatTTSRequest } from "../../apiServices/ai4bharat_services";
 import {
   getEncodedLocalStorage,
   setEncodedLocalStorage,
@@ -13,6 +13,9 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "./mitra-pages/components/Sidebar";
 import ConversationWrapperCard from "./mitra-pages/components/ConversationWrapperCard";
 import { ACTIVE_TABS } from "./constants/mitra.constants";
+import VoiceChat from "./mitra-pages/components/VoiceChat";
+import Footer from "../../components/layout/Footer";
+import Header from "../../components/layout/Header";
 
 function MainPage() {
   const [activeTab, setActiveTab] = useState(ACTIVE_TABS.CONVERSATION);
@@ -55,6 +58,8 @@ function MainPage() {
       5: false,
     }
   );
+
+  console.log("------ session", getEncodedLocalStorage("session"));
   const navigate = useNavigate();
 
   const audioRef = useRef();
@@ -66,10 +71,10 @@ function MainPage() {
       image: localStorage.getItem("image"),
       email: localStorage.getItem("email"),
     });
-    if (!localStorage.getItem("name")) {
-      clearMitraLocalStorage();
-      navigate(-1);
-    }
+    // if (!localStorage.getItem("name")) {
+    //   clearMitraLocalStorage();
+    //   navigate(-1);
+    // }
   }, []);
 
   useEffect(() => {
@@ -324,15 +329,21 @@ function MainPage() {
     return components;
   }
 
+  console.log("currentPage", currentPage);
+
   return (
-    <main className="w-full h-screen flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 bg-[#F0F2F5]">
-      <Sidebar setActiveTab={() => {}} />
-      {activeTab === ACTIVE_TABS.CONVERSATION && (
-        <ConversationWrapperCard scrollRef={scrollContainerRef}>
-          {userDetail?.name && getCurrentPageView()}
-        </ConversationWrapperCard>
-      )}
-    </main>
+    <>
+      <Header isHeroSection={false} isBackButton={true} />
+      <main className="w-full h-screen flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 bg-[#F0F2F5]">
+        <Sidebar setActiveTab={() => {}} />
+        {activeTab === ACTIVE_TABS.CONVERSATION && (
+          <ConversationWrapperCard scrollRef={scrollContainerRef}>
+            {getCurrentPageView()}
+          </ConversationWrapperCard>
+        )}
+      </main>
+      <Footer />
+    </>
   );
 }
 
