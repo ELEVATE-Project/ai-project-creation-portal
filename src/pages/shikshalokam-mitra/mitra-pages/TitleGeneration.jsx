@@ -27,6 +27,8 @@ import {
 } from "../question script/fifthpage_translation";
 import ErrorText from "./components/ErrorText";
 import LoadingChat from "./components/LoadingChat";
+import UserMessage from "./components/chat-message/UserMessage";
+import FileViewer from "../../../components/file-viewer";
 
 function TitleGeneration({
   isBotTalking,
@@ -47,6 +49,8 @@ function TitleGeneration({
 
   const [isLocalLoading, setIsLocalLoading] = useState(false);
   const [shouldDisableButton, setShouldDisableButton] = useState(false);
+  const [media, setMedia] = useState([]);
+  const [isApiCalling, setIsApiCalling] = useState(false);
 
   const preferredLanguage = JSON.parse(
     localStorage.getItem("preferred_language") || "{}"
@@ -132,6 +136,11 @@ function TitleGeneration({
   }, [inputText]);
 
   async function handleCreateImprovement() {
+    console.log("---------- currentChatValue", currentChatValue);
+    console.log("---------- inputText", inputText);
+    console.log("---------- shouldDisableButton", shouldDisableButton);
+    console.log("---------- inputText.length", inputText.length);
+    console.log("---------- titleCharacterLimit", titleCharacterLimit);
     if (
       currentChatValue === 7 &&
       inputText &&
@@ -139,7 +148,8 @@ function TitleGeneration({
       inputText.length <= titleCharacterLimit &&
       !shouldDisableButton
     ) {
-      setIsLoading(true);
+      // setIsLoading(true);
+      setIsApiCalling(true);
       const user_problem_statement = getEncodedLocalStorage(
         "user_problem_statement"
       );
@@ -154,12 +164,14 @@ function TitleGeneration({
         language,
         profile_id
       );
-      setIsLoading(false);
+      setIsApiCalling(false);
+      console.log("---------- validate_response", validate_response);
       if (validate_response?.result) {
       } else {
         setLocalErrorText(validate_response?.error_message);
         return;
       }
+      console.log("---------- validate_response passed");
       setIsLocalLoading(true);
       setEncodedLocalStorage("project_title", inputText);
       const session = getEncodedLocalStorage("session");
@@ -205,11 +217,23 @@ function TitleGeneration({
             chunks
           );
 
-          if (project_response) {
+          console.log("---------- project_response", project_response);
+          const {
+            media = [],
+            mitra_result = {},
+            status = "",
+          } = project_response || {};
+
+          if (media?.length > 0) setMedia(media);
+
+          const { message = "", project_id: projectId = 0 } =
+            mitra_result || {};
+
+          if (status?.toLowerCase() === "ok") {
             clearMitraLocalStorage();
-            const projectId = project_response?.projectId;
+            setEncodedLocalStorage("media", media);
             window.location.replace(
-              `${process.env.REACT_APP_ROUTE_EXIT}${projectId}`
+              `/create-project${process.env.REACT_APP_ROUTE_IMPROVEMENT_PLAN}`
             );
           }
         }
@@ -254,6 +278,7 @@ function TitleGeneration({
               className="secondpage-text-input"
               value={inputText}
               onChange={(e) => handleInputText(e)}
+              disabled={isApiCalling || media?.length > 0}
             />
           </div>
         )}
@@ -264,18 +289,39 @@ function TitleGeneration({
           <ErrorText errorText={localErrorText} />
         )}
 
-        <div className="fourthpage-next-div">
-          <button
-            className={`${
-              shouldDisableButton
-                ? "fifthpage-disable-button"
-                : "fifthpage-select-bttn"
-            } `}
-            onClick={handleCreateImprovement}
-          >
-            {getCreateMicroButtonTranslation(language)}
-          </button>
-        </div>
+        {!isApiCalling && media?.length === 0 && (
+          <div className="fourthpage-next-div">
+            <button
+              className={`${
+                shouldDisableButton
+                  ? "fifthpage-disable-button"
+                  : "fifthpage-select-bttn"
+              } `}
+              onClick={handleCreateImprovement}
+            >
+              {getCreateMicroButtonTranslation(language)}
+            </button>
+          </div>
+        )}
+        {isApiCalling && (
+          <>
+            <UserMessage message={getCreateMicroButtonTranslation(language)} />
+            <LoadingChat />
+          </>
+        )}
+        {media?.length > 0 && (
+          <>
+            <UserMessage message={getCreateMicroButtonTranslation(language)} />
+            <FileViewer
+              url={media[0]?.url}
+              fileType={media[0]?.media_type}
+              visibilityConfig={{
+                isShareVisible: true,
+                isDownloadVisible: true,
+              }}
+            />
+          </>
+        )}
       </div>
     </>
   );

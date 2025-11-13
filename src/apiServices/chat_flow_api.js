@@ -144,7 +144,7 @@ export async function createProject(
             }
         );
       
-        return response?.data?.result;
+        return response?.data;
     } catch (error) {
         console.error('Error creating Project api:', error);
         throw error;
