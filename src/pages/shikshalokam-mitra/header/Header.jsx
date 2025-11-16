@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import Popup from "../../../components/popup/Popup";
+import { getEncodedSessionStorage } from "../../../utils/storage_utils";
 
 import "../stylesheet/chatStyle.css";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +25,7 @@ function Header({
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const preferredLanguage = JSON.parse(
-    localStorage.getItem("preferred_language") || "{}"
+    getEncodedSessionStorage("preferred_language") || "{}"
   );
   const language = preferredLanguage.value || "en";
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import FileViewer from "../../components/file-viewer";
-import { getEncodedLocalStorage } from "../../utils/storage_utils";
+import { getEncodedSessionStorage } from "../../utils/storage_utils";
 import { useParams } from "react-router-dom";
 import BotMessage from "../shikshalokam-mitra/mitra-pages/components/chat-message/BotMessage";
 import { DEFAULT_FILE_WIDTH } from "../../constants/file";
@@ -10,7 +10,7 @@ const ImprovementPlan = () => {
   const [media, setMedia] = useState([]);
   const { projectId } = useParams();
   useEffect(() => {
-    const mediaItems = getEncodedLocalStorage("media") || [];
+    const mediaItems = getEncodedSessionStorage("media") || [];
     setMedia(mediaItems);
   }, [projectId]);
 

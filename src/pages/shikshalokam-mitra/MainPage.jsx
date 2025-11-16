@@ -5,8 +5,8 @@ import WeeksSelection from "./mitra-pages/WeeksSelection";
 import TitleGeneration from "./mitra-pages/TitleGeneration";
 import { handleAI4BharatTTSRequest } from "../../apiServices/ai4bharat_services";
 import {
-  getEncodedLocalStorage,
-  setEncodedLocalStorage,
+  getEncodedSessionStorage,
+  setEncodedSessionStorage,
 } from "../../utils/storage_utils";
 import DefineChallenge from "./mitra-pages/DefineChallenge";
 import { useNavigate } from "react-router-dom";
@@ -24,33 +24,33 @@ function MainPage() {
   const [isProcessingAudio, setIsProcessingAudio] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(
-    getEncodedLocalStorage("isReadOnly") || false
+    getEncodedSessionStorage("isReadOnly") || false
   );
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [hasStartedRecording, setHasStartedRecording] = useState(false);
   const [userInput, setUserInput] = useState(
-    getEncodedLocalStorage("user_text") || []
+    getEncodedSessionStorage("user_text") || []
   );
   const [isUsingMicrophone, setIsUsingMicrophone] = useState(false);
   const [currentChatValue, setCurrentChatValue] = useState(
-    getEncodedLocalStorage("currentChatValue") || 0
+    getEncodedSessionStorage("currentChatValue") || 0
   );
   const [chatHistory, setChatHistory] = useState(
-    getEncodedLocalStorage("chatHistory") || []
+    getEncodedSessionStorage("chatHistory") || []
   );
   const [isLoading, setIsLoading] = useState(false);
   const [userDetail, setUserDetail] = useState({
-    name: localStorage.getItem("name"),
-    image: localStorage.getItem("image"),
-    email: localStorage.getItem("email"),
+    name: getEncodedSessionStorage("name"),
+    image: getEncodedSessionStorage("image"),
+    email: getEncodedSessionStorage("email"),
   });
   const [errorText, setErrorText] = useState(
-    getEncodedLocalStorage("errorText") || ""
+    getEncodedSessionStorage("errorText") || ""
   );
   const [showTyping, setShowTyping] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(
-    getEncodedLocalStorage("currentPage") || {
+    getEncodedSessionStorage("currentPage") || {
       1: false,
       2: false,
       3: false,
@@ -59,7 +59,6 @@ function MainPage() {
     }
   );
 
-  console.log("------ session", getEncodedLocalStorage("session"));
   const navigate = useNavigate();
 
   const audioRef = useRef();
@@ -67,37 +66,37 @@ function MainPage() {
 
   useEffect(() => {
     setUserDetail({
-      name: localStorage.getItem("name"),
-      image: localStorage.getItem("image"),
-      email: localStorage.getItem("email"),
+      name: getEncodedSessionStorage("name"),
+      image: getEncodedSessionStorage("image"),
+      email: getEncodedSessionStorage("email"),
     });
-    // if (!localStorage.getItem("name")) {
+    // if (!getEncodedSessionStorage("name")) {
     //   clearMitraLocalStorage();
     //   navigate(-1);
     // }
   }, []);
 
   useEffect(() => {
-    setEncodedLocalStorage("isReadOnly", isReadOnly);
+    setEncodedSessionStorage("isReadOnly", isReadOnly);
   }, [isReadOnly]);
 
   useEffect(() => {
-    setEncodedLocalStorage("user_text", userInput);
+    setEncodedSessionStorage("user_text", userInput);
   }, [userInput]);
 
   useEffect(() => {
-    setEncodedLocalStorage("currentChatValue", currentChatValue);
+    setEncodedSessionStorage("currentChatValue", currentChatValue);
   }, [currentChatValue]);
 
   useEffect(() => {
-    setEncodedLocalStorage("currentPage", currentPage);
+    setEncodedSessionStorage("currentPage", currentPage);
   }, [currentPage]);
 
   function handleSpeakerOn(messageToUse, audioId) {
     if (!messageToUse || !audioId) return;
     setIsBotTalking(true);
     const preferredLanguage = JSON.parse(
-      localStorage.getItem("preferred_language") || "{}"
+      getEncodedSessionStorage("preferred_language") || "{}"
     );
     const language = preferredLanguage.value || "en";
 
@@ -390,36 +389,37 @@ export function getNewLocalTime() {
 }
 
 export function clearMitraLocalStorage() {
-  localStorage.removeItem("actionList");
-  localStorage.removeItem("currentChatValue");
-  localStorage.removeItem("currentPage");
-  localStorage.removeItem("isReadOnly");
-  localStorage.removeItem("objective");
-  localStorage.removeItem("project_title");
-  localStorage.removeItem("selected_week");
-  localStorage.removeItem("session");
-  localStorage.removeItem("user_problem_statement");
-  localStorage.removeItem("paraphrased_problem");
-  localStorage.removeItem("user_text");
-  localStorage.removeItem("selected_action");
-  localStorage.removeItem("savedMessages");
-  localStorage.removeItem("selected_objective");
-  localStorage.removeItem("savedMessages");
-  localStorage.removeItem("profile_id");
-  localStorage.removeItem("chunks");
-  localStorage.removeItem("errorText");
-  localStorage.removeItem("hasClickedObjAddMore");
-  localStorage.removeItem("botName");
-  localStorage.removeItem("chat-history");
-  localStorage.removeItem("company");
-  localStorage.removeItem("first_name");
-  localStorage.removeItem("intro_message");
-  localStorage.removeItem("isChatVisible");
-  localStorage.removeItem("isNewChatOpen");
-  localStorage.removeItem("profileid");
-  localStorage.removeItem("route");
-  localStorage.removeItem("state");
-  localStorage.removeItem("intro_end_context");
-  localStorage.removeItem("end_context");
-  localStorage.removeItem("system_error");
+  sessionStorage.removeItem("actionList");
+  sessionStorage.removeItem("currentChatValue");
+  sessionStorage.removeItem("currentPage");
+  sessionStorage.removeItem("isReadOnly");
+  sessionStorage.removeItem("objective");
+  sessionStorage.removeItem("project_title");
+  sessionStorage.removeItem("selected_week");
+  sessionStorage.removeItem("session");
+  sessionStorage.removeItem("user_problem_statement");
+  sessionStorage.removeItem("paraphrased_problem");
+  sessionStorage.removeItem("user_text");
+  sessionStorage.removeItem("selected_action");
+  sessionStorage.removeItem("savedMessages");
+  sessionStorage.removeItem("selected_objective");
+  sessionStorage.removeItem("savedMessages");
+  sessionStorage.removeItem("profile_id");
+  sessionStorage.removeItem("chunks");
+  sessionStorage.removeItem("errorText");
+  sessionStorage.removeItem("hasClickedObjAddMore");
+  sessionStorage.removeItem("botName");
+  sessionStorage.removeItem("chat-history");
+  sessionStorage.removeItem("company");
+  sessionStorage.removeItem("first_name");
+  sessionStorage.removeItem("intro_message");
+  sessionStorage.removeItem("isChatVisible");
+  sessionStorage.removeItem("isNewChatOpen");
+  sessionStorage.removeItem("profileid");
+  sessionStorage.removeItem("route");
+  sessionStorage.removeItem("state");
+  sessionStorage.removeItem("intro_end_context");
+  sessionStorage.removeItem("end_context");
+  sessionStorage.removeItem("system_error");
+  sessionStorage.removeItem("objective_source");
 }

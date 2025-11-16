@@ -9,8 +9,8 @@ import SuggestOrAddCta from "./components/SuggestOrAddCta";
 import "../stylesheet/chatStyle.css";
 import { getNewLocalTime, ShowLoader } from "../MainPage";
 import {
-  getEncodedLocalStorage,
-  setEncodedLocalStorage,
+  getEncodedSessionStorage,
+  setEncodedSessionStorage,
 } from "../../../utils/storage_utils";
 import {
   getActionList,
@@ -56,7 +56,7 @@ function ActionItems({
   isSelectActionItems,
 }) {
   const [actionList, setActionList] = useState(() => {
-    const storedActions = getEncodedLocalStorage("actionList");
+    const storedActions = getEncodedSessionStorage("actionList");
     if (Array.isArray(storedActions)) {
       return storedActions;
     }
@@ -70,7 +70,7 @@ function ActionItems({
   const [wantsToMoveForward, setWantsToMoveForward] = useState(false);
   const [fetchError, setFetchError] = useState("");
   const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(() => {
-    const storedActionList = getEncodedLocalStorage("selected_action");
+    const storedActionList = getEncodedSessionStorage("selected_action");
     if (storedActionList) {
       if (storedActionList.length === 1) {
         return true;
@@ -80,7 +80,7 @@ function ActionItems({
   });
 
   const preferredLanguage = JSON.parse(
-    localStorage.getItem("preferred_language") || "{}"
+    getEncodedSessionStorage("preferred_language") || "{}"
   );
   const language = preferredLanguage.value || "en";
 
@@ -119,11 +119,11 @@ function ActionItems({
       try {
         if (!actionList || actionList?.length === 0) {
           setIsLoading(true);
-          const userProblemStatement = getEncodedLocalStorage(
+          const userProblemStatement = getEncodedSessionStorage(
             "user_problem_statement"
           );
-          const objective = getEncodedLocalStorage("selected_objective");
-          const profile_id = localStorage.getItem("profileid");
+          const objective = getEncodedSessionStorage("selected_objective");
+          const profile_id = getEncodedSessionStorage("profileid");
           const fetchedActionList = await getActionList(
             userProblemStatement,
             objective,
@@ -132,7 +132,7 @@ function ActionItems({
           );
           if (fetchedActionList) {
             setActionList(fetchedActionList);
-            setEncodedLocalStorage("actionList", fetchedActionList);
+            setEncodedSessionStorage("actionList", fetchedActionList);
             setIsLoading(false);
           } else {
             window.location.reload();
@@ -140,7 +140,7 @@ function ActionItems({
         }
       } catch (error) {
         setFetchError(
-          getEncodedLocalStorage("system_error") || "Please try again later!"
+          getEncodedSessionStorage("system_error") || "Please try again later!"
         );
         setIsLoading(false);
         console.error(error);
@@ -166,7 +166,7 @@ function ActionItems({
 
   const getActionListArray = () => {
     if (!isSelectActionItems || isInReadOnlyMode) {
-      let stored_action = getEncodedLocalStorage(
+      let stored_action = getEncodedSessionStorage(
         "selected_action"
       )?.[0]?.actionSteps?.map((action, index) => ({
         id: index.toString(),
@@ -216,12 +216,12 @@ function ActionItems({
           actionSteps: action_to_store.map((action) => action.content),
         },
       ];
-      const userProblemStatement = getEncodedLocalStorage(
+      const userProblemStatement = getEncodedSessionStorage(
         "user_problem_statement"
       );
-      const objective = getEncodedLocalStorage("selected_objective");
+      const objective = getEncodedSessionStorage("selected_objective");
       setIsLoading(true);
-      const profile_id = localStorage.getItem("profileid");
+      const profile_id = getEncodedSessionStorage("profileid");
       const validate_response = await validateActionList(
         action_to_store.map((action) => action.content),
         objective,
@@ -236,10 +236,11 @@ function ActionItems({
         return;
       }
 
-      if (currentChatValue === 5 && actionList) {
+      if (actionList) {
+      // if (currentChatValue === 5 && actionList) {
         setIsLoading(true);
-        setEncodedLocalStorage("selected_action", actionListToStore);
-        const currentSession = getEncodedLocalStorage("session");
+        setEncodedSessionStorage("selected_action", actionListToStore);
+        const currentSession = getEncodedSessionStorage("session");
         const botMessage = {
           role: thirdpage_messages[7]?.[0]?.role,
           message:
@@ -249,7 +250,7 @@ function ActionItems({
             "\n" +
             thirdpage_messages[7]?.[1]?.message +
             "\n" +
-            JSON.stringify(getEncodedLocalStorage("actionList")),
+            JSON.stringify(getEncodedSessionStorage("actionList")),
           messageId: thirdpage_messages[7]?.[0]?.messageId,
         };
 
@@ -270,7 +271,7 @@ function ActionItems({
       }
     } catch (error) {
       const errorMessage =
-        getEncodedLocalStorage("system_error") || "Please try again later!";
+        getEncodedSessionStorage("system_error") || "Please try again later!";
       setErrorText(errorMessage);
       setIsLoading(false);
       setTimeout(() => {
@@ -366,7 +367,7 @@ export function FinalActionPage({
 }) {
   const [actionList, setActionList] = useState(actionListArray || []);
   const preferredLanguage = JSON.parse(
-    localStorage.getItem("preferred_language") || "{}"
+    getEncodedSessionStorage("preferred_language") || "{}"
   );
   const language = preferredLanguage.value || "en";
 

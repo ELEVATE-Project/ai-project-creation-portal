@@ -7,7 +7,7 @@ import "../stylesheet/chatStyle.css";
 import { getFirstPageMessages } from "../question script/bot_user_questions";
 import { getNewLocalTime, ShowLoader } from "../MainPage";
 import { createChatSession, getChatsFromDB, getNewSessionID, getObjectiveList, getParaphraseText, saveUserChatsInDB } from "../../../apiServices/chat_flow_api";
-import { getEncodedLocalStorage, setEncodedLocalStorage } from "../../../utils/storage_utils";
+import { getEncodedSessionStorage, setEncodedSessionStorage } from "../../../utils/storage_utils";
 import { getDenyButtonTranslation, getInputPlaceholderTranslation, getKeyboardButtonTranslation, 
     getVoiceButtonTranslation, getVoiceStopButtonTranslation } from "../question script/firstpage_translation";
 
@@ -21,18 +21,18 @@ function FirstPage( {
 }) {
 
     const [useTextbox, setUseTextbox] = useState(false);
-    const [userProblemStatement, setUserProblemStatement] = useState(getEncodedLocalStorage('user_problem_statement') || '');
+    const [userProblemStatement, setUserProblemStatement] = useState(getEncodedSessionStorage('user_problem_statement') || '');
     const [shouldMoveForward, setShouldMoveForward] = useState(false);
     const [localChatHistory, setLocalChatHistory] = useState(false);
-    const [currentSession, setCurrentSession]= useState(getEncodedLocalStorage('session'));
-    const [currentProfile, setCurrentProfile] = useState(getEncodedLocalStorage('profile_id'));
+    const [currentSession, setCurrentSession]= useState(getEncodedSessionStorage('session'));
+    const [currentProfile, setCurrentProfile] = useState(getEncodedSessionStorage('profile_id'));
     const [validatedType, setValidatedType] = useState('');
 
     const savedMessagesRef = useRef(new Set());
     const textInputRef = useRef(null);
     const scrollRef = useRef(null);
 
-    const preferredLanguage = JSON.parse(localStorage.getItem('preferred_language') || '{}');
+    const preferredLanguage = JSON.parse(getEncodedSessionStorage('preferred_language') || '{}');
     const language = preferredLanguage.value || 'en';
 
     let firstpage_messages = getFirstPageMessages(userDetail, userInput, userProblemStatement, language);
@@ -45,17 +45,17 @@ function FirstPage( {
     useEffect(()=>{
         async function getUpdateSession() {
             
-            if(!getEncodedLocalStorage('session')) {
+            if(!getEncodedSessionStorage('session')) {
                 const session = await getNewSessionID();
                 if(session){
-                    setEncodedLocalStorage('session', session);
+                    setEncodedSessionStorage('session', session);
                     setCurrentSession(session)
-                    const email = localStorage.getItem('email');
-                    const access_token = localStorage.getItem(process.env.REACT_APP_ACCESS_TOKEN_KEY);
+                    const email = getEncodedSessionStorage('email');
+                    const access_token = getEncodedSessionStorage(process.env.REACT_APP_ACCESS_TOKEN_KEY);
                     const response = await createChatSession(session, email, access_token);
                     
                     if (response) {
-                        setEncodedLocalStorage('profile_id', response?.chatsession?.profile_id);
+                        setEncodedSessionStorage('profile_id', response?.chatsession?.profile_id);
                         setCurrentProfile(response?.chatsession?.profile_id)
                     }
                 }
@@ -77,14 +77,14 @@ function FirstPage( {
                         setValidatedType(paraphrased_text?.type);
                         paraphrased_text = paraphrased_text.is_validated;
                     }
-                    setEncodedLocalStorage('user_problem_statement', paraphrased_text);
+                    setEncodedSessionStorage('user_problem_statement', paraphrased_text);
                     setUserProblemStatement(paraphrased_text);
                     setShowTyping(false);
                 } else {
                     window.location.reload();
                 }
             } else if (currentChatValue === 3 && userInput && userInput[2] && (/नहीं/i.test(userInput[1]) || /no/i.test(userInput[1])) && !isReadOnly) {
-                setEncodedLocalStorage('user_problem_statement', userInput[2]);
+                setEncodedSessionStorage('user_problem_statement', userInput[2]);
                 
                 setUserProblemStatement(userInput[2]);
                 setShowTyping(false);
@@ -109,12 +109,12 @@ function FirstPage( {
             setValidatedType(validatedText?.type);
             validatedText = validatedText?.is_validated;
             if(validatedText && validatedText.toLowerCase() === 'no') {
-                setEncodedLocalStorage('user_problem_statement', validatedText);
+                setEncodedSessionStorage('user_problem_statement', validatedText);
                 setUserProblemStatement(validatedText);
-                setEncodedLocalStorage('errorText', validatedText);
+                setEncodedSessionStorage('errorText', validatedText);
                 setErrorMessage(validatedText)
             } else {
-                setEncodedLocalStorage('user_problem_statement', keyboardTypedValue);
+                setEncodedSessionStorage('user_problem_statement', keyboardTypedValue);
                 setUserProblemStatement(keyboardTypedValue);
             }
             setShowTyping(false);            
@@ -130,7 +130,7 @@ function FirstPage( {
                 setValidatedType(validatedText?.type);
                 validatedText = validatedText?.is_validated;
                 if(validatedText && validatedText.toLowerCase() === 'no') {
-                    setEncodedLocalStorage('errorText', validatedText);
+                    setEncodedSessionStorage('errorText', validatedText);
                     setErrorMessage(validatedText)
                 }
             }
@@ -156,7 +156,7 @@ function FirstPage( {
 
         if(isReadOnly && validatedText !== 'no') {
             setShouldMoveForward(true);
-            setEncodedLocalStorage('currentPage', {
+            setEncodedSessionStorage('currentPage', {
                 1: false,
                 2: false,
                 3: false,
@@ -193,7 +193,7 @@ function FirstPage( {
         if (scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: "smooth" });
         }
-        const errorText = getEncodedLocalStorage('errorText');
+        const errorText = getEncodedSessionStorage('errorText');
         if (currentChatValue === 3 && !isReadOnly && errorMessage === '') {
             setIsLoading(true);
             localStorage.removeItem("errorText");
@@ -207,7 +207,7 @@ function FirstPage( {
         
         
         if(!currentSession || !currentProfile || !firstpage_messages) return;
-        const savedMessages = new Set(JSON.parse(localStorage.getItem('savedMessages') || '[]'));
+        const savedMessages = new Set(JSON.parse(getEncodedSessionStorage('savedMessages') || '[]'));
 
 
         if (isReadOnly) {
@@ -255,7 +255,8 @@ function FirstPage( {
                 }
             });
     
-            localStorage.setItem('savedMessages', JSON.stringify([...savedMessages]));
+            // localStorage.setItem('savedMessages', JSON.stringify([...savedMessages]));
+            setEncodedSessionStorage('savedMessages', JSON.stringify([...savedMessages]));
         }
     }, [currentChatValue, isReadOnly, currentSession, currentProfile]);
     

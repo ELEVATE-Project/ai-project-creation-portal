@@ -8,6 +8,7 @@ import {
   getExploreTranslation,
 } from "./question script/firstpage_translation";
 import { clearMitraLocalStorage } from "./MainPage";
+import { getEncodedSessionStorage } from "../../utils/storage_utils";
 
 export function BotMessage({
   botMessage,
@@ -35,7 +36,7 @@ export function BotMessage({
   const [isSpeakerOn, setIsSpeakerOn] = useState(false);
 
   const preferredLanguage = JSON.parse(
-    localStorage.getItem("preferred_language") || "{}"
+    getEncodedSessionStorage("preferred_language") || "{}"
   );
   const language = preferredLanguage.value || "en";
 

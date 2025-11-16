@@ -5,8 +5,8 @@ import "../stylesheet/chatStyle.css";
 import Header from "../header/Header";
 import { clearMitraLocalStorage, ShowLoader } from "../MainPage";
 import {
-  getEncodedLocalStorage,
-  setEncodedLocalStorage,
+  getEncodedSessionStorage,
+  setEncodedSessionStorage,
 } from "../../../utils/storage_utils";
 import {
   createProject,
@@ -41,7 +41,7 @@ function TitleGeneration({
   handleGoBack,
 }) {
   const [inputText, setInputText] = useState(() => {
-    let title = getEncodedLocalStorage("project_title") || "";
+    let title = getEncodedSessionStorage("project_title") || "";
     return title;
   });
 
@@ -53,7 +53,7 @@ function TitleGeneration({
   const [isApiCalling, setIsApiCalling] = useState(false);
 
   const preferredLanguage = JSON.parse(
-    localStorage.getItem("preferred_language") || "{}"
+    getEncodedSessionStorage("preferred_language") || "{}"
   );
   const language = preferredLanguage.value || "en";
   const [fetchError, setFetchError] = useState("");
@@ -65,14 +65,14 @@ function TitleGeneration({
   useEffect(() => {
     async function fetchTitle() {
       try {
-        let title = getEncodedLocalStorage("project_title");
+        let title = getEncodedSessionStorage("project_title");
         if (!title) {
-          const user_problem_statement = getEncodedLocalStorage(
+          const user_problem_statement = getEncodedSessionStorage(
             "user_problem_statement"
           );
-          const user_objective = getEncodedLocalStorage("selected_objective");
-          const user_action_list = getEncodedLocalStorage("selected_action");
-          const profile_id = localStorage.getItem("profileid");
+          const user_objective = getEncodedSessionStorage("selected_objective");
+          const user_action_list = getEncodedSessionStorage("selected_action");
+          const profile_id = getEncodedSessionStorage("profileid");
           title = await getTitle(
             user_problem_statement,
             user_objective,
@@ -82,7 +82,7 @@ function TitleGeneration({
           );
           if (title) {
             setInputText(title);
-            setEncodedLocalStorage("project_title", title);
+            setEncodedSessionStorage("project_title", title);
           } else {
             window.location.reload();
           }
@@ -90,7 +90,7 @@ function TitleGeneration({
         setIsLoading(false);
       } catch (error) {
         setFetchError(
-          getEncodedLocalStorage("system_error") || "Please try again later!"
+          getEncodedSessionStorage("system_error") || "Please try again later!"
         );
         setIsLoading(false);
         console.error(error);
@@ -145,12 +145,12 @@ function TitleGeneration({
     ) {
       // setIsLoading(true);
       setIsApiCalling(true);
-      const user_problem_statement = getEncodedLocalStorage(
+      const user_problem_statement = getEncodedSessionStorage(
         "user_problem_statement"
       );
-      const user_objective = getEncodedLocalStorage("selected_objective");
-      const user_action_list = getEncodedLocalStorage("selected_action");
-      const profile_id = localStorage.getItem("profileid");
+      const user_objective = getEncodedSessionStorage("selected_objective");
+      const user_action_list = getEncodedSessionStorage("selected_action");
+      const profile_id = getEncodedSessionStorage("profileid");
       const validate_response = await validateTitle(
         inputText,
         user_problem_statement,
@@ -166,8 +166,8 @@ function TitleGeneration({
         return;
       }
       setIsLocalLoading(true);
-      setEncodedLocalStorage("project_title", inputText);
-      const session = getEncodedLocalStorage("session");
+      setEncodedSessionStorage("project_title", inputText);
+      const session = getEncodedSessionStorage("session");
       const field_to_update = {
         title: inputText,
         session_status: "COMPLETED",
@@ -186,17 +186,17 @@ function TitleGeneration({
       try {
         const response = await updateChatSession(session, field_to_update);
         if (response) {
-          const user_problem_statement = getEncodedLocalStorage(
+          const user_problem_statement = getEncodedSessionStorage(
             "user_problem_statement"
           );
-          const project_duration = getEncodedLocalStorage("selected_week");
-          const user_objective = getEncodedLocalStorage("selected_objective");
+          const project_duration = getEncodedSessionStorage("selected_week");
+          const user_objective = getEncodedSessionStorage("selected_objective");
           const user_action_list =
-            getEncodedLocalStorage("selected_action")[0]?.actionSteps;
-          const access_token = localStorage.getItem(
+            getEncodedSessionStorage("selected_action")[0]?.actionSteps;
+          const access_token = getEncodedSessionStorage(
             process.env.REACT_APP_ACCESS_TOKEN_KEY
           );
-          const chunks = JSON.parse(localStorage.getItem("chunks"));
+          const chunks = JSON.parse(getEncodedSessionStorage("chunks"));
 
           const project_response = await createProject(
             access_token,
@@ -223,7 +223,7 @@ function TitleGeneration({
 
           if (status?.toLowerCase() === "ok") {
             clearMitraLocalStorage();
-            setEncodedLocalStorage("media", media);
+            setEncodedSessionStorage("media", media);
             window.location.replace(
               `/create-project${process.env.REACT_APP_ROUTE_IMPROVEMENT_PLAN}`
             );

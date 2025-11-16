@@ -7,8 +7,8 @@ import { getNewLocalTime, ShowLoader } from "../MainPage";
 
 import "../stylesheet/chatStyle.css";
 import {
-  getEncodedLocalStorage,
-  setEncodedLocalStorage,
+  getEncodedSessionStorage,
+  setEncodedSessionStorage,
 } from "../../../utils/storage_utils";
 import { getFourthPageMessages } from "../question script/bot_user_questions";
 import { saveUserChatsInDB } from "../../../apiServices/chat_flow_api";
@@ -31,14 +31,14 @@ function WeeksSelection({
   isWeeksSelectionSection = false,
 }) {
   const [selectedWeek, setSelectedWeek] = useState(
-    getEncodedLocalStorage("selected_week") || 1
+    getEncodedSessionStorage("selected_week") || 1
   );
   const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(
-    getEncodedLocalStorage("selected_week") ? true : false
+    getEncodedSessionStorage("selected_week") ? true : false
   );
 
   const preferredLanguage = JSON.parse(
-    localStorage.getItem("preferred_language") || "{}"
+    getEncodedSessionStorage("preferred_language") || "{}"
   );
   const language = preferredLanguage.value || "en";
 
@@ -59,12 +59,12 @@ function WeeksSelection({
   const handleContinueClick = async () => {
     if (currentChatValue === 6 && selectedWeek) {
       setIsLoading(true);
-      setEncodedLocalStorage("selected_week", selectedWeek);
+      setEncodedSessionStorage("selected_week", selectedWeek);
       const botMessage =
         fourthpage_messages[8]?.[0]?.message +
         " " +
         fourthpage_messages[8]?.[1]?.message;
-      const currentSession = getEncodedLocalStorage("session");
+      const currentSession = getEncodedSessionStorage("session");
 
       saveUserChatsInDB(botMessage, currentSession, "bot")
         .then(() => {

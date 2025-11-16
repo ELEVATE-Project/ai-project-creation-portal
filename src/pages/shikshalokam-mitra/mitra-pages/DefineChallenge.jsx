@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { MdAccountCircle, MdSend } from "react-icons/md";
-import { useLocalStorage } from "react-use";
+import { useSessionStorage } from "react-use";
 import useVoiceRecord, {
   default_wave_surfer_config,
 } from "../../text-voice/useVoiceRecord";
@@ -38,8 +38,8 @@ import "../stylesheet/shikshaChatStyle.css";
 import { RxKeyboard, RxSpeakerOff } from "react-icons/rx";
 import Header from "../header/Header";
 import {
-  getEncodedLocalStorage,
-  setEncodedLocalStorage,
+  getEncodedSessionStorage,
+  setEncodedSessionStorage,
 } from "../../../utils/storage_utils";
 import {
   ai4BharatASR,
@@ -60,6 +60,7 @@ import Notification, {
 import { handleS3Upload } from "../../../utils/upload";
 import { useAudio } from "../../../hooks/useAudio";
 import { ai4BharatASRApi } from "../../../apiServices/ai";
+import { FIRST_BOT_MESSAGE } from "../../../constants/mitra-chat";
 
 const sessionFlowName = {
   GuestDiscussion: "guest-discussion",
@@ -98,13 +99,13 @@ const DefineChallenge = ({
   isDefineChallengeSection = false,
 }) => {
   const [profileToUse, setProfileToUse] = useState(
-    localStorage.getItem("profileid") || null
+    getEncodedSessionStorage("profileid") || null
   );
   // const audioRef = useRef();
   const lastBotMessageIndex = useRef(-1);
-  let access_token = localStorage.getItem("accToken");
+  let access_token = getEncodedSessionStorage("accToken");
 
-  const [localChatHistory, setLocalChatHistory] = useLocalStorage(
+  const [localChatHistory, setLocalChatHistory] = useSessionStorage(
     "chat-history",
     []
   );
@@ -129,7 +130,7 @@ const DefineChallenge = ({
   const [hasOverRideId, setHasOverRideId] = useState(null);
   const [shouldFetchIntro, setShouldFetchIntro] = useState(false);
   const [isChatVisible, setIsChatVisible] = useState(() => {
-    const storedVisibility = getEncodedLocalStorage("isChatVisible");
+    const storedVisibility = getEncodedSessionStorage("isChatVisible");
     return storedVisibility !== null ? JSON.parse(storedVisibility) : false;
   });
   const [isLocalLoading, setIsLocalLoading] = useState(false);
@@ -140,13 +141,13 @@ const DefineChallenge = ({
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [shouldSendMessage] = useState(true);
   const [userName, setUserName] = useState(
-    getEncodedLocalStorage("first_name") || null
+    getEncodedSessionStorage("first_name") || null
   );
   const [useTextbox, setUseTextbox] = useState(false);
   const [shouldMoveForward, setShouldMoveForward] = useState("no");
 
   const [languageToUse, setLanguageToUse] = useState(
-    JSON.parse(localStorage.getItem("route"))
+    JSON.parse(getEncodedSessionStorage("route"))
   );
   const textInputRef = useRef(null);
 
@@ -238,7 +239,7 @@ const DefineChallenge = ({
 
               setIsFetchingData(true);
               let transcriptResult = "";
-              const sessionId = getEncodedLocalStorage("session");
+              const sessionId = getEncodedSessionStorage("session");
 
               let s3Url = await handleS3Upload(
                 audioBlob,
@@ -320,8 +321,8 @@ const DefineChallenge = ({
   }
 
   async function handleCompanyChatCall(currentSession) {
-    const storedChatHistory = getEncodedLocalStorage("chat-history");
-    if (storedChatHistory?.length >= 1) {
+    const storedChatHistory = getEncodedSessionStorage("chat-history");
+    if (storedChatHistory && storedChatHistory?.length >= 1) {
       return;
     }
 
@@ -419,10 +420,11 @@ const DefineChallenge = ({
 
         if (response && response?.status === 200) {
           const data = response?.data.profile_details;
-          localStorage.setItem("profileid", data?.id);
+          setEncodedSessionStorage("profileid", data?.id);
+          // localStorage.setItem("profileid", data?.id);
           setProfileToUse(data?.id);
-          setEncodedLocalStorage("first_name", data?.first_name);
-          setEncodedLocalStorage("company", data?.company?.slug);
+          setEncodedSessionStorage("first_name", data?.first_name);
+          setEncodedSessionStorage("company", data?.company?.slug);
           setUserName(JSON.stringify(data?.first_name));
         } else {
           clearMitraLocalStorage();
@@ -442,19 +444,20 @@ const DefineChallenge = ({
       setIsStreamingComplete(true);
     }
     const getSessionId = async () => {
-      let sessionid = getEncodedLocalStorage("session");
+      let sessionid = getEncodedSessionStorage("session");
       if (!sessionid) {
         let session = await getNewSessionID();
-        setEncodedLocalStorage("session", session);
+        setEncodedSessionStorage("session", session);
       }
       const preferredLanguage = JSON.parse(
-        localStorage.getItem("preferred_language") || "{}"
+        getEncodedSessionStorage("preferred_language") || "{}"
       );
       const language = preferredLanguage?.value || "en";
-      localStorage.setItem("route", JSON.stringify(language));
+      // localStorage.setItem("route", JSON.stringify(language));
+      setEncodedSessionStorage("route", JSON.stringify(language));
       setLanguageToUse(language);
 
-      let currentSession = getEncodedLocalStorage("session");
+      let currentSession = getEncodedSessionStorage("session");
       await handleCompanyChatCall(currentSession);
     };
     getSessionId();
@@ -462,7 +465,7 @@ const DefineChallenge = ({
 
   useEffect(() => {
     if (isFetchingOldIntro) {
-      let temp_intro_message = getEncodedLocalStorage("intro_message");
+      let temp_intro_message = getEncodedSessionStorage("intro_message");
       introMessageRef.current = temp_intro_message;
     }
   }, [isFetchingOldIntro]);
@@ -501,7 +504,7 @@ const DefineChallenge = ({
                 message?.extra_content?.should_move_forward;
               const userProblemStatement =
                 message?.extra_content?.problem_statement;
-              setEncodedLocalStorage(
+              setEncodedSessionStorage(
                 "user_problem_statement",
                 userProblemStatement
               );
@@ -574,9 +577,9 @@ const DefineChallenge = ({
 
           socket.onopen = () => {
             setChatSocket(socket);
-            let profileid = localStorage.getItem("profileid");
-            let sessionid = getEncodedLocalStorage("session");
-            let route = JSON.parse(localStorage.getItem("route"));
+            let profileid = getEncodedSessionStorage("profileid");
+            let sessionid = getEncodedSessionStorage("session");
+            let route = JSON.parse(getEncodedSessionStorage("route"));
             if (sessionid) {
               socket.send(
                 JSON.stringify({
@@ -639,7 +642,7 @@ const DefineChallenge = ({
 
   useEffect(() => {
     if (chatHistory?.length !== 0) {
-      setEncodedLocalStorage("isChatVisible", true);
+      setEncodedSessionStorage("isChatVisible", true);
       setIsChatVisible(true);
     }
   }, []);
@@ -654,8 +657,8 @@ const DefineChallenge = ({
       !!message?.trim() &&
       chatHistory[chatHistory?.length - 1]?.msg !== message
     ) {
-      setEncodedLocalStorage("intro_end_context", message);
-      saveUserChatsInDB(message, getEncodedLocalStorage("session"), "bot");
+      setEncodedSessionStorage("intro_end_context", message);
+      saveUserChatsInDB(message, getEncodedSessionStorage("session"), "bot");
 
       setSentences((prevSentences) => [
         ...prevSentences,
@@ -685,7 +688,7 @@ const DefineChallenge = ({
   }, [chatHistory, setChatHistory, setSentences]);
 
   useEffect(() => {
-    const botName = getEncodedLocalStorage("botName");
+    const botName = getEncodedSessionStorage("botName");
     setBotNameToDisplay(botName);
   }, []);
 
@@ -737,7 +740,7 @@ const DefineChallenge = ({
             selectedBot = bots[0] || { route: "/mitra-create" };
           }
           const botName = selectedBot?.name || "Bot";
-          setEncodedLocalStorage("botName", botName);
+          setEncodedSessionStorage("botName", botName);
           setBotNameToDisplay(botName);
         }
 
@@ -760,13 +763,14 @@ const DefineChallenge = ({
             handleFirstMessage("");
             return;
           }
-          let firstName = getEncodedLocalStorage("first_name") || "";
+          let firstName = getEncodedSessionStorage("first_name") || "";
 
           let data = await getTranslatedIntroMessage(storedRoute);
-          setEncodedLocalStorage("system_error", data[0]?.error_message);
-          let message = data[0]?.introductory_message;
+          setEncodedSessionStorage("system_error", data[0]?.error_message);
+          let message = FIRST_BOT_MESSAGE;
           const botName = data[0]?.name || "Bot";
-          localStorage.setItem("botName", botName);
+          // localStorage.setItem("botName", botName);
+          setEncodedSessionStorage("botName", botName);
           setBotNameToDisplay(botName);
 
           if (message && firstName) {
@@ -780,7 +784,7 @@ const DefineChallenge = ({
             !!message?.trim() &&
             chatHistory[chatHistory?.length - 1]?.msg !== message
           ) {
-            setEncodedLocalStorage("intro_message", message);
+            setEncodedSessionStorage("intro_message", message);
             setSentences((prev) => [
               ...prev,
               {
@@ -853,7 +857,7 @@ const DefineChallenge = ({
   }, [isMute]);
 
   useEffect(() => {
-    setEncodedLocalStorage("isChatVisible", isChatVisible);
+    setEncodedSessionStorage("isChatVisible", isChatVisible);
   }, [isChatVisible]);
 
   useEffect(() => {
@@ -1463,7 +1467,7 @@ export default DefineChallenge;
 //   validation,
 // }) {
 //   let sanitizedContent = DOMPurify.sanitize(message);
-//   const languageToUse = JSON.parse(localStorage.getItem("route")) || "en";
+//   const languageToUse = JSON.parse(getEncodedSessionStorage("route")) || "en";
 
 //   return (
 //     <div className="div41">
