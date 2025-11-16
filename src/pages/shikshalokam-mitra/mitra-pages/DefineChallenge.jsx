@@ -96,6 +96,7 @@ const DefineChallenge = ({
   // stopRecording,
   // hasStartedRecording,
   isDefineChallengeSection = false,
+  handleScrollIntoView,
 }) => {
   const [profileToUse, setProfileToUse] = useState(
     getEncodedSessionStorage("profileid") || null
@@ -472,6 +473,7 @@ const DefineChallenge = ({
   useEffect(() => {
     setShouldFetchIntro(true);
     setIsStreamingComplete(true);
+    if (isDefineChallengeSection) handleScrollIntoView();
   }, []);
 
   const MakeSocketConnection = useCallback(
@@ -562,13 +564,13 @@ const DefineChallenge = ({
               }
 
               setShouldMoveForward(should_move_forward);
-              handleScrollToView();
+              // handleScrollToView();
             } else {
               setIsStreamingComplete(false);
             }
 
             if (message.finish_reason === "stop" && message.source === "bot") {
-              handleScrollToView();
+              // handleScrollToView();
               setTalking(0);
               setIsStreamingComplete(true);
               setChatHistory((prevState) => {
@@ -828,7 +830,7 @@ const DefineChallenge = ({
   useEffect(() => {
     setLocalChatHistory(chatHistory);
     lastBotMessageIndex.current = chatHistory?.length - 1;
-    handleScrollToView();
+    // handleScrollToView();
   }, [chatHistory]);
 
   useEffect(() => {
@@ -877,20 +879,20 @@ const DefineChallenge = ({
     }
   }, [useTextbox]);
 
-  const handleScrollToView = () => {
-    try {
-      const element = document?.querySelector("#last-chat-boundary");
-      if (!element) {
-        console.error("Element #last-chat-boundary not found");
-        return;
-      }
-      element.scrollIntoView({
-        behavior: "smooth",
-      });
-    } catch (error) {
-      console.error({ error });
-    }
-  };
+  // const handleScrollToView = () => {
+  //   try {
+  //     const element = document?.querySelector("#last-chat-boundary");
+  //     if (!element) {
+  //       console.error("Element #last-chat-boundary not found");
+  //       return;
+  //     }
+  //     element.scrollIntoView({
+  //       behavior: "smooth",
+  //     });
+  //   } catch (error) {
+  //     console.error({ error });
+  //   }
+  // };
 
   const handleSendMessage = useCallback(
     async (event, currentSocket) => {
@@ -919,7 +921,6 @@ const DefineChallenge = ({
           })
         );
 
-        handleScrollToView();
         setTextMessage("");
       } catch (error) {
         console.error("WebSocket connection failed:", error);
@@ -1078,6 +1079,7 @@ const DefineChallenge = ({
       });
       setAppendix([]);
     }
+    if (isDefineChallengeSection) handleScrollIntoView();
     return () => {};
   }, [appendix, chatHistory]);
 
@@ -1086,7 +1088,7 @@ const DefineChallenge = ({
       if (category === "special") {
         return;
       }
-      handleScrollToView();
+      // handleScrollToView();
     } catch (error) {
       console.error({ error });
     }
@@ -1117,10 +1119,6 @@ const DefineChallenge = ({
       console.error({ error });
     }
   };
-
-  function localHandleGoForward(index) {
-    handleGoForward(index);
-  }
 
   useEffect(() => {
     if (hasStartedRecording) {

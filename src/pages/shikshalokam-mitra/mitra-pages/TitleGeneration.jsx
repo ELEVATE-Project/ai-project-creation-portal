@@ -37,6 +37,8 @@ function TitleGeneration({
   setIsLoading,
   isLoading,
   handleGoBack,
+  handleScrollIntoView,
+  isTitleGenerationSection,
 }) {
   const [inputText, setInputText] = useState(() => {
     let title = getEncodedSessionStorage("project_title") || "";
@@ -81,9 +83,12 @@ function TitleGeneration({
           if (title) {
             setInputText(title);
             setEncodedSessionStorage("project_title", title);
+            if (isTitleGenerationSection) handleScrollIntoView();
           } else {
             window.location.reload();
           }
+        } else {
+          if (isTitleGenerationSection) handleScrollIntoView();
         }
         setIsLoading(false);
       } catch (error) {

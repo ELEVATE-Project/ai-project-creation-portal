@@ -7,7 +7,7 @@ import BotMessage from "./components/chat-message/BotMessage";
 import Header from "../header/Header";
 import SuggestOrAddCta from "./components/SuggestOrAddCta";
 import "../stylesheet/chatStyle.css";
-import { getNewLocalTime, ShowLoader } from "../MainPage";
+// import { getNewLocalTime, ShowLoader } from "../MainPage";
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
@@ -54,6 +54,7 @@ function ActionItems({
   errorText,
   setErrorText,
   isSelectActionItems,
+  handleScrollIntoView,
 }) {
   const [actionList, setActionList] = useState(() => {
     const storedActions = getEncodedSessionStorage("actionList");
@@ -76,6 +77,7 @@ function ActionItems({
     if (storedActionItemSource) {
       setActionItemSource(JSON.parse(storedActionItemSource));
     }
+    if (isSelectActionItems) handleScrollIntoView();
   }, []);
   const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(() => {
     const storedActionList = getEncodedSessionStorage("selected_action");
@@ -120,6 +122,7 @@ function ActionItems({
 
   const handleSuggestMore = () => {
     setVisibleCount(true);
+    handleScrollIntoView();
   };
 
   useEffect(() => {
@@ -148,6 +151,7 @@ function ActionItems({
               JSON.stringify(transformedSource)
             );
             setIsLoading(false);
+            if (isSelectActionItems) handleScrollIntoView();
           } else {
             // window.location.reload();
           }

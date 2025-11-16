@@ -27,6 +27,7 @@ function WeeksSelection({
   setCurrentPageValue,
   setChatHistory,
   isWeeksSelectionSection = false,
+  handleScrollIntoView,
 }) {
   const [selectedWeek, setSelectedWeek] = useState(
     getEncodedSessionStorage("selected_week") || 1
@@ -41,6 +42,10 @@ function WeeksSelection({
   const language = preferredLanguage.value || "en";
 
   const fourthpage_messages = getFourthPageMessages(language);
+
+  useEffect(() => {
+    if (isWeeksSelectionSection) handleScrollIntoView();
+  }, []);
 
   useEffect(() => {
     if (isInReadOnlyMode) {

@@ -145,40 +145,40 @@ function MainPage() {
   }
 
   // Auto-scroll to bottom when components change
-  useEffect(() => {
-    if (!scrollContainerRef.current) return;
+  // useEffect(() => {
+  //   if (!scrollContainerRef.current) return;
 
-    const scrollToBottom = () => {
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTo({
-          top: scrollContainerRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-      }
-    };
+  //   const scrollToBottom = () => {
+  //     if (scrollContainerRef.current) {
+  //       scrollContainerRef.current.scrollTo({
+  //         top: scrollContainerRef.current.scrollHeight,
+  //         behavior: "smooth",
+  //       });
+  //     }
+  //   };
 
-    // Use MutationObserver to detect when DOM content changes
-    const observer = new MutationObserver(() => {
-      requestAnimationFrame(scrollToBottom);
-    });
+  //   // Use MutationObserver to detect when DOM content changes
+  //   const observer = new MutationObserver(() => {
+  //     requestAnimationFrame(scrollToBottom);
+  //   });
 
-    // Observe changes to the scroll container
-    observer.observe(scrollContainerRef.current, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-    });
+  //   // Observe changes to the scroll container
+  //   observer.observe(scrollContainerRef.current, {
+  //     childList: true,
+  //     subtree: true,
+  //     attributes: true,
+  //   });
 
-    // Initial scroll after a brief delay
-    const timeoutId = setTimeout(() => {
-      requestAnimationFrame(scrollToBottom);
-    }, 100);
+  //   // Initial scroll after a brief delay
+  //   const timeoutId = setTimeout(() => {
+  //     requestAnimationFrame(scrollToBottom);
+  //   }, 100);
 
-    return () => {
-      observer.disconnect();
-      clearTimeout(timeoutId);
-    };
-  }, [currentPage]);
+  //   return () => {
+  //     observer.disconnect();
+  //     clearTimeout(timeoutId);
+  //   };
+  // }, [currentPage]);
 
   function handleSpeakerOff(audioId) {
     if (!audioId) return;
@@ -197,6 +197,21 @@ function MainPage() {
       setIsProcessingAudio(true);
     }
   };
+
+  const handleScrollIntoView = () => {
+    try {
+      setTimeout(() => {
+        if (scrollContainerRef?.current) {
+          scrollContainerRef.current.scrollTo({
+            top: scrollContainerRef.current.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      }, 0);
+    } catch (error) {
+      console.error({ error });
+    }
+  }
 
   function getCurrentPageView() {
     const components = [];
@@ -224,6 +239,7 @@ function MainPage() {
           userDetail={userDetail}
           handleGoForward={handleGoForward}
           isDefineChallengeSection={isDefineChallengeSection}
+          handleScrollIntoView={handleScrollIntoView}
         />
       );
     }
@@ -251,6 +267,8 @@ function MainPage() {
           setErrorText={setErrorText}
           isReadOnly={isReadOnly}
           isSelectObjectiveSection={isSelectObjectiveSection}
+          scrollContainerRef={scrollContainerRef}
+          handleScrollIntoView={handleScrollIntoView}
         />
       );
     }
@@ -276,6 +294,7 @@ function MainPage() {
           errorText={errorText}
           setErrorText={setErrorText}
           isSelectActionItems={isSelectActionItems}
+          handleScrollIntoView={handleScrollIntoView}
         />
       );
     }
@@ -296,6 +315,7 @@ function MainPage() {
           setChatHistory={setChatHistory}
           chatHistory={chatHistory}
           isWeeksSelectionSection={isWeeksSelectionSection}
+          handleScrollIntoView={handleScrollIntoView}
         />
       );
     }
@@ -311,6 +331,8 @@ function MainPage() {
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           handleGoBack={handleGoBack}
+          handleScrollIntoView={handleScrollIntoView}
+          isTitleGenerationSection={isTitleGenerationSection}
         />
       );
     }
@@ -411,4 +433,5 @@ export function clearMitraLocalStorage() {
   sessionStorage.removeItem("end_context");
   sessionStorage.removeItem("system_error");
   sessionStorage.removeItem("objective_source");
+  sessionStorage.removeItem("action_item_source");
 }
