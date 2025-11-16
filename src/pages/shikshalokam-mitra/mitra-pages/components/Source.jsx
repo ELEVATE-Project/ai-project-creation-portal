@@ -1,9 +1,12 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Card from "../../../../components/cards/Card";
 import Collapse from "../../../../components/Collapse/Collapse";
 import Tabs from "../../../../components/Tabs/Tabs";
+import SourcePopup from "./SourcePopup";
 
 const Source = ({ source = {}, customClassNames = {} }) => {
+  const [isOpenSourcePopup, setIsOpenSourcePopup] = useState(false);
+  const [sourcePopupData, setSourcePopupData] = useState({});
   const showSourceTabs = useMemo(() => {
     return Object.keys(source || []).length > 0;
   }, [source]);
@@ -28,6 +31,13 @@ const Source = ({ source = {}, customClassNames = {} }) => {
               description={source?.description || ""}
               sourceUrl={source?.url || ""}
               show={source?.chunk}
+              showSourcePopup={() => {
+                setSourcePopupData({
+                  ...source,
+                  label: `Reference ${index + 1}`,
+                });
+                setIsOpenSourcePopup(true);
+              }}
             />
           );
         })}
@@ -53,9 +63,23 @@ const Source = ({ source = {}, customClassNames = {} }) => {
   if (!showSourceTabs) return null;
 
   return (
-    <Collapse title="Source" defaultOpen={false} customClassNames={customClassNames}>
-      <Tabs tabs={tabs} />
-    </Collapse>
+    <>
+      <Collapse
+        title="Source"
+        defaultOpen={false}
+        customClassNames={customClassNames}
+      >
+        <Tabs tabs={tabs} />
+      </Collapse>
+      <SourcePopup
+        isOpen={isOpenSourcePopup}
+        onClose={() => {
+          setIsOpenSourcePopup(false);
+          setSourcePopupData({});
+        }}
+        source={sourcePopupData}
+      />
+    </>
   );
 };
 
