@@ -28,6 +28,19 @@ function MainPage() {
   );
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [hasStartedRecording, setHasStartedRecording] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
   const [userInput, setUserInput] = useState(
     getEncodedSessionStorage("user_text") || []
   );
@@ -345,9 +358,19 @@ function MainPage() {
 
   return (
     <>
-      <Header isHeroSection={false} isBackButton={true} />
+      <Header 
+        isHeroSection={false} 
+        isBackButton={true}
+        onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        isSidebarOpen={isSidebarOpen}
+      />
       <main className="w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 bg-[#F0F2F5]">
-        <Sidebar setActiveTab={() => {}} />
+        <Sidebar 
+          setActiveTab={() => {}}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          isMobile={isMobile}
+        />
         {activeTab === ACTIVE_TABS.CONVERSATION && (
           <ConversationWrapperCard scrollRef={currentPage["1"] ? null : scrollContainerRef}>
             {getCurrentPageView()}

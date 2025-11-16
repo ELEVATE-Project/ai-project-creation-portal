@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { FaRegPlusSquare } from "react-icons/fa";
 import { CgPlayPauseR } from "react-icons/cg";
-import { HiMenu, HiX } from "react-icons/hi";
 import { ACTIVE_TABS } from "../../constants/mitra.constants";
 
 function Action({ icon: Icon, text, onClick }) {
@@ -13,35 +12,27 @@ function Action({ icon: Icon, text, onClick }) {
   );
 }
 
-export default function Sidebar({ setActiveTab }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+export default function Sidebar({ 
+  setActiveTab, 
+  isSidebarOpen = false, 
+  setIsSidebarOpen,
+  isMobile = false 
+}) {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     // Close sidebar on mobile after clicking an action
-    setIsSidebarOpen(false);
+    if (isMobile && setIsSidebarOpen) {
+      setIsSidebarOpen(false);
+    }
   };
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-lg border border-[#DDDDDD]"
-        aria-label="Toggle sidebar"
-      >
-        {isSidebarOpen ? (
-          <HiX className="w-6 h-6 text-[#555555]" />
-        ) : (
-          <HiMenu className="w-6 h-6 text-[#555555]" />
-        )}
-      </button>
-
       {/* Overlay for mobile */}
-      {isSidebarOpen && (
+      {isSidebarOpen && isMobile && (
         <div
           className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setIsSidebarOpen(false)}
+          onClick={() => setIsSidebarOpen && setIsSidebarOpen(false)}
         />
       )}
 
