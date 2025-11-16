@@ -263,8 +263,6 @@ function SelectObjective({
   isBotTalking,
   handleSpeakerOn,
   handleSpeakerOff,
-  currentChatValue,
-  setCurrentChatValue,
   setIsLoading,
   isLoading,
   handleGoBack,
@@ -402,7 +400,6 @@ function SelectObjective({
   useEffect(() => {
     if (isInReadOnlyMode) {
       setIsLoading(true);
-      setCurrentChatValue(4);
       localStorage.removeItem("actionList");
       localStorage.removeItem("selected_action");
       setInputText(getEncodedSessionStorage("selected_objective") || "");
@@ -417,11 +414,12 @@ function SelectObjective({
   };
 
   const handleNextClick = () => {
-    if (currentChatValue === 4 && inputText && inputText !== "") {
+    const userSelectedObjective = inputText?.text?.trim();
+    if (userSelectedObjective?.trim()?.length > 0) {
       setErrorText("");
       setIsLoading(true);
-      setObjectiveList(inputText);
-      setEncodedSessionStorage("selected_objective", inputText);
+      setObjectiveList(userSelectedObjective);
+      setEncodedSessionStorage("selected_objective", userSelectedObjective);
       const currentSession = getEncodedSessionStorage("session");
       const botMessage = hasClickedOnAddmore
         ? secondpage_messages[5]?.[0]
@@ -445,10 +443,9 @@ function SelectObjective({
         chunks
       )
         .then(() => {
-          saveUserChatsInDB(inputText, currentSession, "user");
+          saveUserChatsInDB(userSelectedObjective, currentSession, "user");
         })
         .then(() => {
-          setCurrentChatValue(5);
           setCurrentPageValue(2);
         })
         .catch((error) => {
@@ -515,15 +512,6 @@ function SelectObjective({
 
   return (
     <>
-      {/* {isLoading && <ShowLoader />} */}
-
-      {/* <Header
-        shouldEnableGoBack={true}
-        shouldEnableCross={true}
-        shouldEnableGoForward={false}
-        handleGoBack={() => localHandleGoBack(2)}
-      /> */}
-
       <div>
         {!hasClickedOnAddmore ? (
           <div className="secondpage-bot-div">
@@ -557,7 +545,7 @@ function SelectObjective({
                   handleSuggestMore={handleSuggestMore}
                   language={language}
                   handleAddOwnClick={() => {
-                    setInputText("");
+                    setInputText({});
                     localStorage.removeItem("selected_objective");
                     setHasClickedOnAddmore(true);
                   }}
@@ -609,7 +597,7 @@ function SelectObjective({
                   <RxCrossCircled
                     className="secondpage-cross-icon"
                     onClick={() => {
-                      setInputText("");
+                      setInputText({});
                     }}
                   />
                 </div>

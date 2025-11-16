@@ -34,8 +34,6 @@ function TitleGeneration({
   isBotTalking,
   handleSpeakerOn,
   handleSpeakerOff,
-  currentChatValue,
-  setCurrentChatValue,
   setIsLoading,
   isLoading,
   handleGoBack,
@@ -137,7 +135,6 @@ function TitleGeneration({
 
   async function handleCreateImprovement() {
     if (
-      currentChatValue === 7 &&
       inputText &&
       inputText !== "" &&
       inputText.length <= titleCharacterLimit &&
@@ -242,20 +239,6 @@ function TitleGeneration({
 
   return (
     <>
-      {/* {isLoading && <ShowLoader />}
-      {isLocalLoading && (
-        <ShowLoader
-          showFirstLoader={false}
-          loadingText={getCreateLoadingTranslation(language)}
-        />
-      )} */}
-
-      {/* <Header
-        shouldEnableGoBack={true}
-        shouldEnableCross={true}
-        handleGoBack={() => handleGoBack(5)}
-        shouldEnableGoForward={false}
-      /> */}
       <div>
         <BotMessage
           primaryMessage={fifthpage_messages[9]?.[0]?.message}

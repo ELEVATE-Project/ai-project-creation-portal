@@ -3,6 +3,7 @@ import { getEncodedSessionStorage } from "../../../../../utils/storage_utils";
 import Collapse from "../../../../../components/Collapse/Collapse";
 import Tabs from "../../../../../components/Tabs/Tabs";
 import Card from "../../../../../components/cards/Card";
+import Source from "../Source";
 
 const ObjectivesCard = ({
   objectiveList = [],
@@ -13,45 +14,6 @@ const ObjectivesCard = ({
   isSelectObjectiveSection,
   objectiveSource = {},
 }) => {
-  const showSourceTabs = useMemo(() => {
-    return Object.keys(objectiveSource || []).length > 0;
-  }, [objectiveSource]);
-  const tabTitles = useMemo(() => {
-    return Object.keys(objectiveSource || []);
-  }, [objectiveSource]);
-
-  const TabBody = (sourceData) => {
-    if (!Array.isArray(sourceData) || sourceData.length === 0) {
-      return <div>No sources available</div>;
-    }
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:gap-4 mt-[10px] lg:mt-0">
-        {sourceData.map((item, index) => {
-          const source = item?.source || {};
-          return (
-            <Card
-              key={`${item?.text}-${index}`}
-              label={`Reference ${index + 1}`}
-              title={item?.text || ""}
-              description={source?.description || ""}
-              sourceUrl={source?.url || ""}
-              show={source?.chunk}
-            />
-          );
-        })}
-      </div>
-    );
-  };
-
-  const tabs = useMemo(() => {
-    if (!objectiveSource || Object.keys(objectiveSource).length === 0 || !tabTitles || tabTitles?.length === 0) {
-      return [];
-    }
-    return tabTitles?.map((organizationKey) => ({
-      label: organizationKey,
-      content: TabBody(objectiveSource[organizationKey] || []),
-    }));
-  }, [tabTitles, objectiveSource]);
 
   const getObjectiveCardClass = (objIndex, obj) => {
     // If no index is selected, check if this objective matches the stored one
@@ -94,11 +56,7 @@ const ObjectivesCard = ({
             ))}
         </>
       )}
-      {showSourceTabs && (
-        <Collapse title="Source" defaultOpen={false}>
-          <Tabs tabs={tabs} />
-        </Collapse>
-      )}
+      <Source source={objectiveSource} />
     </div>
   );
 };

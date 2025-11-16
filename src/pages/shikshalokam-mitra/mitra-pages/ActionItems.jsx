@@ -38,13 +38,13 @@ import { TbTrashOff } from "react-icons/tb";
 import ActionItemsList from "./components/action-items/ActionItemsList";
 import UserMessage from "./components/chat-message/UserMessage";
 import LoadingChat from "./components/LoadingChat";
+import { transformSource } from "../../../utils/mitra-chat";
+import Source from "./components/Source";
 
 function ActionItems({
   isBotTalking,
   handleSpeakerOn,
   handleSpeakerOff,
-  currentChatValue,
-  setCurrentChatValue,
   setIsLoading,
   isLoading,
   handleGoBack,
@@ -69,6 +69,14 @@ function ActionItems({
   const [swipeDirection, setSwipeDirection] = useState(null);
   const [wantsToMoveForward, setWantsToMoveForward] = useState(false);
   const [fetchError, setFetchError] = useState("");
+  const [actionItemSource, setActionItemSource] = useState({});
+  useEffect(() => {
+    const storedActionItemSource =
+      getEncodedSessionStorage("action_item_source");
+    if (storedActionItemSource) {
+      setActionItemSource(JSON.parse(storedActionItemSource));
+    }
+  }, []);
   const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(() => {
     const storedActionList = getEncodedSessionStorage("selected_action");
     if (storedActionList) {
@@ -133,9 +141,15 @@ function ActionItems({
           if (fetchedActionList) {
             setActionList(fetchedActionList);
             setEncodedSessionStorage("actionList", fetchedActionList);
+            const transformedSource = transformSource(fetchedActionList);
+            setActionItemSource(transformedSource);
+            setEncodedSessionStorage(
+              "action_item_source",
+              JSON.stringify(transformedSource)
+            );
             setIsLoading(false);
           } else {
-            window.location.reload();
+            // window.location.reload();
           }
         }
       } catch (error) {
@@ -159,7 +173,6 @@ function ActionItems({
   useEffect(() => {
     if (isInReadOnlyMode) {
       setIsLoading(true);
-      setCurrentChatValue(5);
       setIsLoading(false);
     }
   }, [isInReadOnlyMode]);
@@ -237,7 +250,6 @@ function ActionItems({
       }
 
       if (actionList) {
-      // if (currentChatValue === 5 && actionList) {
         setIsLoading(true);
         setEncodedSessionStorage("selected_action", actionListToStore);
         const currentSession = getEncodedSessionStorage("session");
@@ -264,7 +276,6 @@ function ActionItems({
           })
           .then(() => {
             setErrorText("");
-            setCurrentChatValue(6);
             setCurrentPageValue(3);
             setIsLoading(false);
           });
@@ -287,19 +298,12 @@ function ActionItems({
 
   return (
     <>
-      {/* {isLoading&& <ShowLoader />} */}
-      {/* <Header
-        shouldEnableGoBack={true}
-        shouldEnableCross={true}
-        handleGoBack={() => handleGoBack(3)}
-        shouldEnableGoForward={false}
-      /> */}
       <div>
-        {!hasClickedOnAddmore &&
-        !wantsToMoveForward &&
-        actionList &&
-        !isLoading &&
-        !isInReadOnlyMode ? (
+        {(!hasClickedOnAddmore &&
+          !wantsToMoveForward &&
+          actionList &&
+          !isLoading) ||
+        !isSelectActionItems ? (
           <div>
             <BotMessage
               primaryMessage={thirdpage_messages[6]?.[0]?.message}
@@ -315,37 +319,52 @@ function ActionItems({
               handleRightArrowClick={handleRightArrowClick}
               fetchError={fetchError}
               swipeDirection={swipeDirection}
+              isViewMode={!isSelectActionItems}
             />
-            <SuggestOrAddCta
-              handleSuggestMore={handleSuggestMore}
-              handleAddOwnClick={() => setHasClickedOnAddmore(true)}
-              language={language}
-              showSuggestMoreButton={!visibleCount && actionList?.length > 1}
-              showAddOwnButton={false}
+            <Source
+              source={actionItemSource}
+              customClassNames={{
+                wrapperStyles: "md:w-[60%] md:min-w-[570px]",
+              }}
             />
-            <div className="thirdpage-next-div">
-              <button
-                className={`thirdpage-select-bttn mt-14`}
-                onClick={() => {
-                  setWantsToMoveForward(true);
-                }}
-              >
-                {getSelectButtonTranslation(language)}
-                <IoArrowForward className="thirdpage-cont-arrow-icon" />
-              </button>
-            </div>
+            {isSelectActionItems && (
+              <>
+                <SuggestOrAddCta
+                  handleSuggestMore={handleSuggestMore}
+                  handleAddOwnClick={() => setHasClickedOnAddmore(true)}
+                  language={language}
+                  showSuggestMoreButton={
+                    !visibleCount && actionList?.length > 1
+                  }
+                  showAddOwnButton={false}
+                />
+                <div className="thirdpage-next-div">
+                  <button
+                    className={`thirdpage-select-bttn mt-14`}
+                    onClick={() => {
+                      setWantsToMoveForward(true);
+                    }}
+                  >
+                    {getSelectButtonTranslation(language)}
+                    <IoArrowForward className="thirdpage-cont-arrow-icon" />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ) : (
-              <FinalActionPage
-                actionListArray={getActionListArray()}
-                isBotTalking={isBotTalking}
-                handleSpeakerOn={handleSpeakerOn}
-                handleSpeakerOff={handleSpeakerOff}
-                handleContinueClick={handleContinueClick}
-                errorText={errorText}
-                hasClickedOnAddmore={hasClickedOnAddmore}
-                isSelectActionItems={isSelectActionItems}
-              />
+          <>
+            <FinalActionPage
+              actionListArray={getActionListArray()}
+              isBotTalking={isBotTalking}
+              handleSpeakerOn={handleSpeakerOn}
+              handleSpeakerOff={handleSpeakerOff}
+              handleContinueClick={handleContinueClick}
+              errorText={errorText}
+              hasClickedOnAddmore={hasClickedOnAddmore}
+              isSelectActionItems={isSelectActionItems}
+            />
+          </>
         )}
       </div>
       {!isSelectActionItems && <UserMessage message="Next" />}

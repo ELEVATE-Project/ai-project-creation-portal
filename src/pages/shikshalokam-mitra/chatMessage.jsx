@@ -18,11 +18,9 @@ export function BotMessage({
   secondParaClass,
   isUsingMicrophone,
   useTextbox,
-  currentChatValue,
   showFirst = false,
   showSecond = false,
   showThird = false,
-  setCurrentChatValue,
   setIsUsingMicrophone,
   setUseTextbox,
   setUserInput,
@@ -63,10 +61,10 @@ export function BotMessage({
     <>
       <div className={firstparaClass}>
         <div className="icon-column">
-          {/* <div className="bot-image"></div> */}
           <img
             className="bot-image"
             src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/bot_profile_image.gif"
+            alt="Bot Image"
           />
           <div className="boticon-button-div">
             {isSpeakerOn ? (
@@ -102,24 +100,17 @@ export function BotMessage({
               <button
                 className="firstpage-confirm-button"
                 onClick={() => {
-                  setCurrentChatValue((prevValue) => {
-                    return prevValue + 2;
-                  });
                   setUserInput((prevInput) => [
                     ...prevInput,
                     `${getComfirmButtonTranslation(language)}!`,
                   ]);
                 }}
-                disabled={currentChatValue > 1}
               >
                 {language && getComfirmButtonTranslation(language)}
               </button>
               <button
                 className="firstpage-deny-button"
                 onClick={() => {
-                  setCurrentChatValue((prevValue) => {
-                    return prevValue + 1;
-                  });
                   setIsUsingMicrophone(false);
                   setUseTextbox(false);
                   setUserInput((prevInput) => [
@@ -127,7 +118,6 @@ export function BotMessage({
                     getDenyButtonTranslation(language),
                   ]);
                 }}
-                disabled={currentChatValue > 1}
               >
                 {language && getDenyButtonTranslation(language)}
               </button>
@@ -156,7 +146,6 @@ export function UserMessage({ userMessage, userDetail }) {
   return (
     <>
       <div className="firstuser-div">
-        {/* <div className="user-image"></div> */}
         {userDetail?.image ? (
           <img src={userDetail?.image} className="user-image" />
         ) : (

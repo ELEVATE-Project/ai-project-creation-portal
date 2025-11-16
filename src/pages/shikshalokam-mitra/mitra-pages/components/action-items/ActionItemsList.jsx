@@ -14,6 +14,7 @@ const ActionItemsList = ({
   handleRightArrowClick,
   fetchError,
   swipeDirection,
+  isViewMode = false,
 }) => {
 
   return (
@@ -21,7 +22,7 @@ const ActionItemsList = ({
       <p className="secondpage-obj-text">
         {getActionListTextTranslation(language)}
       </p>
-      {visibleCount && (
+      {visibleCount && !isViewMode && (
         <SwipeTopCounter
           selectedIndex={selectedIndex}
           actionList={actionList}

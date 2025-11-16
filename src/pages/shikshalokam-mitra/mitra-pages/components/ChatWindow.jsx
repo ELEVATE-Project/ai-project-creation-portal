@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import ChatMessage from "./chat-message/ChatMessage";
 import LoadingChat from "./LoadingChat";
 
@@ -10,11 +11,11 @@ function ChatWindow({
   setNotMute,
   userDetail,
   chatHistory,
-  isReadOnly,
   hasStartedListening,
   hasOverRideId,
   isDefineChallengeSection,
 }) {
+  const isReadOnly = !isDefineChallengeSection;
   const getShowLoadingChat = (indexNumber) => {
     return (
       isDefineChallengeSection &&
@@ -24,10 +25,25 @@ function ChatWindow({
       !isReadOnly
     );
   };
+
+  const chatsToShow = useMemo(() => {
+    const data = [];
+    let shouldPush = true;
+    chatHistory?.forEach((chat) => {
+      if (shouldPush) {
+        data.push(chat);
+        if (chat?.shouldMoveForward === "yes" && chat?.source === "user") {
+          shouldPush = false;
+        }
+      }
+    });
+    return data;
+  }, [chatHistory]);
+
   return (
     <div className={`h-[${!isDefineChallengeSection ? "100%" : "90%"}]`}>
       <ul className="div34">
-        {chatHistory?.map((chat, i) => (
+        {chatsToShow?.map((chat, i) => (
           <li
             key={i}
             className={`div35 ${chat?.source === "user" ? "label1" : "label1"}`}

@@ -20,8 +20,6 @@ function WeeksSelection({
   isBotTalking,
   handleSpeakerOn,
   handleSpeakerOff,
-  currentChatValue,
-  setCurrentChatValue,
   setIsLoading,
   isLoading,
   handleGoBack,
@@ -47,7 +45,6 @@ function WeeksSelection({
   useEffect(() => {
     if (isInReadOnlyMode) {
       setIsLoading(true);
-      setCurrentChatValue(6);
       localStorage.removeItem("selected_week");
       localStorage.removeItem("project_title");
       setIsLoading(false);
@@ -57,7 +54,7 @@ function WeeksSelection({
   const handleSliderChange = (value) => {};
 
   const handleContinueClick = async () => {
-    if (currentChatValue === 6 && selectedWeek) {
+    if (selectedWeek) {
       setIsLoading(true);
       setEncodedSessionStorage("selected_week", selectedWeek);
       const botMessage =
@@ -75,7 +72,6 @@ function WeeksSelection({
           );
         })
         .then(() => {
-          setCurrentChatValue(7);
           setCurrentPageValue(4);
         });
     }
@@ -87,10 +83,6 @@ function WeeksSelection({
 
   return (
     <>
-      {/* {isLoading&& <ShowLoader />} */}
-      {/* <Header shouldEnableGoBack={true} shouldEnableCross={true} 
-                handleGoBack={()=>handleGoBack(4)} shouldEnableGoForward={false}
-            /> */}
       <div>
         <BotMessage
           primaryMessage={fourthpage_messages[8]?.[0]?.message}

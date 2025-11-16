@@ -32,9 +32,7 @@ function MainPage() {
     getEncodedSessionStorage("user_text") || []
   );
   const [isUsingMicrophone, setIsUsingMicrophone] = useState(false);
-  const [currentChatValue, setCurrentChatValue] = useState(
-    getEncodedSessionStorage("currentChatValue") || 0
-  );
+
   const [chatHistory, setChatHistory] = useState(
     getEncodedSessionStorage("chatHistory") || []
   );
@@ -51,7 +49,7 @@ function MainPage() {
 
   const [currentPage, setCurrentPage] = useState(
     getEncodedSessionStorage("currentPage") || {
-      1: false,
+      1: true,
       2: false,
       3: false,
       4: false,
@@ -84,9 +82,6 @@ function MainPage() {
     setEncodedSessionStorage("user_text", userInput);
   }, [userInput]);
 
-  useEffect(() => {
-    setEncodedSessionStorage("currentChatValue", currentChatValue);
-  }, [currentChatValue]);
 
   useEffect(() => {
     setEncodedSessionStorage("currentPage", currentPage);
@@ -115,8 +110,11 @@ function MainPage() {
     if (key <= 1) return;
     setIsReadOnly(true);
     setCurrentPage((prevValue) => ({
-      ...prevValue,
-      [key]: false,
+      1: false,
+      2: false,
+      3: false,
+      4: false,
+      5: false,
       [key - 1]: true,
     }));
   }
@@ -125,8 +123,11 @@ function MainPage() {
     if (key >= 5) return;
     setIsReadOnly(true);
     setCurrentPage((prevValue) => ({
-      ...prevValue,
-      [key]: false,
+      1: false,
+      2: false,
+      3: false,
+      4: false,
+      5: false,
       [key + 1]: true,
     }));
   }
@@ -134,8 +135,11 @@ function MainPage() {
   function setCurrentPageValue(key) {
     if (key >= 5) return;
     setCurrentPage((prevValue) => ({
-      ...prevValue,
-      [key]: false,
+      1: false,
+      2: false,
+      3: false,
+      4: false,
+      5: false,
       [key + 1]: true,
     }));
   }
@@ -174,7 +178,7 @@ function MainPage() {
       observer.disconnect();
       clearTimeout(timeoutId);
     };
-  }, [currentChatValue, currentPage]);
+  }, [currentPage]);
 
   function handleSpeakerOff(audioId) {
     if (!audioId) return;
@@ -184,8 +188,6 @@ function MainPage() {
       audioRef.current.currentTime = 0;
     }
   }
-
-  //   useEffect(() => {}, [isLoading, currentChatValue]);
 
   const stopRecording = () => {
     if (mediaRecorder) {
@@ -199,15 +201,12 @@ function MainPage() {
   function getCurrentPageView() {
     const components = [];
 
-    // Determine which pages should be shown based on currentChatValue or currentPage
-    const isDefineChallengeSection = currentChatValue < 4 || currentPage["1"];
-    const isSelectObjectiveSection =
-      (currentChatValue >= 4 && currentChatValue < 5) || currentPage["2"];
-    const isSelectActionItems =
-      (currentChatValue >= 5 && currentChatValue < 6) || currentPage["3"];
-    const isWeeksSelectionSection =
-      (currentChatValue >= 6 && currentChatValue < 7) || currentPage["4"];
-    const isTitleGenerationSection = currentChatValue === 7 || currentPage["5"];
+    // Determine which pages should be shown based on currentPage
+    const isDefineChallengeSection = currentPage["1"];
+    const isSelectObjectiveSection = currentPage["2"];
+    const isSelectActionItems = currentPage["3"];
+    const isWeeksSelectionSection = currentPage["4"];
+    const isTitleGenerationSection = currentPage["5"];
     // Show DefineChallenge if on page 1 or any later page
     if (
       isDefineChallengeSection ||
@@ -221,7 +220,6 @@ function MainPage() {
           key="first"
           setIsLoading={setIsLoading}
           setCurrentPageValue={setCurrentPageValue}
-          setCurrentChatValue={setCurrentChatValue}
           isReadOnly={isReadOnly}
           userDetail={userDetail}
           handleGoForward={handleGoForward}
@@ -243,8 +241,6 @@ function MainPage() {
           isBotTalking={isBotTalking}
           handleSpeakerOn={handleSpeakerOn}
           handleSpeakerOff={handleSpeakerOff}
-          currentChatValue={currentChatValue}
-          setCurrentChatValue={setCurrentChatValue}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           handleGoBack={handleGoBack}
@@ -254,7 +250,7 @@ function MainPage() {
           errorText={errorText}
           setErrorText={setErrorText}
           isReadOnly={isReadOnly}
-          isSelectObjectiveSection={currentPage["2"]}
+          isSelectObjectiveSection={isSelectObjectiveSection}
         />
       );
     }
@@ -271,8 +267,6 @@ function MainPage() {
           isBotTalking={isBotTalking}
           handleSpeakerOn={handleSpeakerOn}
           handleSpeakerOff={handleSpeakerOff}
-          currentChatValue={currentChatValue}
-          setCurrentChatValue={setCurrentChatValue}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           handleGoBack={handleGoBack}
@@ -281,7 +275,7 @@ function MainPage() {
           setChatHistory={setChatHistory}
           errorText={errorText}
           setErrorText={setErrorText}
-          isSelectActionItems={currentPage["3"]}
+          isSelectActionItems={isSelectActionItems}
         />
       );
     }
@@ -294,8 +288,6 @@ function MainPage() {
           isBotTalking={isBotTalking}
           handleSpeakerOn={handleSpeakerOn}
           handleSpeakerOff={handleSpeakerOff}
-          currentChatValue={currentChatValue}
-          setCurrentChatValue={setCurrentChatValue}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           setCurrentPageValue={setCurrentPageValue}
@@ -303,7 +295,7 @@ function MainPage() {
           handleGoForward={handleGoForward}
           setChatHistory={setChatHistory}
           chatHistory={chatHistory}
-          isWeeksSelectionSection={currentPage["4"]}
+          isWeeksSelectionSection={isWeeksSelectionSection}
         />
       );
     }
@@ -316,8 +308,6 @@ function MainPage() {
           isBotTalking={isBotTalking}
           handleSpeakerOn={handleSpeakerOn}
           handleSpeakerOff={handleSpeakerOff}
-          currentChatValue={currentChatValue}
-          setCurrentChatValue={setCurrentChatValue}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           handleGoBack={handleGoBack}
@@ -390,7 +380,6 @@ export function getNewLocalTime() {
 
 export function clearMitraLocalStorage() {
   sessionStorage.removeItem("actionList");
-  sessionStorage.removeItem("currentChatValue");
   sessionStorage.removeItem("currentPage");
   sessionStorage.removeItem("isReadOnly");
   sessionStorage.removeItem("objective");

@@ -94,7 +94,6 @@ function Footer() {
                 Join The Movement
               </a>
               <br />
-              {/* a href="https://shikshalokam.org/" target="_blank">ShikshaLokam</a */}
             </h2>
             <div className="div-block-85">
               <a

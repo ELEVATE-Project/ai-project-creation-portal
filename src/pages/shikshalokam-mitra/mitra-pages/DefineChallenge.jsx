@@ -88,7 +88,6 @@ const { BOT, USER } = CONVERSATION_USER_TYPES;
 
 const DefineChallenge = ({
   setIsLoading,
-  setCurrentChatValue,
   setCurrentPageValue,
   isReadOnly,
   userDetail,
@@ -510,7 +509,7 @@ const DefineChallenge = ({
               );
               if (message?.msg !== "") {
                 setSentences((prevSentences) => {
-                  const updatedSentences = [...prevSentences];
+                  let updatedSentences = [...prevSentences];
 
                   if (
                     updatedSentences.length > 0 &&
@@ -572,6 +571,19 @@ const DefineChallenge = ({
               handleScrollToView();
               setTalking(0);
               setIsStreamingComplete(true);
+              setChatHistory((prevState) => {
+                const updatedChatHistory = prevState?.map((chat, index) => {
+                  if (index === prevState?.length - 1) {
+                    return {
+                      ...chat,
+                      shouldMoveForward: "yes",
+                    };
+                  }
+                  return chat;
+                });
+                setLocalChatHistory(updatedChatHistory);
+                return updatedChatHistory;
+              });
             }
           };
 
@@ -715,7 +727,6 @@ const DefineChallenge = ({
   useEffect(() => {
     if (shouldMoveForward === "yes") {
       setIsLoading(true);
-      setCurrentChatValue(4);
       setCurrentPageValue(1);
     }
   }, [shouldMoveForward]);
@@ -1107,81 +1118,7 @@ const DefineChallenge = ({
     }
   };
 
-  // const handleOnStopSpeaking = async () => {
-  //   try {
-  //     try {
-  //       if (audioRef.current) await audioRef.current.pause();
-  //     } catch (error) {
-  //       console.error({ error });
-  //     }
-  //     setHasOverRideId(null);
-  //     setSentences([]);
-  //     setIsNextAllowed(true);
-  //   } catch (error) {
-  //     console.error({ error });
-  //   }
-  // };
-
-  // const startRecording = () => {
-  //   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-  //     setTextMessage("");
-  //     navigator.mediaDevices
-  //       .getUserMedia({ audio: true })
-  //       .then((stream) => {
-  //         const recorder = new MediaRecorder(stream);
-  //         setMediaRecorder(recorder);
-
-  //         const localAudioChunks = [];
-
-  //         recorder.start();
-  //         setHasStartedRecording(true);
-
-  //         recorder.ondataavailable = (event) => {
-  //           localAudioChunks.push(event.data);
-  //         };
-
-  //         recorder.onstop = async () => {
-  //           if (localAudioChunks.length > 0) {
-  //             const audioBlob = new Blob(localAudioChunks, {
-  //               type: "audio/webm;codecs=opus",
-  //             });
-
-  //             const wavBlob = await convertToWav(audioBlob);
-  //             if (!wavBlob) {
-  //               return;
-  //             }
-  //             setIsFetchingData(true);
-  //             const base64Audio = await convertBlobToBase64(wavBlob);
-  //             const transcriptResult = await ai4BharatASR(
-  //               base64Audio,
-  //               languageToUse
-  //             );
-  //             setTextMessage(transcriptResult);
-  //             setIsFetchingData(false);
-  //           } else {
-  //             console.warn("No audio chunks were recorded.");
-  //             setIsFetchingData(false);
-  //           }
-  //         };
-  //       })
-  //       .catch((err) => {
-  //         console.error("Error accessing microphone:", err);
-  //         setIsFetchingData(false);
-  //       });
-  //   } else {
-  //     console.warn("getUserMedia not supported on your browser!");
-  //   }
-  // };
-
-  // const stopRecording = () => {
-  //   if (mediaRecorder) {
-  //     mediaRecorder.stop();
-  //     setHasStartedRecording(false);
-  //   }
-  // };
-
   function localHandleGoForward(index) {
-    setCurrentChatValue(4);
     handleGoForward(index);
   }
 
@@ -1259,342 +1196,18 @@ const DefineChallenge = ({
                 stopRecording={stopRecording}
                 isFetchingData={isFetchingData}
                 seconds={seconds}
+                isReadOnly={!isDefineChallengeSection}
               />
             </div>
           )}
         </>
       )}
-      <div>
-        {/* <Header
-          shouldEnableCross={true}
-          shouldEnableGoForward={true}
-          handleGoForward={() => localHandleGoForward(1)}
-          shouldEnableGoBack={false}
-          hideMovement={isReadOnly ? false : true}
-        /> */}
-
-        {/* <div
-          className={`div33 
-                ${
-                  chatHistory[chatHistory.length - 1]?.validation ===
-                    "NO_PROBLEM_STATEMENT" || isReadOnly
-                    ? "div9-a"
-                    : "div9"
-                }`}
-        >
-          <ul className="div34">
-            {chatHistory?.map((chat, i) => (
-              <li
-                key={i}
-                className={`div35 ${
-                  chat?.source === "user" ? "label1" : "label1"
-                }`}
-              >
-                <div className={`div36 ${chat?.source === "user" && "div37"}`}>
-                  <ChatMessage
-                    botNameToDisplay={botNameToDisplay}
-                    userType={chat?.source}
-                    message={`${chat?.msg}`}
-                    name={"You"}
-                    recording={chat?.recording}
-                    hasAppendix={chat?.recording}
-                    appendixURL={chat?.appendixURL}
-                    isTalking={
-                      chat.source === "bot" &&
-                      !isStreamingComplete &&
-                      i === chatHistory.length - 1
-                    }
-                    handleOnStopSpeaking={() => handleOnStopSpeaking()}
-                    handleOnSpeaking={() => {
-                      handleOnSpeaking(chat?.msg, chat?.updated_at);
-                    }}
-                    isAnyPlaying={!!hasOverRideId || isTalking}
-                    isPlaying={hasOverRideId === chat?.updated_at}
-                    isStreamingComplete={isStreamingComplete}
-                    setNotMute={setNotMute}
-                    chatId={chat?.updated_at}
-                    validation={chat?.validation}
-                    userDetail={userDetail}
-                  />
-                </div>
-                {!hasStartedListening &&
-                chatHistory[chatHistory?.length - 1].source === "user" &&
-                i === chatHistory?.length - 1 &&
-                !isReadOnly ? (
-                  <>
-                    <LoadingChat />
-                  </>
-                ) : (
-                  ""
-                )}
-              </li>
-            ))}
-          </ul>
-          <div id="last-chat-boundary" className="div38" />
-        </div> */}
-        {/* {!isLocalLoading &&
-          chatHistory[chatHistory.length - 1]?.validation !==
-            "NO_PROBLEM_STATEMENT" &&
-          !isReadOnly && (
-            <form
-              className="div39 form-1"
-              onSubmit={handleSendMessage}
-              autoComplete="off"
-            >
-              {!hasStartedRecording && !useTextbox && !isFetchingData && (
-                <div className={"mic-container"}>
-                  <div className="thirdpara-div">
-                    <button
-                      className="microphone-button-gif-div"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        hasStartedRecording
-                          ? stopRecording()
-                          : startRecording();
-                      }}
-                      disabled={isFetchingData}
-                    >
-                      <img
-                        src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/mic.gif"
-                        className="mic-gif"
-                      />
-                    </button>
-                  </div>
-                  <div className="fourthpara-div">
-                    <button
-                      className="use-text-button"
-                      onClick={() => {
-                        setUseTextbox(true);
-                      }}
-                    >
-                      <RxKeyboard />
-                      {getKeyboardButtonTranslation(languageToUse)}
-                    </button>
-                  </div>
-                </div>
-              )}
-              {hasStartedRecording && !isFetchingData && (
-                <div className={`audio-visualizer ${"mic-container"}`}>
-                  <img
-                    src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/voice_loader.gif"
-                    className="voice-loader-bot"
-                  />
-                  <div className="">
-                    <button
-                      className="use-text-button"
-                      onClick={(e) => {
-                        stopRecording();
-                        setUseTextbox(true);
-                      }}
-                    >
-                      <FaMicrophoneSlash />
-                      {getVoiceStopButtonTranslation(languageToUse)}
-                    </button>
-                  </div>
-                </div>
-              )}
-              {useTextbox && (
-                <div id="textbox-id" className={"input-box textbox-container"}>
-                  <div className="fourthpara-div-1">
-                    <button
-                      className="use-text-button"
-                      onClick={() => {
-                        setUseTextbox(false);
-                      }}
-                    >
-                      <FaMicrophone />
-                      {getVoiceButtonTranslation(languageToUse)}
-                    </button>
-                  </div>
-                  <input
-                    ref={textInputRef}
-                    type="text"
-                    placeholder={
-                      hasStartedRecording
-                        ? getPlaceHolder1(languageToUse)
-                        : isFetchingData
-                        ? getPlaceHolder2(languageToUse)
-                        : getInputPlaceholderTranslation(languageToUse)
-                    }
-                    autoFocus={true}
-                    value={textMessage}
-                    className="firstpage-text-input"
-                    onChange={handleOnInputText}
-                    onKeyDown={async (e) => {
-                      if (e.key === "Enter") {
-                        try {
-                          e.preventDefault();
-                          e.target.form.requestSubmit();
-                          setTimeout(() => {
-                            e.target.value = "";
-                          }, 0);
-                        } catch (error) {
-                          console.error("Error handling text:", error);
-                        } finally {
-                          setUseTextbox(false);
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            </form>
-          )} */}
-      </div>
     </>
   );
 };
 
 export default DefineChallenge;
 
-// function ChatMessage({
-//   userType,
-//   message,
-//   name,
-//   recording,
-//   appendixURL,
-//   isTalking,
-//   handleOnSpeaking,
-//   handleOnStopSpeaking,
-//   isPlaying,
-//   botNameToDisplay,
-//   isStreamingComplete,
-//   setNotMute,
-//   chat,
-//   staticMessage,
-//   chatId,
-//   userDetail,
-//   validation,
-// }) {
-//   let sanitizedContent = DOMPurify.sanitize(message);
-//   const languageToUse = JSON.parse(getEncodedSessionStorage("route")) || "en";
-
-//   return (
-//     <div className="div41">
-//       {userType === "bot" && (
-//         <div className="div42">
-//           <div className={`${userType === "bot" ? "div43" : "div44"} div45`}>
-//             <img
-//               className="bot-image"
-//               src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/bot_profile_image.gif"
-//             />
-//           </div>
-//           <div className="div46">
-//             {userType === "bot" ? (
-//               isPlaying ? (
-//                 <button
-//                   className={`button-10 button-3`}
-//                   onClick={handleOnStopSpeaking}
-//                   disabled={!isStreamingComplete}
-//                 >
-//                   <HiOutlineSpeakerWave />
-//                 </button>
-//               ) : (
-//                 <button
-//                   className={`button-11 button-3`}
-//                   onClick={() => {
-//                     setNotMute(false);
-//                     handleOnSpeaking(message, chat?.updated_at, staticMessage);
-//                   }}
-//                   disabled={!isStreamingComplete}
-//                 >
-//                   <RxSpeakerOff />
-//                 </button>
-//               )
-//             ) : null}
-//           </div>
-//         </div>
-//       )}
-//       <div className={`${userType === "user" ? "div47" : "div48"}`}>
-//         <div className={`div36 ${userType === "user" && "div37"}`}>
-//           {userType === "user" && (
-//             <div className={`div49`}>
-//               {Boolean(userDetail?.image && userDetail.image !== "null") ? (
-//                 <img src={userDetail?.image} className="user-image" />
-//               ) : (
-//                 <img
-//                   src="/create-project/images/defaultImage.png"
-//                   className="user-image"
-//                 />
-//               )}
-//             </div>
-//           )}
-//         </div>
-//         {!!message && !!recording && (
-//           <div className={`div50`}>
-//             <WaveSurferPlayer
-//               url={recording?.result}
-//               {...default_wave_surfer_config}
-//             />
-//           </div>
-//         )}
-//         {!!recording ? (
-//           <div className="div51">Transcription: {message}</div>
-//         ) : (
-//           <div
-//             className={`div52 custom-voice-chat-chats ${
-//               userType === "user" ? "div73" : ""
-//             }`}
-//             id={chatId}
-//           >
-//             <ReactMarkdown
-//               children={sanitizedContent}
-//               remarkPlugins={[remarkGfm]}
-//             />
-//             {isTalking && <div className="div55">(Typing...)</div>}
-//             {!!appendixURL?.length && (
-//               <div>
-//                 <h6 className="h6-1">Resource:</h6>
-//                 {appendixURL?.map((url, index) => (
-//                   <div key={index} className="div56">
-//                     {url === "nan" ? (
-//                       "Not available"
-//                     ) : (
-//                       <a
-//                         key={index}
-//                         href={url}
-//                         rel="noreferrer"
-//                         target="_blank"
-//                         className="a-1"
-//                       >
-//                         {url}
-//                       </a>
-//                     )}
-//                     <br />
-//                   </div>
-//                 ))}
-//               </div>
-//             )}
-//             {validation === "NO_PROBLEM_STATEMENT" && userType === "bot" && (
-//               <>
-//                 <div className="firstpage-third-div">
-//                   <button
-//                     className="firstpage-confirm-button"
-//                     onClick={() => {
-//                       clearMitraLocalStorage();
-//                       window.location.href =
-//                         process.env.REACT_APP_ROUTE_EXPLORE;
-//                     }}
-//                   >
-//                     {languageToUse && getExploreTranslation(languageToUse)}
-//                   </button>
-//                 </div>
-//               </>
-//             )}
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-export const LoadingChat = () => (
-  <div className="div57">
-    <div className="div58">
-      <div>Replying...</div>
-    </div>
-  </div>
-);
 /* eslint-disable react-hooks/exhaustive-deps */
 
 export const createMessage = ({

@@ -51,64 +51,9 @@ const BotMessage = ({
             className="text-black font-normal text-sm leading-6 tracking-normal align-middle"
           />
         )}
-        {/* {showThird && (
-            <div className="firstpage-third-div">
-              <button
-                className="firstpage-confirm-button"
-                onClick={() => {
-                  setCurrentChatValue((prevValue) => {
-                    return prevValue + 2;
-                  });
-                  setUserInput((prevInput) => [
-                    ...prevInput,
-                    `${getComfirmButtonTranslation(language)}!`,
-                  ]);
-                }}
-                disabled={currentChatValue > 1}
-              >
-                {language && getComfirmButtonTranslation(language)}
-              </button>
-              <button
-                className="firstpage-deny-button"
-                onClick={() => {
-                  setCurrentChatValue((prevValue) => {
-                    return prevValue + 1;
-                  });
-                  setIsUsingMicrophone(false);
-                  setUseTextbox(false);
-                  setUserInput((prevInput) => [
-                    ...prevInput,
-                    getDenyButtonTranslation(language),
-                  ]);
-                }}
-                disabled={currentChatValue > 1}
-              >
-                {language && getDenyButtonTranslation(language)}
-              </button>
-            </div>
-          )}
-          {showExplore && (
-            <div className="firstpage-third-div">
-              <button
-                className="firstpage-confirm-button"
-                onClick={() => {
-                  clearMitraLocalStorage();
-                  window.location.href = process.env.REACT_APP_ROUTE_EXPLORE;
-                }}
-              >
-                {language && getExploreTranslation(language)}
-              </button>
-            </div>
-          )} */}
       </div>
     </div>
   );
 };
-
-function HtmlMessage({ content, className }) {
-  return (
-    <p className={className} dangerouslySetInnerHTML={{ __html: content }}></p>
-  );
-}
 
 export default BotMessage;
