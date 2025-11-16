@@ -1,15 +1,21 @@
 import React from "react";
 import { FiPlusCircle } from "react-icons/fi";
-import { getSuggestMoreButtonTranslation, getOrTextTranslation, getAddOwnButtonTranslation } from "../../question script/secondpage_tanslation";
+import {
+  getSuggestMoreButtonTranslation,
+  getOrTextTranslation,
+  getAddOwnButtonTranslation,
+} from "../../question script/secondpage_tanslation";
 
 const SuggestOrAddCta = ({
-    handleSuggestMore,
-    language,
-    handleAddOwnClick,
-    showSuggestMoreButton = false,
+  handleSuggestMore,
+  language,
+  handleAddOwnClick,
+  showSuggestMoreButton = true,
+  showAddOwnButton = true,
 }) => {
-
-    const buttonStyle = "flex items-center font-sans font-normal text-base leading-[1.4] text-right text-[#1177FF]"
+  const showOrText = showSuggestMoreButton && showAddOwnButton;
+  const buttonStyle =
+    "flex items-center font-sans font-normal text-base leading-[1.4] text-right text-[#1177FF]";
 
   return (
     <div className="secondpage-div1">
@@ -20,18 +26,19 @@ const SuggestOrAddCta = ({
           </button>
         </div>
       )}
-      <div className="flex justify-center">
-        <p className="secondpage-or-text">{getOrTextTranslation(language)}</p>
-      </div>
-      <div className="flex justify-center">
-        <button
-          className={buttonStyle}
-          onClick={handleAddOwnClick}
-        >
-          <FiPlusCircle className="mr-[5px]" />
-          {getAddOwnButtonTranslation(language)}
-        </button>
-      </div>
+      {showOrText && (
+        <div className="flex justify-center">
+          <p className="secondpage-or-text">{getOrTextTranslation(language)}</p>
+        </div>
+      )}
+      {showAddOwnButton && (
+        <div className="flex justify-center">
+          <button className={buttonStyle} onClick={handleAddOwnClick}>
+            <FiPlusCircle className="mr-[5px]" />
+            {getAddOwnButtonTranslation(language)}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

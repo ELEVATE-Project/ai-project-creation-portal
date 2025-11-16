@@ -309,6 +309,7 @@ function SelectObjective({
                     localStorage.removeItem("selected_objective");
                     setHasClickedOnAddmore(true);
                   }}
+                  showAddOwnButton={false}
                 />
               )}
             </div>

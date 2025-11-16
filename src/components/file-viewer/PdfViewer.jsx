@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { handleShareFile, handleDownloadFile } from "../../utils/file";
-import { FILE_TYPES, DEFAULT_FILE_WIDTH } from "../../constants/file";
+import { FILE_TYPES, DEFAULT_FILE_WIDTH, FILE_EXTENSIONS } from "../../constants/file";
 import { IoShareSocialOutline } from "react-icons/io5";
 import { BsDownload } from "react-icons/bs";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -124,7 +124,7 @@ function PdfViewer({
                 handleShareFile(
                   url,
                   fileName,
-                  fileExtension,
+                  FILE_EXTENSIONS.PDF,
                   FILE_TYPES.PDF,
                   (error) => setError(error)
                 )

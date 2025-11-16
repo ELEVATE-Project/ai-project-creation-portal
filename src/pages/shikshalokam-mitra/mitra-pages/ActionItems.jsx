@@ -320,6 +320,7 @@ function ActionItems({
               handleAddOwnClick={() => setHasClickedOnAddmore(true)}
               language={language}
               showSuggestMoreButton={!visibleCount && actionList?.length > 1}
+              showAddOwnButton={false}
             />
             <div className="thirdpage-next-div">
               <button
