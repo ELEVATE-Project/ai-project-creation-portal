@@ -7,7 +7,6 @@ import BotMessage from "./components/chat-message/BotMessage";
 import Header from "../header/Header";
 import SuggestOrAddCta from "./components/SuggestOrAddCta";
 import "../stylesheet/chatStyle.css";
-// import { getNewLocalTime, ShowLoader } from "../MainPage";
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,

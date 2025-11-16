@@ -240,6 +240,7 @@ function MainPage() {
           handleGoForward={handleGoForward}
           isDefineChallengeSection={isDefineChallengeSection}
           handleScrollIntoView={handleScrollIntoView}
+          scrollRef={scrollContainerRef}
         />
       );
     }
@@ -345,10 +346,10 @@ function MainPage() {
   return (
     <>
       <Header isHeroSection={false} isBackButton={true} />
-      <main className="w-full h-screen flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 bg-[#F0F2F5]">
+      <main className="w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 bg-[#F0F2F5]">
         <Sidebar setActiveTab={() => {}} />
         {activeTab === ACTIVE_TABS.CONVERSATION && (
-          <ConversationWrapperCard scrollRef={scrollContainerRef}>
+          <ConversationWrapperCard scrollRef={currentPage["1"] ? null : scrollContainerRef}>
             {getCurrentPageView()}
           </ConversationWrapperCard>
         )}

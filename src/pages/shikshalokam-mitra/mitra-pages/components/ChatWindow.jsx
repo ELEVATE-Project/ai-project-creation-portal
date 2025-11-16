@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import ChatMessage from "./chat-message/ChatMessage";
 import LoadingChat from "./LoadingChat";
 
@@ -14,6 +14,7 @@ function ChatWindow({
   hasStartedListening,
   hasOverRideId,
   isDefineChallengeSection,
+  scrollRef,
 }) {
   const isReadOnly = !isDefineChallengeSection;
   const getShowLoadingChat = (indexNumber) => {
@@ -40,8 +41,52 @@ function ChatWindow({
     return data;
   }, [chatHistory]);
 
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isDefineChallengeSection) return;
+    
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateScrollbarStyles = () => {
+      if (window.innerWidth < 768) {
+        // Mobile: hide scrollbar
+        container.style.msOverflowStyle = 'none';
+        container.style.scrollbarWidth = 'none';
+      } else {
+        // Desktop: show scrollbar
+        container.style.msOverflowStyle = 'auto';
+        container.style.scrollbarWidth = 'thin';
+      }
+    };
+
+    updateScrollbarStyles();
+    window.addEventListener('resize', updateScrollbarStyles);
+
+    return () => {
+      window.removeEventListener('resize', updateScrollbarStyles);
+    };
+  }, [isDefineChallengeSection]);
+
   return (
-    <div className={`h-[${!isDefineChallengeSection ? "100%" : "90%"}]`}>
+    <div 
+      ref={(node) => {
+        containerRef.current = node;
+        if (isDefineChallengeSection && scrollRef) {
+          if (typeof scrollRef === 'function') {
+            scrollRef(node);
+          } else if (scrollRef) {
+            scrollRef.current = node;
+          }
+        }
+      }}
+      className={`${isDefineChallengeSection ? "h-full flex-1" : "h-full"} ${isDefineChallengeSection ? "overflow-y-auto [&::-webkit-scrollbar]:hidden md:[&::-webkit-scrollbar]:w-2 md:[&::-webkit-scrollbar]:bg-transparent md:[&::-webkit-scrollbar-thumb]:bg-transparent md:[&::-webkit-scrollbar-thumb]:rounded-full md:hover:[&::-webkit-scrollbar-thumb]:bg-gray-400" : ""}`}
+      style={isDefineChallengeSection ? {
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none',
+      } : {}}
+    >
       <ul className="div34">
         {chatsToShow?.map((chat, i) => (
           <li

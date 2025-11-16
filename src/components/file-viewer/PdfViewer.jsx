@@ -66,7 +66,9 @@ function PdfViewer({
 
     updateWidth();
     window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
+    return () => {
+      window.removeEventListener("resize", updateWidth)
+    };
   }, []);
 
   return (

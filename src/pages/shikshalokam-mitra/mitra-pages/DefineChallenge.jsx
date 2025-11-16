@@ -97,6 +97,7 @@ const DefineChallenge = ({
   // hasStartedRecording,
   isDefineChallengeSection = false,
   handleScrollIntoView,
+  scrollRef,
 }) => {
   const [profileToUse, setProfileToUse] = useState(
     getEncodedSessionStorage("profileid") || null
@@ -1165,7 +1166,7 @@ const DefineChallenge = ({
           />
         </>
       ) : (
-        <>
+        <div className={isDefineChallengeSection ? "flex flex-col h-full" : ""}>
           <ChatWindow
             isTalking={isTalking}
             handleOnSpeaking={handleOnSpeaking}
@@ -1179,6 +1180,7 @@ const DefineChallenge = ({
             hasStartedListening={hasStartedListening}
             hasOverRideId={hasOverRideId}
             isDefineChallengeSection={isDefineChallengeSection}
+            scrollRef={scrollRef}
           />
           {isDefineChallengeSection && (
             <div className="mt-auto">
@@ -1198,7 +1200,7 @@ const DefineChallenge = ({
               />
             </div>
           )}
-        </>
+        </div>
       )}
     </>
   );
