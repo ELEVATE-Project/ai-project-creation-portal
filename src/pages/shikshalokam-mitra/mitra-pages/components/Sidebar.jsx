@@ -16,10 +16,15 @@ export default function Sidebar({
   setActiveTab, 
   isSidebarOpen = false, 
   setIsSidebarOpen,
-  isMobile = false 
+  isMobile = false,
+  clearMitraLocalStorage,
 }) {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
+    if (tab === ACTIVE_TABS.WELCOME) {
+      clearMitraLocalStorage();
+      window.location.reload();
+    }
     // Close sidebar on mobile after clicking an action
     if (isMobile && setIsSidebarOpen) {
       setIsSidebarOpen(false);

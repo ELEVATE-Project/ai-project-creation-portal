@@ -311,6 +311,7 @@ function MainPage() {
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           isMobile={isMobile}
+          clearMitraLocalStorage={clearMitraLocalStorage}
         />
         {activeTab === ACTIVE_TABS.CONVERSATION && (
           <ConversationWrapperCard scrollRef={currentPage["1"] ? null : scrollContainerRef}>
@@ -399,4 +400,5 @@ export function clearMitraLocalStorage() {
   sessionStorage.removeItem("system_error");
   sessionStorage.removeItem("objective_source");
   sessionStorage.removeItem("action_item_source");
+  sessionStorage.removeItem("media");
 }
