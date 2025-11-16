@@ -456,8 +456,8 @@ const DefineChallenge = ({
       setEncodedSessionStorage("route", JSON.stringify(language));
       setLanguageToUse(language);
 
-      let currentSession = getEncodedSessionStorage("session");
-      await handleCompanyChatCall(currentSession);
+      // let currentSession = getEncodedSessionStorage("session");
+      // await handleCompanyChatCall(currentSession);
     };
     getSessionId();
   }, [access_token, profileToUse]);

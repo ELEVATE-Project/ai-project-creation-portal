@@ -15,6 +15,7 @@ const ActionItemsList = ({
   fetchError,
   swipeDirection,
   isViewMode = false,
+  finalActionList = [],
 }) => {
 
   return (
@@ -37,6 +38,8 @@ const ActionItemsList = ({
               selectedIndex={selectedIndex}
               actionList={actionList}
               swipeDirection={swipeDirection}
+              finalActionList={finalActionList}
+              isViewMode={isViewMode}
             />
           )}
         </div>

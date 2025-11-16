@@ -320,6 +320,7 @@ function ActionItems({
               fetchError={fetchError}
               swipeDirection={swipeDirection}
               isViewMode={!isSelectActionItems}
+              finalActionList={getActionListArray()}
             />
             <Source
               source={actionItemSource}

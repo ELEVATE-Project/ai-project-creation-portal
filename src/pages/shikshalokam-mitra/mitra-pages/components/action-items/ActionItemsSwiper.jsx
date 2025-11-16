@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 const ActionItemsSwiper = ({
   selectedIndex,
   actionList,
   swipeDirection,
+  finalActionList,
+  isViewMode,
 }) => {
+  const actionItems = useMemo(() => {
+    if (isViewMode) {
+      return finalActionList?.map((action) => action?.content || "") || [];
+    }
+    return actionList[selectedIndex]?.actionSteps || [];
+  }, [isViewMode, finalActionList, actionList, selectedIndex]);
+
   return (
     <div
       key={selectedIndex}
@@ -31,13 +40,11 @@ const ActionItemsSwiper = ({
           </p>
         )}
         <ol>
-          {(actionList[selectedIndex]?.actionSteps || []).map(
-            (subAction, subActionIndex) => (
-              <li key={`${selectedIndex}.${subActionIndex}`}>
-                <span className="thirdpage-list-text">{subAction}</span>
-              </li>
-            )
-          )}
+          {(actionItems || []).map((subAction, subActionIndex) => (
+            <li key={`${selectedIndex}.${subActionIndex}`}>
+              <span className="thirdpage-list-text">{subAction}</span>
+            </li>
+          ))}
         </ol>
       </button>
     </div>
