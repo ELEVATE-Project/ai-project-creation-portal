@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FiPlusCircle, FiTrash2 } from "react-icons/fi";
 import { IoArrowForward } from "react-icons/io5";
-import { RiArrowLeftSFill, RiArrowRightSFill } from "react-icons/ri";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import BotMessage from "./components/chat-message/BotMessage";
-import Header from "../header/Header";
 import SuggestOrAddCta from "./components/SuggestOrAddCta";
 import "../stylesheet/chatStyle.css";
 import {
@@ -23,14 +21,11 @@ import {
   getActionListTextTranslation,
   getActionPlaceholderTranslation,
   getAddActionButtonTranslation,
-  getAddOwnButtonTranslation,
   getSelectButtonTranslation,
 } from "../question script/thirdpage_tanslation";
 import {
   getContinueButtonTranslation,
   getNextButtonTranslation,
-  getOrTextTranslation,
-  getSuggestMoreButtonTranslation,
 } from "../question script/secondpage_tanslation";
 import { PiDotsSixVerticalBold } from "react-icons/pi";
 import { TbTrashOff } from "react-icons/tb";

@@ -1,8 +1,5 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { getEncodedSessionStorage } from "../../../../../utils/storage_utils";
-import Collapse from "../../../../../components/Collapse/Collapse";
-import Tabs from "../../../../../components/Tabs/Tabs";
-import Card from "../../../../../components/cards/Card";
 import Source from "../Source";
 
 const ObjectivesCard = ({

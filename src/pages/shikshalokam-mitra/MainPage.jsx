@@ -1,33 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
-import SelectObjective from "./mitra-pages/SelectObjective";
-import ActionItems from "./mitra-pages/ActionItems";
-import WeeksSelection from "./mitra-pages/WeeksSelection";
-import TitleGeneration from "./mitra-pages/TitleGeneration";
 import { handleAI4BharatTTSRequest } from "../../apiServices/ai4bharat_services";
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
 } from "../../utils/storage_utils";
 import DefineChallenge from "./mitra-pages/DefineChallenge";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "./mitra-pages/components/Sidebar";
 import ConversationWrapperCard from "./mitra-pages/components/ConversationWrapperCard";
-import { ACTIVE_TABS } from "./constants/mitra.constants";
-import VoiceChat from "./mitra-pages/components/VoiceChat";
 import Footer from "../../components/layout/Footer";
 import Header from "../../components/layout/Header";
+import ActionItems from "./mitra-pages/ActionItems";
+import WeeksSelection from "./mitra-pages/WeeksSelection";
+import TitleGeneration from "./mitra-pages/TitleGeneration";
+import SelectObjective from "./mitra-pages/SelectObjective";
+import { ACTIVE_TABS } from "./constants/mitra.constants";
 
 function MainPage() {
   const [activeTab, setActiveTab] = useState(ACTIVE_TABS.CONVERSATION);
   const [audioCache, setAudioCache] = useState({});
   const [isBotTalking, setIsBotTalking] = useState(false);
-  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(
     getEncodedSessionStorage("isReadOnly") || false
   );
-  const [isFetchingData, setIsFetchingData] = useState(false);
-  const [hasStartedRecording, setHasStartedRecording] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -44,7 +38,6 @@ function MainPage() {
   const [userInput, setUserInput] = useState(
     getEncodedSessionStorage("user_text") || []
   );
-  const [isUsingMicrophone, setIsUsingMicrophone] = useState(false);
 
   const [chatHistory, setChatHistory] = useState(
     getEncodedSessionStorage("chatHistory") || []
@@ -58,7 +51,6 @@ function MainPage() {
   const [errorText, setErrorText] = useState(
     getEncodedSessionStorage("errorText") || ""
   );
-  const [showTyping, setShowTyping] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(
     getEncodedSessionStorage("currentPage") || {
@@ -70,8 +62,6 @@ function MainPage() {
     }
   );
 
-  const navigate = useNavigate();
-
   const audioRef = useRef();
   const scrollContainerRef = useRef(null);
 
@@ -81,10 +71,6 @@ function MainPage() {
       image: getEncodedSessionStorage("image"),
       email: getEncodedSessionStorage("email"),
     });
-    // if (!getEncodedSessionStorage("name")) {
-    //   clearMitraLocalStorage();
-    //   navigate(-1);
-    // }
   }, []);
 
   useEffect(() => {
@@ -157,42 +143,6 @@ function MainPage() {
     }));
   }
 
-  // Auto-scroll to bottom when components change
-  // useEffect(() => {
-  //   if (!scrollContainerRef.current) return;
-
-  //   const scrollToBottom = () => {
-  //     if (scrollContainerRef.current) {
-  //       scrollContainerRef.current.scrollTo({
-  //         top: scrollContainerRef.current.scrollHeight,
-  //         behavior: "smooth",
-  //       });
-  //     }
-  //   };
-
-  //   // Use MutationObserver to detect when DOM content changes
-  //   const observer = new MutationObserver(() => {
-  //     requestAnimationFrame(scrollToBottom);
-  //   });
-
-  //   // Observe changes to the scroll container
-  //   observer.observe(scrollContainerRef.current, {
-  //     childList: true,
-  //     subtree: true,
-  //     attributes: true,
-  //   });
-
-  //   // Initial scroll after a brief delay
-  //   const timeoutId = setTimeout(() => {
-  //     requestAnimationFrame(scrollToBottom);
-  //   }, 100);
-
-  //   return () => {
-  //     observer.disconnect();
-  //     clearTimeout(timeoutId);
-  //   };
-  // }, [currentPage]);
-
   function handleSpeakerOff(audioId) {
     if (!audioId) return;
     setIsBotTalking(false);
@@ -201,15 +151,6 @@ function MainPage() {
       audioRef.current.currentTime = 0;
     }
   }
-
-  const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setHasStartedRecording(false);
-      setIsUsingMicrophone(false);
-      setIsProcessingAudio(true);
-    }
-  };
 
   const handleScrollIntoView = () => {
     try {
@@ -364,7 +305,7 @@ function MainPage() {
         onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         isSidebarOpen={isSidebarOpen}
       />
-      <main className="w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 bg-[#F0F2F5]">
+      <main className={`w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 ${isMobile ? "bg-white" : "bg-[#F0F2F5]"}`}>
         <Sidebar 
           setActiveTab={() => {}}
           isSidebarOpen={isSidebarOpen}

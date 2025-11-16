@@ -50,7 +50,7 @@ export default function Header({
 
   return (
     <>
-      <header className={`flex flex-col px-7 pt-4 pb-8 w-full bg-white rounded-[16px] shadow-[0px_0px_4px_rgba(0,0,0,0.2)] ${isMobile && isBackButton ? 'items-start' : 'items-end'}`}>
+      <header className={`flex flex-col px-7 pt-4 pb-4 md:pb-8 w-full bg-white rounded-[16px] ${!isMobile ? 'shadow-[0px_0px_4px_rgba(0,0,0,0.2)]' : ''} ${isMobile && isBackButton ? 'items-start' : 'items-end'}`}>
         {!isMobile && (
           <div className="w-full">
             <>

@@ -7,19 +7,19 @@ import { useAudio } from "../../../../hooks/useAudio";
 import { ai4BharatASRApi } from "../../../../apiServices/ai";
 import { getEncodedSessionStorage } from "../../../../utils/storage_utils";
 
-const sessionFlowName = {
-  GuestDiscussion: "guest-discussion",
-  LoginDiscussion: "login-discussion",
-  GuestMiStory: "guest-mi-story",
-  LoginMiStory: "login",
-  SsoFlow: "guest-mi-story",
-  Reflection: "reflection",
-  megaPTM: "megaPTM",
-  YLC: "YLC",
-  ListeningActivity: "listening-activity",
-};
+// const sessionFlowName = {
+//   GuestDiscussion: "guest-discussion",
+//   LoginDiscussion: "login-discussion",
+//   GuestMiStory: "guest-mi-story",
+//   LoginMiStory: "login",
+//   SsoFlow: "guest-mi-story",
+//   Reflection: "reflection",
+//   megaPTM: "megaPTM",
+//   YLC: "YLC",
+//   ListeningActivity: "listening-activity",
+// };
 
-const storageFlow = "guest-discussion";
+// const storageFlow = "guest-discussion";
 
 const sessionRoute = "/guided_guest";
 

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import BotMessage from "./components/chat-message/BotMessage";
 
 import "../stylesheet/chatStyle.css";
-import Header from "../header/Header";
-import { clearMitraLocalStorage, ShowLoader } from "../MainPage";
+import { clearMitraLocalStorage } from "../MainPage";
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
@@ -19,7 +18,6 @@ import { getFifthPageMessages } from "../question script/bot_user_questions";
 import { useNavigate } from "react-router-dom";
 import { getCreateMicroButtonTranslation } from "../question script/thirdpage_tanslation";
 import {
-  getCreateLoadingTranslation,
   getEmptyTitleErrorTranslation,
   getTitleErrorTranslation,
   getTitleNumberTranslation,
@@ -60,7 +58,6 @@ function TitleGeneration({
 
   const fifthpage_messages = getFifthPageMessages(language);
   const [localErrorText, setLocalErrorText] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchTitle() {

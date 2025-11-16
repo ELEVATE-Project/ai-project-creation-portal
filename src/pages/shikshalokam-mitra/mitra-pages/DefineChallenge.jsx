@@ -1,59 +1,30 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { MdAccountCircle, MdSend } from "react-icons/md";
 import { useSessionStorage } from "react-use";
 import useVoiceRecord, {
   default_wave_surfer_config,
 } from "../../text-voice/useVoiceRecord";
-import WaveSurferPlayer from "../../text-voice/voice-player";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import DOMPurify from "dompurify";
-import { BiLoader } from "react-icons/bi";
-import {
-  HiMiniSpeakerWave,
-  HiMiniSpeakerXMark,
-  HiOutlineSpeakerWave,
-} from "react-icons/hi2";
-import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { clearMitraLocalStorage, ShowLoader } from "../MainPage";
-import {
-  getExploreTranslation,
-  getInputPlaceholderTranslation,
-  getKeyboardButtonTranslation,
-  getPlaceHolder1,
-  getPlaceHolder2,
-  getPlaceHolder3,
-  getVoiceButtonTranslation,
-  getVoiceStopButtonTranslation,
-} from "../question script/firstpage_translation";
 import {
   getNewSessionID,
   saveUserChatsInDB,
 } from "../../../apiServices/chat_flow_api";
 import axiosInstance from "../../../utils/axios";
 import "../stylesheet/shikshaChatStyle.css";
-import { RxKeyboard, RxSpeakerOff } from "react-icons/rx";
-import Header from "../header/Header";
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
 } from "../../../utils/storage_utils";
 import {
-  ai4BharatASR,
   getAI4BharatAudio,
 } from "../../../apiServices/ai4bharat_services";
-import { convertBlobToBase64, convertToWav } from "../../../utils/audio_utils";
 import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
 import ChatBox from "./components/ChatBox";
 import WelcomeCard from "./components/WelcomeCard";
 import InitialConversationCard from "./components/InitialConversationCard";
-import ConversationWrapperCard from "./components/ConversationWrapperCard";
-import ChatMessage from "./components/chat-message/ChatMessage";
 import ChatWindow from "./components/ChatWindow";
-import Sidebar from "./components/Sidebar";
 import Notification, {
   showNotification,
 } from "../../../components/Toast/Toast";
@@ -62,23 +33,8 @@ import { useAudio } from "../../../hooks/useAudio";
 import { ai4BharatASRApi } from "../../../apiServices/ai";
 import { FIRST_BOT_MESSAGE } from "../../../constants/mitra-chat";
 
-const sessionFlowName = {
-  GuestDiscussion: "guest-discussion",
-  LoginDiscussion: "login-discussion",
-  GuestMiStory: "guest-mi-story",
-  LoginMiStory: "login",
-  SsoFlow: "guest-mi-story",
-  Reflection: "reflection",
-  megaPTM: "megaPTM",
-  YLC: "YLC",
-  ListeningActivity: "listening-activity",
-};
-
-const storageFlow = "guest-discussion";
-
 const sessionRoute = "/guided_guest";
 
-const languageToUse = "en";
 const company_bot_list_url = `/api/companybot/`;
 
 const wss_protocol =
@@ -102,7 +58,6 @@ const DefineChallenge = ({
   const [profileToUse, setProfileToUse] = useState(
     getEncodedSessionStorage("profileid") || null
   );
-  // const audioRef = useRef();
   const lastBotMessageIndex = useRef(-1);
   let access_token = getEncodedSessionStorage("accToken");
 

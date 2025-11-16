@@ -1,5 +1,4 @@
 import React from "react";
-import { RiArrowLeftSFill, RiArrowRightSFill } from "react-icons/ri";
 import { getActionListTextTranslation } from "../../../question script/thirdpage_tanslation";
 import SwipeTopCounter from "./SwipeTopCounter";
 import ErrorText from "../ErrorText";

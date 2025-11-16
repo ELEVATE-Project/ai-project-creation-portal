@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { IoArrowForward } from "react-icons/io5";
 import BotMessage from "./components/chat-message/BotMessage";
 import Slider from "../../../components/Slider/slider";
-import Header from "../header/Header";
-import { getNewLocalTime, ShowLoader } from "../MainPage";
 
 import "../stylesheet/chatStyle.css";
 import {

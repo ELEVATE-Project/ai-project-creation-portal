@@ -1,17 +1,6 @@
 import React from "react";
 import DOMPurify from "dompurify";
-import { HiOutlineSpeakerWave } from "react-icons/hi2";
-import { RxSpeakerOff } from "react-icons/rx";
-import WaveSurferPlayer from "../../../../text-voice/voice-player";
-import { default_wave_surfer_config } from "../../../../text-voice/useVoiceRecord";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { clearMitraLocalStorage } from "../../../MainPage";
-import { getExploreTranslation } from "../../../question script/firstpage_translation";
 import { CONVERSATION_USER_TYPES } from "../../../constants/mitra.constants";
-import BotImage from "./BotImage";
-import UserImage from "./UserImage";
-import Speaker from "./Speaker";
 import BotMessage from "./BotMessage";
 import UserMessage from "./UserMessage";
 import { getEncodedSessionStorage } from "../../../../../utils/storage_utils";

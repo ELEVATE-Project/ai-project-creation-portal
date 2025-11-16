@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FiPlusCircle } from "react-icons/fi";
 import { IoArrowForward } from "react-icons/io5";
-// import { BotMessage } from "../chatMessage";
 import BotMessage from "./components/chat-message/BotMessage";
 import { RxCrossCircled } from "react-icons/rx";
-import Header from "../header/Header";
-import { getNewLocalTime, ShowLoader } from "../MainPage";
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
@@ -20,14 +16,11 @@ import {
 } from "../../../apiServices/chat_flow_api";
 import { getSecondPageMessages } from "../question script/bot_user_questions";
 import {
-  getAddOwnButtonTranslation,
   getContinueButtonTranslation,
   getNextButtonTranslation,
   getObjectiveEmptyTranslation,
   getObjectivePlaceholderTranslation,
   getObjectiveTextTranslation,
-  getOrTextTranslation,
-  getSuggestMoreButtonTranslation,
 } from "../question script/secondpage_tanslation";
 import ErrorText from "./components/ErrorText";
 import UserMessage from "./components/chat-message/UserMessage";
