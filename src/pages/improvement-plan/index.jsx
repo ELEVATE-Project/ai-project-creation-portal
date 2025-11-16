@@ -17,7 +17,7 @@ const ImprovementPlan = () => {
   return (
     <>
       <Header isBackButton={true} isHeroSection={false} />
-      <main className="w-full h-fit mb-10">
+      <main className="w-screen h-fit mb-10">
         <FileViewer url={media[0]?.url} fileType={media[0]?.media_type} />
       </main>
       <Footer />

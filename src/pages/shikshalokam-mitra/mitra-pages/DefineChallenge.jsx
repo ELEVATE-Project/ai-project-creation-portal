@@ -224,7 +224,6 @@ const DefineChallenge = ({
               const isSilent = await isSilentAudio(audioBlob, 0.02);
 
               if (!audioBlob || isSilent) {
-                console.log("------ error 1");
                 showNotification({
                   message: "Oops! We couldn't capture your speech. Try again.",
                   type: "error",
@@ -247,7 +246,6 @@ const DefineChallenge = ({
                 `chatbot/companychat/${sessionId}/`,
                 storyData
               );
-              console.log("------ s3Url", s3Url);
               if (!s3Url || s3Url === "") {
                 transcriptResult =
                   "Oops! We couldn't capture your speech. Try again.";
@@ -260,7 +258,6 @@ const DefineChallenge = ({
                 storedRoute
               );
               if (!transcriptResult || transcriptResult === "") {
-                console.log("------ error 2");
                 showNotification({
                   message: "Oops! We couldn't capture your speech. Try again.",
                   type: "error",
@@ -496,8 +493,6 @@ const DefineChallenge = ({
           socket.onmessage = (e) => {
             const data = JSON.parse(e.data);
             const message = data["text"];
-
-            console.log("message", message);
 
             if (message.source === "bot") {
               setIsStreamingComplete(false);
@@ -891,8 +886,6 @@ const DefineChallenge = ({
       localStorage.removeItem("llmError");
       try {
         const socket = await MakeSocketConnection(textMessage, currentSocket);
-
-        console.log("socket", socket);
 
         setIsChatVisible(true);
         setNotMute(true);

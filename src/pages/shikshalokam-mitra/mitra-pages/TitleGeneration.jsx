@@ -136,11 +136,6 @@ function TitleGeneration({
   }, [inputText]);
 
   async function handleCreateImprovement() {
-    console.log("---------- currentChatValue", currentChatValue);
-    console.log("---------- inputText", inputText);
-    console.log("---------- shouldDisableButton", shouldDisableButton);
-    console.log("---------- inputText.length", inputText.length);
-    console.log("---------- titleCharacterLimit", titleCharacterLimit);
     if (
       currentChatValue === 7 &&
       inputText &&
@@ -165,13 +160,11 @@ function TitleGeneration({
         profile_id
       );
       setIsApiCalling(false);
-      console.log("---------- validate_response", validate_response);
       if (validate_response?.result) {
       } else {
         setLocalErrorText(validate_response?.error_message);
         return;
       }
-      console.log("---------- validate_response passed");
       setIsLocalLoading(true);
       setEncodedLocalStorage("project_title", inputText);
       const session = getEncodedLocalStorage("session");
@@ -217,7 +210,6 @@ function TitleGeneration({
             chunks
           );
 
-          console.log("---------- project_response", project_response);
           const {
             media = [],
             mitra_result = {},

@@ -104,7 +104,6 @@ const VoiceChat = () => {
               const isSilent = await isSilentAudio(audioBlob, 0.02);
 
               if (!audioBlob || isSilent) {
-                console.log("------ error 1");
                 showNotification({
                   message: "Oops! We couldn't capture your speech. Try again.",
                   type: "error",
@@ -127,7 +126,6 @@ const VoiceChat = () => {
                 `chatbot/companychat/${sessionId}/`,
                 storyData
               );
-              console.log("------ s3Url", s3Url);
               if (!s3Url || s3Url === "") {
                 transcriptResult =
                   "Oops! We couldn't capture your speech. Try again.";
@@ -140,7 +138,6 @@ const VoiceChat = () => {
                 storedRoute
               );
               if (!transcriptResult || transcriptResult === "") {
-                console.log("------ error 2");
                 showNotification({
                   message: "Oops! We couldn't capture your speech. Try again.",
                   type: "error",
@@ -168,7 +165,7 @@ const VoiceChat = () => {
       console.warn("getUserMedia not supported on your browser!");
     }
   };
-  console.log("------ textMessage", textMessage);
+
   return (
     <div>
       <Notification />

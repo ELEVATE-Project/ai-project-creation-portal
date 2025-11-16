@@ -33,7 +33,7 @@ export default function Header({ isHeroSection = true, isBackButton = false }) {
 
   return (
     <>
-      <header className="flex flex-col items-end px-7 pt-4 pb-8 max-w-[1670px] w-full bg-white rounded-[16px] shadow-[0px_0px_4px_rgba(0,0,0,0.2)]">
+      <header className="flex flex-col items-end px-7 pt-4 pb-8 w-full bg-white rounded-[16px] shadow-[0px_0px_4px_rgba(0,0,0,0.2)]">
         <div className="w-full">
           <>
             <style
