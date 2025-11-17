@@ -29,10 +29,10 @@ function MainPage() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    
+
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
   const [userInput, setUserInput] = useState(
@@ -44,9 +44,9 @@ function MainPage() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [userDetail, setUserDetail] = useState({
-    name: getEncodedSessionStorage("name"),
-    image: getEncodedSessionStorage("image"),
-    email: getEncodedSessionStorage("email"),
+    name: sessionStorage.getItem("name"),
+    image: sessionStorage.getItem("image"),
+    email: sessionStorage.getItem("email"),
   });
   const [errorText, setErrorText] = useState(
     getEncodedSessionStorage("errorText") || ""
@@ -67,9 +67,9 @@ function MainPage() {
 
   useEffect(() => {
     setUserDetail({
-      name: getEncodedSessionStorage("name"),
-      image: getEncodedSessionStorage("image"),
-      email: getEncodedSessionStorage("email"),
+      name: sessionStorage.getItem("name"),
+      image: sessionStorage.getItem("image"),
+      email: sessionStorage.getItem("email"),
     });
   }, []);
 
@@ -80,7 +80,6 @@ function MainPage() {
   useEffect(() => {
     setEncodedSessionStorage("user_text", userInput);
   }, [userInput]);
-
 
   useEffect(() => {
     setEncodedSessionStorage("currentPage", currentPage);
@@ -165,7 +164,7 @@ function MainPage() {
     } catch (error) {
       console.error({ error });
     }
-  }
+  };
 
   function getCurrentPageView() {
     const components = [];
@@ -299,14 +298,18 @@ function MainPage() {
 
   return (
     <>
-      <Header 
-        isHeroSection={false} 
+      <Header
+        isHeroSection={false}
         isBackButton={true}
         onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         isSidebarOpen={isSidebarOpen}
       />
-      <main className={`w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 ${isMobile ? "bg-white" : "bg-[#F0F2F5]"}`}>
-        <Sidebar 
+      <main
+        className={`w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 ${
+          isMobile ? "bg-white" : "bg-[#F0F2F5]"
+        }`}
+      >
+        <Sidebar
           setActiveTab={() => {}}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
@@ -314,7 +317,9 @@ function MainPage() {
           clearMitraLocalStorage={clearMitraLocalStorage}
         />
         {activeTab === ACTIVE_TABS.CONVERSATION && (
-          <ConversationWrapperCard scrollRef={currentPage["1"] ? null : scrollContainerRef}>
+          <ConversationWrapperCard
+            scrollRef={currentPage["1"] ? null : scrollContainerRef}
+          >
             {getCurrentPageView()}
           </ConversationWrapperCard>
         )}
@@ -366,7 +371,7 @@ export function getNewLocalTime() {
   return formattedDateTime;
 }
 
-export function clearMitraLocalStorage() {
+export function clearMitraLocalStorage(avoidLogout = false) {
   sessionStorage.removeItem("actionList");
   sessionStorage.removeItem("currentPage");
   sessionStorage.removeItem("isReadOnly");

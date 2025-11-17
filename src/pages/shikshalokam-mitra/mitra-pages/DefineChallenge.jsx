@@ -59,7 +59,7 @@ const DefineChallenge = ({
     getEncodedSessionStorage("profileid") || null
   );
   const lastBotMessageIndex = useRef(-1);
-  let access_token = getEncodedSessionStorage("accToken");
+  let access_token = sessionStorage.getItem("accToken");
 
   const [localChatHistory, setLocalChatHistory] = useSessionStorage(
     "chat-history",
