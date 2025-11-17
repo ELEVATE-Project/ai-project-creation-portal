@@ -27,6 +27,7 @@ import ErrorText from "./components/ErrorText";
 import LoadingChat from "./components/LoadingChat";
 import UserMessage from "./components/chat-message/UserMessage";
 import FileViewer from "../../../components/file-viewer";
+import { LOADER_KEYS } from "../../../constants/common";
 
 function TitleGeneration({
   isBotTalking,
@@ -37,6 +38,8 @@ function TitleGeneration({
   handleGoBack,
   handleScrollIntoView,
   isTitleGenerationSection,
+  handleLoaderState,
+  getLoaderState,
 }) {
   const [inputText, setInputText] = useState(() => {
     let title = getEncodedSessionStorage("project_title") || "";
@@ -62,6 +65,7 @@ function TitleGeneration({
   useEffect(() => {
     async function fetchTitle() {
       try {
+        handleLoaderState(LOADER_KEYS.LOAD_TITLE_GENERATION, true);
         let title = getEncodedSessionStorage("project_title");
         if (!title) {
           const user_problem_statement = getEncodedSessionStorage(
@@ -87,13 +91,14 @@ function TitleGeneration({
         } else {
           if (isTitleGenerationSection) handleScrollIntoView();
         }
-        setIsLoading(false);
       } catch (error) {
         setFetchError(
           getEncodedSessionStorage("system_error") || "Please try again later!"
         );
-        setIsLoading(false);
+        handleLoaderState(LOADER_KEYS.LOAD_TITLE_GENERATION, false);
         console.error(error);
+      } finally {
+        handleLoaderState(LOADER_KEYS.LOAD_TITLE_GENERATION, false);
       }
     }
     fetchTitle();
@@ -235,7 +240,7 @@ function TitleGeneration({
     }
   }
 
-  if (isLoading) {
+  if (getLoaderState(LOADER_KEYS.LOAD_TITLE_GENERATION)) {
     return <LoadingChat />;
   }
 

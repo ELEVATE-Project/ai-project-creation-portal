@@ -187,7 +187,7 @@ const DefineChallenge = ({
                   options: {
                     position: "top-center",
                     autoClose: 6000,
-                    style: { fontWeight: "bold" },
+                    style: { fontWeight: "bold", width: "80%" },
                   },
                 });
                 return;
@@ -684,7 +684,7 @@ const DefineChallenge = ({
 
   useEffect(() => {
     if (shouldMoveForward === "yes") {
-      setIsLoading(true);
+      // setIsLoading(true);
       setCurrentPageValue(1);
     }
   }, [shouldMoveForward]);
@@ -834,21 +834,6 @@ const DefineChallenge = ({
       textInputRef.current.focus();
     }
   }, [useTextbox]);
-
-  // const handleScrollToView = () => {
-  //   try {
-  //     const element = document?.querySelector("#last-chat-boundary");
-  //     if (!element) {
-  //       console.error("Element #last-chat-boundary not found");
-  //       return;
-  //     }
-  //     element.scrollIntoView({
-  //       behavior: "smooth",
-  //     });
-  //   } catch (error) {
-  //     console.error({ error });
-  //   }
-  // };
 
   const handleSendMessage = useCallback(
     async (event, currentSocket) => {
@@ -1104,7 +1089,7 @@ const DefineChallenge = ({
       <HiddenRecorder />
       <Notification />
       {isWelcomeScreen ? (
-        <>
+        <div>
           <WelcomeCard />
           <InitialConversationCard
             textInputRef={textInputRef}
@@ -1119,7 +1104,7 @@ const DefineChallenge = ({
             isFetchingData={isFetchingData}
             seconds={seconds}
           />
-        </>
+        </div>
       ) : (
         <div className={isDefineChallengeSection ? "flex flex-col h-full" : ""}>
           <ChatWindow

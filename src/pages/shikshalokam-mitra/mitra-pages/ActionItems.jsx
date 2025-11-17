@@ -34,6 +34,7 @@ import UserMessage from "./components/chat-message/UserMessage";
 import LoadingChat from "./components/LoadingChat";
 import { transformSource } from "../../../utils/mitra-chat";
 import Source from "./components/Source";
+import { LOADER_KEYS } from "../../../constants/common";
 
 function ActionItems({
   isBotTalking,
@@ -49,14 +50,10 @@ function ActionItems({
   setErrorText,
   isSelectActionItems,
   handleScrollIntoView,
+  handleLoaderState,
+  getLoaderState,
 }) {
-  const [actionList, setActionList] = useState(() => {
-    const storedActions = getEncodedSessionStorage("actionList");
-    if (Array.isArray(storedActions)) {
-      return storedActions;
-    }
-    return [];
-  });
+  const [actionList, setActionList] = useState([]);
 
   const [visibleCount, setVisibleCount] = useState(false);
   const [hasClickedOnAddmore, setHasClickedOnAddmore] = useState(false);
@@ -121,9 +118,11 @@ function ActionItems({
 
   useEffect(() => {
     async function fetchActionList() {
+      // setIsLoading(true);
       try {
+        handleLoaderState(LOADER_KEYS.FETCH_ACTION_LIST, true);
         if (!actionList || actionList?.length === 0) {
-          setIsLoading(true);
+          // setIsLoading(true);
           const userProblemStatement = getEncodedSessionStorage(
             "user_problem_statement"
           );
@@ -144,9 +143,11 @@ function ActionItems({
               "action_item_source",
               JSON.stringify(transformedSource)
             );
-            setIsLoading(false);
             if (isSelectActionItems) handleScrollIntoView();
           } else {
+            setFetchError(
+              getEncodedSessionStorage("system_error") || "Please try again later!"
+            );
             // window.location.reload();
           }
         }
@@ -154,12 +155,18 @@ function ActionItems({
         setFetchError(
           getEncodedSessionStorage("system_error") || "Please try again later!"
         );
-        setIsLoading(false);
         console.error(error);
+      } finally {
+        handleLoaderState(LOADER_KEYS.FETCH_ACTION_LIST, false);
       }
     }
-    fetchActionList();
-  }, [actionList]);
+    const storedActions = getEncodedSessionStorage("actionList");
+    if (Array.isArray(storedActions)) {
+      setActionList(storedActions);
+    } else {
+      fetchActionList();
+    }
+  }, []);
 
   useEffect(() => {
     if (swipeDirection) {
@@ -168,12 +175,12 @@ function ActionItems({
     }
   }, [swipeDirection]);
 
-  useEffect(() => {
-    if (isInReadOnlyMode) {
-      setIsLoading(true);
-      setIsLoading(false);
-    }
-  }, [isInReadOnlyMode]);
+  // useEffect(() => {
+  //   if (isInReadOnlyMode) {
+  //     setIsLoading(true);
+  //     setIsLoading(false);
+  //   }
+  // }, [isInReadOnlyMode]);
 
   const getActionListArray = () => {
     if (!isSelectActionItems || isInReadOnlyMode) {
@@ -231,7 +238,7 @@ function ActionItems({
         "user_problem_statement"
       );
       const objective = getEncodedSessionStorage("selected_objective");
-      setIsLoading(true);
+      // setIsLoading(true);
       const profile_id = getEncodedSessionStorage("profileid");
       const validate_response = await validateActionList(
         action_to_store.map((action) => action.content),
@@ -240,7 +247,7 @@ function ActionItems({
         language,
         profile_id
       );
-      setIsLoading(false);
+      // setIsLoading(false);
 
       if (validate_response?.result === false) {
         setErrorText(validate_response?.error_message);
@@ -248,7 +255,8 @@ function ActionItems({
       }
 
       if (actionList) {
-        setIsLoading(true);
+        // setIsLoading(true);
+        handleLoaderState(LOADER_KEYS.LOAD_WEEKS_SELECTION, true);
         setEncodedSessionStorage("selected_action", actionListToStore);
         const currentSession = getEncodedSessionStorage("session");
         const botMessage = {
@@ -275,22 +283,25 @@ function ActionItems({
           .then(() => {
             setErrorText("");
             setCurrentPageValue(3);
-            setIsLoading(false);
+            // setIsLoading(false);
           });
       }
     } catch (error) {
       const errorMessage =
         getEncodedSessionStorage("system_error") || "Please try again later!";
       setErrorText(errorMessage);
-      setIsLoading(false);
+      // setIsLoading(false);
       setTimeout(() => {
         setErrorText("");
       }, 10000);
+      handleLoaderState(LOADER_KEYS.LOAD_WEEKS_SELECTION, false);
       console.error(error);
+    } finally {
+      handleLoaderState(LOADER_KEYS.LOAD_WEEKS_SELECTION, false);
     }
   };
 
-  if (isLoading && isSelectActionItems) {
+  if (getLoaderState(LOADER_KEYS.FETCH_ACTION_LIST)) {
     return <LoadingChat />;
   }
 
@@ -323,7 +334,7 @@ function ActionItems({
             <Source
               source={actionItemSource}
               customClassNames={{
-                wrapperStyles: "md:w-[60%] md:min-w-[570px]",
+                wrapperStyles: "md:!w-[60%] md:min-w-[570px]",
               }}
             />
             {isSelectActionItems && (

@@ -13,6 +13,7 @@ import { saveUserChatsInDB } from "../../../apiServices/chat_flow_api";
 import { getNextButtonTranslation } from "../question script/secondpage_tanslation";
 import UserMessage from "./components/chat-message/UserMessage";
 import LoadingChat from "./components/LoadingChat";
+import { LOADER_KEYS } from "../../../constants/common";
 
 function WeeksSelection({
   isBotTalking,
@@ -26,6 +27,8 @@ function WeeksSelection({
   setChatHistory,
   isWeeksSelectionSection = false,
   handleScrollIntoView,
+  handleLoaderState,
+  getLoaderState,
 }) {
   const [selectedWeek, setSelectedWeek] = useState(
     getEncodedSessionStorage("selected_week") || 1
@@ -47,10 +50,10 @@ function WeeksSelection({
 
   useEffect(() => {
     if (isInReadOnlyMode) {
-      setIsLoading(true);
+      // setIsLoading(true);
       localStorage.removeItem("selected_week");
       localStorage.removeItem("project_title");
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   }, [isInReadOnlyMode]);
 
@@ -58,7 +61,7 @@ function WeeksSelection({
 
   const handleContinueClick = async () => {
     if (selectedWeek) {
-      setIsLoading(true);
+      // setIsLoading(true);
       setEncodedSessionStorage("selected_week", selectedWeek);
       const botMessage =
         fourthpage_messages[8]?.[0]?.message +
@@ -80,7 +83,7 @@ function WeeksSelection({
     }
   };
 
-  if (isLoading && isWeeksSelectionSection) {
+  if (getLoaderState(LOADER_KEYS.LOAD_WEEKS_SELECTION)) {
     return <LoadingChat />;
   }
 

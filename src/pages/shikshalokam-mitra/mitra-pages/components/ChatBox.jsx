@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { FaMicrophone, FaRegStopCircle } from "react-icons/fa";
+import { TbSend2 } from "react-icons/tb";
+
 // import { MdSend } from "react-icons/lu";
 
 import { MdSend } from "react-icons/md";
@@ -116,9 +118,9 @@ function ChatBox({
       <button
         disabled={disableSendButton}
         type="submit"
-        className={`disabled:cursor-not-allowed disabled:text-[#64748b] cursor-pointer ${sendButtonStyles}`}
+        className={`disabled:cursor-not-allowed disabled:text-[#64748b] cursor-pointer ${!disableSendButton ? "text-[#007BFF]" : ""} ${sendButtonStyles}`}
       >
-        <MdSend className="w-[18px] h-[18px] md:w-[22px] md:h-[22px] lg:w-[26px] lg:h-[26px]" />
+        <TbSend2 className="w-[22px] h-[22px] lg:w-[26px] lg:h-[26px]" />
       </button>
     </form>
   );

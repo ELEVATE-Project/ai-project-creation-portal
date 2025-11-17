@@ -14,6 +14,7 @@ import WeeksSelection from "./mitra-pages/WeeksSelection";
 import TitleGeneration from "./mitra-pages/TitleGeneration";
 import SelectObjective from "./mitra-pages/SelectObjective";
 import { ACTIVE_TABS } from "./constants/mitra.constants";
+import { LOADER_KEYS } from "../../constants/common";
 
 function MainPage() {
   const [activeTab, setActiveTab] = useState(ACTIVE_TABS.CONVERSATION);
@@ -43,6 +44,15 @@ function MainPage() {
     getEncodedSessionStorage("chatHistory") || []
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState({
+    [LOADER_KEYS.FETCH_OBJECTIVE_LIST]: false,
+    [LOADER_KEYS.FETCH_ACTION_LIST]: false,
+    [LOADER_KEYS.LOAD_DEFINITION_CHALLENGE]: false,
+    [LOADER_KEYS.LOAD_SELECT_OBJECTIVE]: false,
+    [LOADER_KEYS.LOAD_ACTION_ITEMS]: false,
+    [LOADER_KEYS.LOAD_WEEKS_SELECTION]: false,
+    [LOADER_KEYS.LOAD_TITLE_GENERATION]: false,
+  });
   const [userDetail, setUserDetail] = useState({
     name: sessionStorage.getItem("name"),
     image: sessionStorage.getItem("image"),
@@ -142,6 +152,20 @@ function MainPage() {
     }));
   }
 
+  function handleLoaderState(key, value) {
+    setIsFetching((prevValue) => ({
+      ...prevValue,
+      [key]: value,
+    }));
+  }
+
+  function getLoaderState(key) {
+    if (key in isFetching) {
+      return isFetching[key];
+    }
+    return false;
+  }
+
   function handleSpeakerOff(audioId) {
     if (!audioId) return;
     setIsBotTalking(false);
@@ -186,6 +210,8 @@ function MainPage() {
       components.push(
         <DefineChallenge
           key="first"
+          handleLoaderState={handleLoaderState}
+          getLoaderState={getLoaderState}
           setIsLoading={setIsLoading}
           setCurrentPageValue={setCurrentPageValue}
           isReadOnly={isReadOnly}
@@ -223,6 +249,8 @@ function MainPage() {
           isSelectObjectiveSection={isSelectObjectiveSection}
           scrollContainerRef={scrollContainerRef}
           handleScrollIntoView={handleScrollIntoView}
+          handleLoaderState={handleLoaderState}
+          getLoaderState={getLoaderState}
         />
       );
     }
@@ -249,6 +277,8 @@ function MainPage() {
           setErrorText={setErrorText}
           isSelectActionItems={isSelectActionItems}
           handleScrollIntoView={handleScrollIntoView}
+          handleLoaderState={handleLoaderState}
+          getLoaderState={getLoaderState}
         />
       );
     }
@@ -270,6 +300,8 @@ function MainPage() {
           chatHistory={chatHistory}
           isWeeksSelectionSection={isWeeksSelectionSection}
           handleScrollIntoView={handleScrollIntoView}
+          handleLoaderState={handleLoaderState}
+          getLoaderState={getLoaderState}
         />
       );
     }
@@ -287,6 +319,8 @@ function MainPage() {
           handleGoBack={handleGoBack}
           handleScrollIntoView={handleScrollIntoView}
           isTitleGenerationSection={isTitleGenerationSection}
+          handleLoaderState={handleLoaderState}
+          getLoaderState={getLoaderState}
         />
       );
     }
@@ -318,7 +352,7 @@ function MainPage() {
         />
         {activeTab === ACTIVE_TABS.CONVERSATION && (
           <ConversationWrapperCard
-            scrollRef={currentPage["1"] ? null : scrollContainerRef}
+            scrollRef={currentPage["1"] && chatHistory?.length > 0 ? null : scrollContainerRef}
           >
             {getCurrentPageView()}
           </ConversationWrapperCard>
