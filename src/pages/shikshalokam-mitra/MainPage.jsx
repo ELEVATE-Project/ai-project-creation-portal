@@ -359,7 +359,7 @@ function MainPage() {
         isSidebarOpen={isSidebarOpen}
       />
       <main
-        className={`w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 ${
+        className={`w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-12 md:px-8 lg:px-16 xl:px-32 2xl:px-48 ${
           isMobile ? "bg-white" : "bg-[#F0F2F5]"
         }`}
       >
