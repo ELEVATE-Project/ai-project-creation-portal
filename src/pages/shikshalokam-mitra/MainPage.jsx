@@ -197,7 +197,7 @@ function MainPage() {
   };
 
   const handleConfirmClearStorage = () => {
-    clearMitraLocalStorage();
+    clearExcept();
     setIsPopupOpen(false);
     window.location.reload();
   };
@@ -435,6 +435,18 @@ export function getNewLocalTime() {
   return formattedDateTime;
 }
 
+function clearExcept(keepKeys = ["accToken", "name", "image", "email"]) {
+  // Clear localStorage
+  Object.keys(localStorage).forEach(key => {
+    if (!keepKeys.includes(key)) localStorage.removeItem(key);
+  });
+
+  // Clear sessionStorage
+  Object.keys(sessionStorage).forEach(key => {
+    if (!keepKeys.includes(key)) sessionStorage.removeItem(key);
+  });
+}
+
 export function clearMitraLocalStorage(avoidLogout = false) {
   sessionStorage.removeItem("actionList");
   sessionStorage.removeItem("currentPage");
@@ -455,7 +467,7 @@ export function clearMitraLocalStorage(avoidLogout = false) {
   sessionStorage.removeItem("errorText");
   sessionStorage.removeItem("hasClickedObjAddMore");
   sessionStorage.removeItem("botName");
-  sessionStorage.removeItem("chat-history");
+  sessionStorage.removeItem("chat_history");
   sessionStorage.removeItem("company");
   sessionStorage.removeItem("first_name");
   sessionStorage.removeItem("intro_message");
