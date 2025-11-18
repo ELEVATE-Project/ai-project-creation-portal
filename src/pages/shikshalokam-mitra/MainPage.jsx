@@ -15,6 +15,7 @@ import TitleGeneration from "./mitra-pages/TitleGeneration";
 import SelectObjective from "./mitra-pages/SelectObjective";
 import { ACTIVE_TABS } from "./constants/mitra.constants";
 import { LOADER_KEYS } from "../../constants/common";
+import Popup from "../../components/popup/Popup";
 
 function MainPage() {
   const [activeTab, setActiveTab] = useState(ACTIVE_TABS.CONVERSATION);
@@ -25,6 +26,7 @@ function MainPage() {
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -190,6 +192,24 @@ function MainPage() {
     }
   };
 
+  const handleNewMIPClick = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handleConfirmClearStorage = () => {
+    clearMitraLocalStorage();
+    setIsPopupOpen(false);
+    window.location.reload();
+  };
+
+  const handleDiscardClearStorage = () => {
+    setIsPopupOpen(false);
+  };
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
+  };
+
   function getCurrentPageView() {
     const components = [];
 
@@ -348,7 +368,7 @@ function MainPage() {
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           isMobile={isMobile}
-          clearMitraLocalStorage={clearMitraLocalStorage}
+          handleNewMIPClick={handleNewMIPClick}
         />
         {activeTab === ACTIVE_TABS.CONVERSATION && (
           <ConversationWrapperCard
@@ -359,6 +379,16 @@ function MainPage() {
         )}
       </main>
       <Footer />
+      <Popup
+        togglePopup={togglePopup}
+        isOpen={isPopupOpen}
+        headerText="Start New MIP"
+        bodyText="Are you sure you want to start a new MIP? This will clear all your current progress."
+        confirmButtonText="Yes, Start New"
+        discardButtonText="Cancel"
+        handleDiscard={handleDiscardClearStorage}
+        handleConfirm={handleConfirmClearStorage}
+      />
     </>
   );
 }
