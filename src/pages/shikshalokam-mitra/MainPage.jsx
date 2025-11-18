@@ -54,6 +54,7 @@ function MainPage() {
     [LOADER_KEYS.LOAD_ACTION_ITEMS]: false,
     [LOADER_KEYS.LOAD_WEEKS_SELECTION]: false,
     [LOADER_KEYS.LOAD_TITLE_GENERATION]: false,
+    [LOADER_KEYS.APPLICATION_RESET]: false,
   });
   const [userDetail, setUserDetail] = useState({
     name: sessionStorage.getItem("name"),
@@ -197,6 +198,7 @@ function MainPage() {
   };
 
   const handleConfirmClearStorage = () => {
+    handleLoaderState(LOADER_KEYS.APPLICATION_RESET, true);
     clearExcept();
     setIsPopupOpen(false);
     window.location.reload();
@@ -349,6 +351,12 @@ function MainPage() {
   }
 
   console.log("currentPage", currentPage);
+
+  if (getLoaderState(LOADER_KEYS.APPLICATION_RESET)) {
+    return (
+      <ShowLoader showFirstLoader={true} loadingText="Please wait..." />
+    );
+  }
 
   return (
     <>

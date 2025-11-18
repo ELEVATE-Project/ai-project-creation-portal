@@ -6,5 +6,5 @@ export const LOADER_KEYS = {
     LOAD_TITLE_GENERATION: "load_title_generation",
     FETCH_OBJECTIVE_LIST: "fetch_objective_list",
     FETCH_ACTION_LIST: "fetch_action_list",
-
+    APPLICATION_RESET: "application_reset",
 }
