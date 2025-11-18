@@ -10,7 +10,7 @@ export const transformSource = (objectivesArray = []) => {
 
   const result = {};
 
-  objectivesArray.forEach((item) => {
+  objectivesArray.forEach((item, index) => {
     // Get organization from source, default to empty string if not present
     const organization = item?.source?.organization?.name || "";
 
@@ -27,6 +27,7 @@ export const transformSource = (objectivesArray = []) => {
     // Add the item with organization property at the top level
     result[organization].push({
       ...item,
+      reference: `Reference ${index + 1}`,
       organization: organization,
     });
   });

@@ -33,20 +33,22 @@ const SourcePopup = ({ isOpen, onClose, source = {} }) => {
           </button>
         </div>
 
-        <div className="flex flex-col px-6 gap-3">
-          <div>
-            <CiMedicalCase className="w-5 h-5 text-gray-600 inline-block mr-2" />
-            <span>Perspective</span>
+        {!!(source?.url?.length > 0) && (
+          <div className="flex flex-col px-6 gap-3">
+            <a
+              href={source?.url || ""}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <GrShare className="ml-2 w-4 h-4 text-gray-600 inline-block mr-2" />
+              <span>Source URL</span>
+            </a>
           </div>
-          <a href={source?.url || ""} target="_blank" rel="noopener noreferrer">
-            <GrShare className="ml-2 w-4 h-4 text-gray-600 inline-block mr-2" />
-            <span>Source URL</span>
-          </a>
-        </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 border rounded-md border-[#DBDBDB] m-6">
-          {source?.show || ""}
+          {source?.chunk || ""}
         </div>
       </div>
     </div>
