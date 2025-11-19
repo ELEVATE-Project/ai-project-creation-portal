@@ -5,25 +5,29 @@ import { ACTIVE_TABS } from "../../constants/mitra.constants";
 
 function Action({ icon: Icon, text, onClick }) {
   return (
-    <button className="flex items-center gap-3 bg-transparent p-0 border-0 cursor-pointer w-full text-left" onClick={onClick}>
+    <button
+      className="flex items-center gap-3 bg-transparent p-0 border-0 cursor-pointer w-full text-left"
+      onClick={onClick}
+    >
       <Icon className="w-6 h-6 text-[#555555] flex-shrink-0" />
-      <p className="font-medium text-base leading-[24px] text-[#555555] break-words">{text}</p>
+      <p className="font-medium text-base leading-[24px] text-[#555555] break-words">
+        {text}
+      </p>
     </button>
   );
 }
 
-export default function Sidebar({ 
-  setActiveTab, 
-  isSidebarOpen = false, 
+export default function Sidebar({
+  setActiveTab,
+  isSidebarOpen = false,
   setIsSidebarOpen,
   isMobile = false,
-  clearMitraLocalStorage,
+  handleNewMIPClick,
 }) {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (tab === ACTIVE_TABS.WELCOME) {
-      clearMitraLocalStorage();
-      window.location.reload();
+      handleNewMIPClick();
     }
     // Close sidebar on mobile after clicking an action
     if (isMobile && setIsSidebarOpen) {
@@ -48,11 +52,18 @@ export default function Sidebar({
         }`}
       >
         <div className="w-[280px] md:w-[220px] lg:w-[250px] h-full flex flex-col gap-8 rounded-[20px] p-10 border border-[#DBDBDB] bg-[#F0F2F5] shadow-[0px_0px_8px_0px_#0000001A] pt-20 md:pt-10">
-          <Action icon={FaRegPlusSquare} text="New MIP" onClick={() => handleTabClick(ACTIVE_TABS.WELCOME)} />
-          <Action icon={CgPlayPauseR} text="FAQ" onClick={() => handleTabClick(ACTIVE_TABS.FAQ)} />
+          <Action
+            icon={FaRegPlusSquare}
+            text="New MIP"
+            onClick={() => handleTabClick(ACTIVE_TABS.WELCOME)}
+          />
+          <Action
+            icon={CgPlayPauseR}
+            text="FAQ"
+            onClick={() => handleTabClick(ACTIVE_TABS.FAQ)}
+          />
         </div>
       </div>
     </>
   );
 }
-

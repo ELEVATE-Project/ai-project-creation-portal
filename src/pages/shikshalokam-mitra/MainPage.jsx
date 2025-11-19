@@ -15,6 +15,7 @@ import TitleGeneration from "./mitra-pages/TitleGeneration";
 import SelectObjective from "./mitra-pages/SelectObjective";
 import { ACTIVE_TABS } from "./constants/mitra.constants";
 import { LOADER_KEYS } from "../../constants/common";
+import Popup from "../../components/popup/Popup";
 
 function MainPage() {
   const [activeTab, setActiveTab] = useState(ACTIVE_TABS.CONVERSATION);
@@ -25,6 +26,7 @@ function MainPage() {
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -52,6 +54,7 @@ function MainPage() {
     [LOADER_KEYS.LOAD_ACTION_ITEMS]: false,
     [LOADER_KEYS.LOAD_WEEKS_SELECTION]: false,
     [LOADER_KEYS.LOAD_TITLE_GENERATION]: false,
+    [LOADER_KEYS.APPLICATION_RESET]: false,
   });
   const [userDetail, setUserDetail] = useState({
     name: sessionStorage.getItem("name"),
@@ -188,6 +191,25 @@ function MainPage() {
     } catch (error) {
       console.error({ error });
     }
+  };
+
+  const handleNewMIPClick = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handleConfirmClearStorage = () => {
+    handleLoaderState(LOADER_KEYS.APPLICATION_RESET, true);
+    clearExcept();
+    setIsPopupOpen(false);
+    window.location.reload();
+  };
+
+  const handleDiscardClearStorage = () => {
+    setIsPopupOpen(false);
+  };
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
   };
 
   function getCurrentPageView() {
@@ -330,6 +352,12 @@ function MainPage() {
 
   console.log("currentPage", currentPage);
 
+  if (getLoaderState(LOADER_KEYS.APPLICATION_RESET)) {
+    return (
+      <ShowLoader showFirstLoader={true} loadingText="Please wait..." />
+    );
+  }
+
   return (
     <>
       <Header
@@ -339,7 +367,7 @@ function MainPage() {
         isSidebarOpen={isSidebarOpen}
       />
       <main
-        className={`w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-24 md:px-8 lg:px-32 xl:px-52 2xl:px-64 ${
+        className={`w-full sm:[50%] h-[calc(100vh-200px)] md:h-[80vh] flex flex-col md:flex-row relative gap-10 sm:p-0 md:py-12 md:px-8 lg:px-16 xl:px-32 2xl:px-48 ${
           isMobile ? "bg-white" : "bg-[#F0F2F5]"
         }`}
       >
@@ -348,7 +376,7 @@ function MainPage() {
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           isMobile={isMobile}
-          clearMitraLocalStorage={clearMitraLocalStorage}
+          handleNewMIPClick={handleNewMIPClick}
         />
         {activeTab === ACTIVE_TABS.CONVERSATION && (
           <ConversationWrapperCard
@@ -359,6 +387,16 @@ function MainPage() {
         )}
       </main>
       <Footer />
+      <Popup
+        togglePopup={togglePopup}
+        isOpen={isPopupOpen}
+        headerText="Start New MIP"
+        bodyText="Are you sure you want to start a new MIP? This will clear all your current progress."
+        confirmButtonText="Yes, Start New"
+        discardButtonText="Cancel"
+        handleDiscard={handleDiscardClearStorage}
+        handleConfirm={handleConfirmClearStorage}
+      />
     </>
   );
 }
@@ -405,6 +443,18 @@ export function getNewLocalTime() {
   return formattedDateTime;
 }
 
+function clearExcept(keepKeys = ["accToken", "name", "image", "email"]) {
+  // Clear localStorage
+  Object.keys(localStorage).forEach(key => {
+    if (!keepKeys.includes(key)) localStorage.removeItem(key);
+  });
+
+  // Clear sessionStorage
+  Object.keys(sessionStorage).forEach(key => {
+    if (!keepKeys.includes(key)) sessionStorage.removeItem(key);
+  });
+}
+
 export function clearMitraLocalStorage(avoidLogout = false) {
   sessionStorage.removeItem("actionList");
   sessionStorage.removeItem("currentPage");
@@ -425,7 +475,7 @@ export function clearMitraLocalStorage(avoidLogout = false) {
   sessionStorage.removeItem("errorText");
   sessionStorage.removeItem("hasClickedObjAddMore");
   sessionStorage.removeItem("botName");
-  sessionStorage.removeItem("chat-history");
+  sessionStorage.removeItem("chat_history");
   sessionStorage.removeItem("company");
   sessionStorage.removeItem("first_name");
   sessionStorage.removeItem("intro_message");

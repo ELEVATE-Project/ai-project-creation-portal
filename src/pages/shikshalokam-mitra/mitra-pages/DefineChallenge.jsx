@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { useSessionStorage } from "react-use";
 import useVoiceRecord, {
   default_wave_surfer_config,
 } from "../../text-voice/useVoiceRecord";
@@ -61,10 +60,7 @@ const DefineChallenge = ({
   const lastBotMessageIndex = useRef(-1);
   let access_token = sessionStorage.getItem("accToken");
 
-  const [localChatHistory, setLocalChatHistory] = useSessionStorage(
-    "chat-history",
-    []
-  );
+  const localChatHistory = getEncodedSessionStorage("chat_history");
   const [chatHistory, setChatHistory] = useState(
     !!localChatHistory?.length ? localChatHistory : []
   );
@@ -277,7 +273,7 @@ const DefineChallenge = ({
   }
 
   async function handleCompanyChatCall(currentSession) {
-    const storedChatHistory = getEncodedSessionStorage("chat-history");
+    const storedChatHistory = getEncodedSessionStorage("chat_history");
     if (storedChatHistory && storedChatHistory?.length >= 1) {
       return;
     }
@@ -539,7 +535,7 @@ const DefineChallenge = ({
                   }
                   return chat;
                 });
-                setLocalChatHistory(updatedChatHistory);
+                setEncodedSessionStorage("chat_history", updatedChatHistory);
                 return updatedChatHistory;
               });
             }
@@ -784,7 +780,7 @@ const DefineChallenge = ({
   }, [shouldFetchIntro, profileToUse, languageToUse, userName]);
 
   useEffect(() => {
-    setLocalChatHistory(chatHistory);
+    setEncodedSessionStorage("chat_history", chatHistory);
     lastBotMessageIndex.current = chatHistory?.length - 1;
     // handleScrollToView();
   }, [chatHistory]);

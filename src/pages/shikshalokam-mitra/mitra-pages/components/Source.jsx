@@ -26,7 +26,7 @@ const Source = ({ source = {}, customClassNames = {} }) => {
           return (
             <Card
               key={`${item?.text}-${index}`}
-              label={`Reference ${index + 1}`}
+              label={item?.reference || ""}
               title={item?.text || ""}
               description={source?.description || ""}
               sourceUrl={source?.url || ""}
@@ -34,7 +34,7 @@ const Source = ({ source = {}, customClassNames = {} }) => {
               showSourcePopup={() => {
                 setSourcePopupData({
                   ...source,
-                  label: `Reference ${index + 1}`,
+                  label: item?.reference || "",
                 });
                 setIsOpenSourcePopup(true);
               }}
