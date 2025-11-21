@@ -46,10 +46,10 @@ function useVoiceRecord() {
 export default useVoiceRecord;
 
 export const default_wave_surfer_config = {
-    waveColor: "rgba(149, 152, 152, 1)",
-    progressColor: "rgba(100, 100, 100, 1)",
-    barWidth: 5,
-    barGap: 5,
-    barRadius: 10,
-    cursorWidth: 0,
-  };
+  waveColor: "rgba(149, 152, 152, 1)",
+  progressColor: "rgba(100, 100, 100, 1)",
+  barWidth: 5,
+  barGap: 5,
+  barRadius: 10,
+  cursorWidth: 0,
+};

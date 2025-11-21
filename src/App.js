@@ -1,6 +1,7 @@
 import React from "react";
 import { useRoutes, Navigate } from "react-router-dom";
-import MainPage from "./pages/Shikshalokam Mitra/MainPage";
+import MainPage from "./pages/shikshalokam-mitra/MainPage";
+import ImprovementPlan from "./pages/improvement-plan";
 
 
 function ProtectedRoute({ element }) {
@@ -11,6 +12,7 @@ function ProtectedRoute({ element }) {
 function App() {
   const routes = [
     { path: process.env.REACT_APP_ROUTE_MITRA_CHAT, element: <ProtectedRoute element={<MainPage />} /> },
+    { path: process.env.REACT_APP_ROUTE_IMPROVEMENT_PLAN, element: <ProtectedRoute element={<ImprovementPlan />} /> },
   ];
 
   return useRoutes(routes);
