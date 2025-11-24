@@ -1,10 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { FaMicrophone, FaRegStopCircle } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import { FaRegStopCircle } from "react-icons/fa";
 import { TbSend2 } from "react-icons/tb";
-
-// import { MdSend } from "react-icons/lu";
-
-import { MdSend } from "react-icons/md";
 import { FaCircle } from "react-icons/fa6";
 import { IoMicOutline } from "react-icons/io5";
 
@@ -23,7 +20,7 @@ function ChatBox({
   textMessage,
   handleOnInputText,
   setUseTextbox,
-  placeholder = "Describe your challenge here...",
+  placeholder,
   autoFocus = false,
   handleSendMessage,
   styles = {},
@@ -34,6 +31,7 @@ function ChatBox({
   isFetchingData = false,
   seconds,
 }) {
+  const { t } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
 
   const {
@@ -55,10 +53,11 @@ function ChatBox({
     isFocused || (textMessage && textMessage.length > 0);
 
   const inputPlaceholderText = useMemo(() => {
-    if (isFetchingData) return "Processing... Please wait";
-    if (hasStartedRecording) return "Listening... Speak now";
-    return placeholder;
-  }, [hasStartedRecording, isFetchingData, placeholder]);
+    if (isFetchingData) return t("defineChallenge.placeholderProcessing");
+    if (hasStartedRecording) return t("defineChallenge.placeholderListening");
+    if (placeholder) return placeholder;
+    return t("defineChallenge.placeholderDefine");
+  }, [hasStartedRecording, isFetchingData, placeholder, t]);
 
   return (
     <form

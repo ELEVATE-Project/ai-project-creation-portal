@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+/* icons */
+import { PiDotsSixVerticalBold } from "react-icons/pi";
+import { TbTrashOff } from "react-icons/tb";
 import { FiPlusCircle, FiTrash2 } from "react-icons/fi";
 import { IoArrowForward } from "react-icons/io5";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import BotMessage from "./components/chat-message/BotMessage";
-import SuggestOrAddCta from "./components/SuggestOrAddCta";
-import "../stylesheet/chatStyle.css";
+/* utils and api services */
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
@@ -14,27 +16,22 @@ import {
   saveUserChatsInDB,
   validateActionList,
 } from "../../../apiServices/chat_flow_api";
-import { getThirdPageMessages } from "../question script/bot_user_questions";
-import {
-  getActionDefaultTranslation,
-  getActionErrorTranslation,
-  getActionListTextTranslation,
-  getActionPlaceholderTranslation,
-  getAddActionButtonTranslation,
-  getSelectButtonTranslation,
-} from "../question script/thirdpage_tanslation";
-import {
-  getContinueButtonTranslation,
-  getNextButtonTranslation,
-} from "../question script/secondpage_tanslation";
-import { PiDotsSixVerticalBold } from "react-icons/pi";
-import { TbTrashOff } from "react-icons/tb";
+import { transformSource } from "../../../utils/mitra-chat";
+/* components */
 import ActionItemsList from "./components/action-items/ActionItemsList";
 import UserMessage from "./components/chat-message/UserMessage";
 import LoadingChat from "./components/LoadingChat";
-import { transformSource } from "../../../utils/mitra-chat";
+import BotMessage from "./components/chat-message/BotMessage";
+import SuggestOrAddCta from "./components/SuggestOrAddCta";
+import ErrorText from "./components/ErrorText";
 import Source from "./components/Source";
+/* constants */
 import { LOADER_KEYS } from "../../../constants/common";
+import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
+/* styles */
+import "../stylesheet/chatStyle.css";
+
+const { BOT, USER } = CONVERSATION_USER_TYPES;
 
 function ActionItems({
   isBotTalking,
@@ -53,6 +50,7 @@ function ActionItems({
   handleLoaderState,
   getLoaderState,
 }) {
+  const { t } = useTranslation();
   const [actionList, setActionList] = useState([]);
 
   const [visibleCount, setVisibleCount] = useState(false);
@@ -85,11 +83,10 @@ function ActionItems({
   );
   const language = preferredLanguage.value || "en";
 
-  const defaultActionList = getActionDefaultTranslation(language);
-  const thirdpage_messages = getThirdPageMessages(
-    language,
-    hasClickedOnAddmore
-  );
+  const defaultActionList = [
+    {id: "0", content: t("actionItems.action1")},
+    {id: "1", content: t("actionItems.action2")}
+  ];
 
   const handleRightArrowClick = () => {
     setSelectedIndex((prevIndex) => {
@@ -146,14 +143,16 @@ function ActionItems({
             if (isSelectActionItems) handleScrollIntoView();
           } else {
             setFetchError(
-              getEncodedSessionStorage("system_error") || "Please try again later!"
+              getEncodedSessionStorage("system_error") ||
+                t("common.pleaseTryAgainLater")
             );
             // window.location.reload();
           }
         }
       } catch (error) {
         setFetchError(
-          getEncodedSessionStorage("system_error") || "Please try again later!"
+          getEncodedSessionStorage("system_error") ||
+            t("common.pleaseTryAgainLater")
         );
         console.error(error);
       } finally {
@@ -260,16 +259,16 @@ function ActionItems({
         setEncodedSessionStorage("selected_action", actionListToStore);
         const currentSession = getEncodedSessionStorage("session");
         const botMessage = {
-          role: thirdpage_messages[7]?.[0]?.role,
+          role: BOT,
           message:
-            thirdpage_messages[6]?.[0]?.message +
-            "\n" +
-            thirdpage_messages[7]?.[0]?.message +
-            "\n" +
-            thirdpage_messages[7]?.[1]?.message +
-            "\n" +
-            JSON.stringify(getEncodedSessionStorage("actionList")),
-          messageId: thirdpage_messages[7]?.[0]?.messageId,
+            t("actionItems.takeActionItems") + "\n" + hasClickedOnAddmore
+              ? t("actionItems.craftYourOwnActionPlan")
+              : t("actionItems.finalizeActionList") + "\n" + hasClickedOnAddmore
+              ? t("actionItems.addEachStep")
+              : t("actionItems.editReorderDeleteActions") +
+                "\n" +
+                JSON.stringify(getEncodedSessionStorage("actionList")),
+          messageId: "7_1",
         };
 
         saveUserChatsInDB(botMessage?.message, currentSession, botMessage?.role)
@@ -277,7 +276,7 @@ function ActionItems({
             saveUserChatsInDB(
               JSON.stringify(action_to_store),
               currentSession,
-              "user"
+              USER
             );
           })
           .then(() => {
@@ -288,7 +287,8 @@ function ActionItems({
       }
     } catch (error) {
       const errorMessage =
-        getEncodedSessionStorage("system_error") || "Please try again later!";
+        getEncodedSessionStorage("system_error") ||
+        t("common.pleaseTryAgainLater");
       setErrorText(errorMessage);
       // setIsLoading(false);
       setTimeout(() => {
@@ -315,8 +315,8 @@ function ActionItems({
         !isSelectActionItems ? (
           <div>
             <BotMessage
-              primaryMessage={thirdpage_messages[6]?.[0]?.message}
-              secondaryMessage={thirdpage_messages[6]?.[1]?.message}
+              primaryMessage={t("actionItems.takeActionItems")}
+              secondaryMessage={t("actionItems.selectOneToGetStarted")}
               customClassNames={{ wrapperStyles: "pb-3" }}
             />
             <ActionItemsList
@@ -355,7 +355,7 @@ function ActionItems({
                       setWantsToMoveForward(true);
                     }}
                   >
-                    {getSelectButtonTranslation(language)}
+                    {t("common.select")}
                     <IoArrowForward className="thirdpage-cont-arrow-icon" />
                   </button>
                 </div>
@@ -377,7 +377,7 @@ function ActionItems({
           </>
         )}
       </div>
-      {!isSelectActionItems && <UserMessage message="Next" />}
+      {!isSelectActionItems && <UserMessage message={t("common.next")} />}
     </>
   );
 }
@@ -394,17 +394,8 @@ export function FinalActionPage({
   hasClickedOnAddmore,
   isSelectActionItems,
 }) {
+  const { t } = useTranslation();
   const [actionList, setActionList] = useState(actionListArray || []);
-  const preferredLanguage = JSON.parse(
-    getEncodedSessionStorage("preferred_language") || "{}"
-  );
-  const language = preferredLanguage.value || "en";
-
-  const thirdpage_messages = getThirdPageMessages(
-    language,
-    hasClickedOnAddmore
-  );
-
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     if (result.source.index === result.destination.index) return;
@@ -434,30 +425,24 @@ export function FinalActionPage({
     ]);
   };
 
-  useEffect(() => {}, [actionList]);
-
   return (
     <div className="final-action-page">
       <BotMessage
-        primaryMessage={thirdpage_messages[7]?.[0]?.message}
-        secondaryMessage={thirdpage_messages[7]?.[1]?.message}
+        primaryMessage={hasClickedOnAddmore ? t("actionItems.craftYourOwnActionPlan") : t("actionItems.finalizeActionList")}
+        secondaryMessage={hasClickedOnAddmore ? t("actionItems.addEachStep") : t("actionItems.editReorderDeleteActions")}
       />
       <div className="secondpage-obj-fixed">
         <div className="secondpage-obj-div">
           <p className="secondpage-obj-text">
-            {getActionListTextTranslation(language)}
+            {t("actionItems.title")}
           </p>
           <div className="thirdpage-error-div">
             <p className="secondpage-valid-text">
-              {getActionErrorTranslation(language)}
+              {t("actionItems.pleaseAddAtLeastOneAction")}
             </p>
           </div>
           {errorText && errorText !== "" && (
-            <>
-              <div className="thirdpage-error-div">
-                <p className="secondpage-error-text">{errorText}</p>
-              </div>
-            </>
+            <ErrorText errorText={errorText} />
           )}
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="actionList">
@@ -485,9 +470,7 @@ export function FinalActionPage({
                           </div>
                           <input
                             type="text"
-                            placeholder={getActionPlaceholderTranslation(
-                              language
-                            )}
+                            placeholder={t("actionItems.writeActionHere")}
                             disabled={!isSelectActionItems}
                             value={action?.content}
                             className="final-action-input"
@@ -529,7 +512,7 @@ export function FinalActionPage({
                   }}
                 >
                   <FiPlusCircle className="secondpage-plus-icon" />
-                  {getAddActionButtonTranslation(language)}
+                  {t("actionItems.addAction")}
                 </button>
               </div>
               <div className="thirdpage-continue-div">
@@ -540,8 +523,8 @@ export function FinalActionPage({
                   }}
                 >
                   {hasClickedOnAddmore
-                    ? getContinueButtonTranslation(language)
-                    : getNextButtonTranslation(language)}
+                    ? t("common.continue")
+                    : t("common.next")}
                   <IoArrowForward className="thirdpage-cont-arrow-icon" />
                 </button>
               </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import BotMessage from "./components/chat-message/BotMessage";
-
-import "../stylesheet/chatStyle.css";
+import { useTranslation } from "react-i18next";
+/* utils and api services */
 import { clearMitraLocalStorage } from "../MainPage";
 import {
   getEncodedSessionStorage,
@@ -14,21 +13,19 @@ import {
   updateChatSession,
   validateTitle,
 } from "../../../apiServices/chat_flow_api";
-import { getFifthPageMessages } from "../question script/bot_user_questions";
-import { useNavigate } from "react-router-dom";
-import { getCreateMicroButtonTranslation } from "../question script/thirdpage_tanslation";
-import {
-  getEmptyTitleErrorTranslation,
-  getTitleErrorTranslation,
-  getTitleNumberTranslation,
-  getTitlePlaceholderTranslation,
-} from "../question script/fifthpage_translation";
+/* components */
+import BotMessage from "./components/chat-message/BotMessage";
 import ErrorText from "./components/ErrorText";
 import LoadingChat from "./components/LoadingChat";
 import UserMessage from "./components/chat-message/UserMessage";
 import FileViewer from "../../../components/file-viewer";
+/* constants */
 import { LOADER_KEYS } from "../../../constants/common";
+import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
+/* styles */
+import "../stylesheet/chatStyle.css";
 
+const { BOT, USER } = CONVERSATION_USER_TYPES;
 function TitleGeneration({
   isBotTalking,
   handleSpeakerOn,
@@ -41,6 +38,7 @@ function TitleGeneration({
   handleLoaderState,
   getLoaderState,
 }) {
+  const { t } = useTranslation();
   const [inputText, setInputText] = useState(() => {
     let title = getEncodedSessionStorage("project_title") || "";
     return title;
@@ -59,7 +57,6 @@ function TitleGeneration({
   const language = preferredLanguage.value || "en";
   const [fetchError, setFetchError] = useState("");
 
-  const fifthpage_messages = getFifthPageMessages(language);
   const [localErrorText, setLocalErrorText] = useState("");
 
   useEffect(() => {
@@ -93,7 +90,7 @@ function TitleGeneration({
         }
       } catch (error) {
         setFetchError(
-          getEncodedSessionStorage("system_error") || "Please try again later!"
+          getEncodedSessionStorage("system_error") || t("common.pleaseTryAgainLater")
         );
         handleLoaderState(LOADER_KEYS.LOAD_TITLE_GENERATION, false);
         console.error(error);
@@ -109,13 +106,13 @@ function TitleGeneration({
     const specialCharRegex = /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~₹]/;
     if (specialCharRegex.test(newText)) {
       setShouldDisableButton(true);
-      setLocalErrorText(getTitleNumberTranslation(language));
+      setLocalErrorText(t("titleGeneration.shouldNotContainNumbers"));
     } else if (newText.length > titleCharacterLimit) {
       setShouldDisableButton(true);
-      setLocalErrorText(getTitleErrorTranslation(language));
+      setLocalErrorText(t("titleGeneration.shouldNotExceed100Characters"));
     } else if (newText === "") {
       setShouldDisableButton(true);
-      setLocalErrorText(getEmptyTitleErrorTranslation(language));
+      setLocalErrorText(t("titleGeneration.titleCannotBeEmpty"));
     } else {
       setShouldDisableButton(false);
     }
@@ -179,13 +176,13 @@ function TitleGeneration({
 
       const botMessage = {
         message:
-          fifthpage_messages[9]?.[0]?.message +
+          t("titleGeneration.hereIsTheTitle") +
           " " +
-          fifthpage_messages[9]?.[1]?.message,
-        role: fifthpage_messages[9]?.[0]?.role,
+          t("titleGeneration.youCanEditIt"),
+        role: BOT,
       };
       await saveUserChatsInDB(botMessage?.message, session, botMessage?.role);
-      await saveUserChatsInDB(inputText, session, "user");
+      await saveUserChatsInDB(inputText, session, USER);
 
       try {
         const response = await updateChatSession(session, field_to_update);
@@ -248,15 +245,15 @@ function TitleGeneration({
     <>
       <div>
         <BotMessage
-          primaryMessage={fifthpage_messages[9]?.[0]?.message}
-          secondaryMessage={fifthpage_messages[9]?.[1]?.message}
+          primaryMessage={t("titleGeneration.hereIsTheTitle")}
+          secondaryMessage={t("titleGeneration.youCanEditIt")}
         />
         {(!fetchError || fetchError === "") && (
           <div className="secondpage-textbox-container sm:w-full md:w-1/2 lg:w-1/2">
             <textarea
               id="autoGrow"
               type="text"
-              placeholder={getTitlePlaceholderTranslation(language)}
+              placeholder={t("titleGeneration.aiGeneratedTitle")}
               className="secondpage-text-input"
               value={inputText}
               onChange={(e) => handleInputText(e)}
@@ -281,19 +278,19 @@ function TitleGeneration({
               } `}
               onClick={handleCreateImprovement}
             >
-              {getCreateMicroButtonTranslation(language)}
+              {t("titleGeneration.createMicroImprovementPlan")}
             </button>
           </div>
         )}
         {isApiCalling && (
           <>
-            <UserMessage message={getCreateMicroButtonTranslation(language)} />
+            <UserMessage message={t("titleGeneration.createMicroImprovementPlan")} />
             <LoadingChat />
           </>
         )}
         {media?.length > 0 && (
           <>
-            <UserMessage message={getCreateMicroButtonTranslation(language)} />
+            <UserMessage message={t("titleGeneration.createMicroImprovementPlan")} />
             <FileViewer
               url={media[0]?.url}
               fileType={media[0]?.media_type}

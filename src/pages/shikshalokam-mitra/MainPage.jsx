@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+/* api services and utils */
 import { handleAI4BharatTTSRequest } from "../../apiServices/ai4bharat_services";
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
 } from "../../utils/storage_utils";
+import { setLanguage } from "../../i18n";
+/* components */
 import DefineChallenge from "./mitra-pages/DefineChallenge";
 import Sidebar from "./mitra-pages/components/Sidebar";
 import ConversationWrapperCard from "./mitra-pages/components/ConversationWrapperCard";
@@ -13,11 +17,13 @@ import ActionItems from "./mitra-pages/ActionItems";
 import WeeksSelection from "./mitra-pages/WeeksSelection";
 import TitleGeneration from "./mitra-pages/TitleGeneration";
 import SelectObjective from "./mitra-pages/SelectObjective";
+import Popup from "../../components/popup/Popup";
+/* constants */
 import { ACTIVE_TABS } from "./constants/mitra.constants";
 import { LOADER_KEYS } from "../../constants/common";
-import Popup from "../../components/popup/Popup";
 
 function MainPage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(ACTIVE_TABS.CONVERSATION);
   const [audioCache, setAudioCache] = useState({});
   const [isBotTalking, setIsBotTalking] = useState(false);
@@ -212,6 +218,12 @@ function MainPage() {
     setIsPopupOpen(!isPopupOpen);
   };
 
+  useEffect(() => {
+    const language =
+      JSON.parse(getEncodedSessionStorage("preferred_language")) || {};
+    setLanguage(language.value);
+  }, []);
+
   function getCurrentPageView() {
     const components = [];
 
@@ -350,12 +362,8 @@ function MainPage() {
     return components;
   }
 
-  console.log("currentPage", currentPage);
-
   if (getLoaderState(LOADER_KEYS.APPLICATION_RESET)) {
-    return (
-      <ShowLoader showFirstLoader={true} loadingText="Please wait..." />
-    );
+    return <ShowLoader showFirstLoader={true} loadingText={t("common.loadingText")} />;
   }
 
   return (
@@ -380,7 +388,11 @@ function MainPage() {
         />
         {activeTab === ACTIVE_TABS.CONVERSATION && (
           <ConversationWrapperCard
-            scrollRef={currentPage["1"] && chatHistory?.length > 0 ? null : scrollContainerRef}
+            scrollRef={
+              currentPage["1"] && chatHistory?.length > 0
+                ? null
+                : scrollContainerRef
+            }
           >
             {getCurrentPageView()}
           </ConversationWrapperCard>
@@ -390,10 +402,10 @@ function MainPage() {
       <Popup
         togglePopup={togglePopup}
         isOpen={isPopupOpen}
-        headerText="Start New MIP"
-        bodyText="Are you sure you want to start a new MIP? This will clear all your current progress."
-        confirmButtonText="Yes, Start New"
-        discardButtonText="Cancel"
+        headerText={t("startMipPopup.headerText")}
+        bodyText={t("startMipPopup.bodyText")}
+        confirmButtonText={t("startMipPopup.confirmButtonText")}
+        discardButtonText={t("common.cancel")}
         handleDiscard={handleDiscardClearStorage}
         handleConfirm={handleConfirmClearStorage}
       />
@@ -404,6 +416,7 @@ function MainPage() {
 export default MainPage;
 
 export function ShowLoader({ showFirstLoader = true, loadingText = "" }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="login-load-spinner">
@@ -412,11 +425,13 @@ export function ShowLoader({ showFirstLoader = true, loadingText = "" }) {
             <img
               className="first-loader"
               src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/loading%20animation.gif"
+              alt={t("common.loadingText")}
             />
           ) : (
             <img
               className="first-loader"
               src="https://static-media.gritworks.ai/fe-images/GIF/Shikshalokam/second_loader.gif"
+              alt={t("common.loadingText")}
             />
           )}
           {loadingText && loadingText !== "" && (
@@ -445,12 +460,12 @@ export function getNewLocalTime() {
 
 function clearExcept(keepKeys = ["accToken", "name", "image", "email"]) {
   // Clear localStorage
-  Object.keys(localStorage).forEach(key => {
+  Object.keys(localStorage).forEach((key) => {
     if (!keepKeys.includes(key)) localStorage.removeItem(key);
   });
 
   // Clear sessionStorage
-  Object.keys(sessionStorage).forEach(key => {
+  Object.keys(sessionStorage).forEach((key) => {
     if (!keepKeys.includes(key)) sessionStorage.removeItem(key);
   });
 }

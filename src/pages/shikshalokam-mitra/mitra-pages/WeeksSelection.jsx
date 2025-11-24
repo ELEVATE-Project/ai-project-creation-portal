@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+/* icons */
 import { IoArrowForward } from "react-icons/io5";
-import BotMessage from "./components/chat-message/BotMessage";
-import Slider from "../../../components/Slider/slider";
-
-import "../stylesheet/chatStyle.css";
+/* utils and api services */
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
 } from "../../../utils/storage_utils";
-import { getFourthPageMessages } from "../question script/bot_user_questions";
 import { saveUserChatsInDB } from "../../../apiServices/chat_flow_api";
-import { getNextButtonTranslation } from "../question script/secondpage_tanslation";
+/* components */
 import UserMessage from "./components/chat-message/UserMessage";
 import LoadingChat from "./components/LoadingChat";
+import BotMessage from "./components/chat-message/BotMessage";
+import Slider from "../../../components/Slider/slider";
+/* constants */
 import { LOADER_KEYS } from "../../../constants/common";
+import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
+/* styles */
+import "../stylesheet/chatStyle.css";
+
+const { BOT, USER } = CONVERSATION_USER_TYPES;
 
 function WeeksSelection({
   isBotTalking,
@@ -30,19 +36,13 @@ function WeeksSelection({
   handleLoaderState,
   getLoaderState,
 }) {
+  const { t } = useTranslation();
   const [selectedWeek, setSelectedWeek] = useState(
     getEncodedSessionStorage("selected_week") || 1
   );
   const [isInReadOnlyMode, setIsInReadOnlyMode] = useState(
     getEncodedSessionStorage("selected_week") ? true : false
   );
-
-  const preferredLanguage = JSON.parse(
-    getEncodedSessionStorage("preferred_language") || "{}"
-  );
-  const language = preferredLanguage.value || "en";
-
-  const fourthpage_messages = getFourthPageMessages(language);
 
   useEffect(() => {
     if (isWeeksSelectionSection) handleScrollIntoView();
@@ -64,17 +64,17 @@ function WeeksSelection({
       // setIsLoading(true);
       setEncodedSessionStorage("selected_week", selectedWeek);
       const botMessage =
-        fourthpage_messages[8]?.[0]?.message +
+        t("weeksSelection.howManyWeeks") +
         " " +
-        fourthpage_messages[8]?.[1]?.message;
+        t("weeksSelection.slideToSelect");
       const currentSession = getEncodedSessionStorage("session");
 
-      saveUserChatsInDB(botMessage, currentSession, "bot")
+      saveUserChatsInDB(botMessage, currentSession, BOT)
         .then(() => {
           saveUserChatsInDB(
             JSON.stringify(selectedWeek),
             currentSession,
-            "user"
+            USER
           );
         })
         .then(() => {
@@ -91,8 +91,8 @@ function WeeksSelection({
     <>
       <div>
         <BotMessage
-          primaryMessage={fourthpage_messages[8]?.[0]?.message}
-          secondaryMessage={fourthpage_messages[8]?.[1]?.message}
+          primaryMessage={t("weeksSelection.howManyWeeks")}
+          secondaryMessage={t("weeksSelection.slideToSelect")}
         />
         <Slider
           min={1}
@@ -108,13 +108,13 @@ function WeeksSelection({
               className={`thirdpage-select-bttn`}
               onClick={handleContinueClick}
             >
-              {getNextButtonTranslation(language)}
+              {t("common.next")}
 
               <IoArrowForward className="thirdpage-cont-arrow-icon" />
             </button>
           </div>
         ) : (
-          <UserMessage message="Next" />
+          <UserMessage message={t("common.next")} />
         )}
       </div>
     </>

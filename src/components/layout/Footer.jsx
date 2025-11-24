@@ -1,6 +1,10 @@
-const BASE_URL = "https://shikshagraha.org";
+import { useTranslation } from "react-i18next";
+
+const BASE_URL = process.env.REACT_APP_BASE_URL || "https://shikshagraha.org";
 
 function Footer() {
+  const { t } = useTranslation();
+
   return (
     <div>
       <style
@@ -15,7 +19,7 @@ function Footer() {
           src="https://shikshagraha.org/wp-content/themes/twentytwentythree-child/images/Screenshot-2024-11-26-at-7.38.52-PM.png"
           loading="lazy"
           className="footer-image1"
-          alt="ShikshaLokam Logo"
+          alt={t("footer.shikshalokamLogoAlt")}
         />
         <img
           src="https://shikshagraha.org/wp-content/themes/twentytwentythree-child/images/Screenshot-2024-11-26-at-11.44.18-PM.png"
@@ -44,13 +48,13 @@ function Footer() {
                 href={`${BASE_URL}/systemic-leadership-collective`}
                 className="d"
               >
-                Systemic Leadership Collective <br />
+                {t("footer.systemicLeadershipCollective")} <br />
               </a>
               <a href={`${BASE_URL}/youth-leadership`} className="d">
-                Youth Leadership Collective <br />
+                {t("footer.youthLeadershipCollective")} <br />
               </a>
               <a href={`${BASE_URL}/women`} className="d">
-                Women Leadership Collective
+                {t("footer.womenLeadershipCollective")}
               </a>
             </h2>
           </div>
@@ -61,14 +65,14 @@ function Footer() {
                 aria-current="page"
                 className="d w--current"
               >
-                About Us <br />
+                {t("footer.aboutUs")} <br />
               </a>
               <a
                 href={`${BASE_URL}/awards`}
                 aria-current="page"
                 className="d w--current"
               >
-                Shikshagraha Awards
+                {t("footer.shikshagrahaAwards")}
                 <br />
               </a>
               <a
@@ -77,10 +81,10 @@ function Footer() {
                 rel="noopener noreferrer"
                 className="d"
               >
-                Record Your Story
+                {t("footer.recordYourStory")}
               </a>
               <a href={`${BASE_URL}/knowledge-hub`} className="d">
-                Knowledge Hub
+                {t("footer.knowledgeHub")}
               </a>
             </h2>
           </div>
@@ -91,7 +95,7 @@ function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Join The Movement
+                {t("footer.joinTheMovement")}
               </a>
               <br />
             </h2>
@@ -169,9 +173,9 @@ function Footer() {
             className="fotter-f join w-inline-block"
           >
             <h2 className="small da dcd">
-              Join Shikshagraha for every step towards education
+              {t("footer.joinShikshagrahaDescription")}
             </h2>
-            <h2 className="small da cdc">Join Us</h2>
+            <h2 className="small da cdc">{t("footer.joinUs")}</h2>
           </a>
         </div>
       </section>
