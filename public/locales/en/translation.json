@@ -6,7 +6,10 @@
         "pleaseTryAgainLater": "Please try again later!",
         "next": "Next",
         "continue": "Continue",
-        "select": "Select"
+        "select": "Select",
+        "previous": "Previous",
+        "share": "Share",
+        "download": "Download"
     },
     "sidebar": {
         "newMIP": "New MIP",

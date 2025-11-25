@@ -18,7 +18,6 @@ import BotMessage from "./components/chat-message/BotMessage";
 import ErrorText from "./components/ErrorText";
 import LoadingChat from "./components/LoadingChat";
 import UserMessage from "./components/chat-message/UserMessage";
-import FileViewer from "../../../components/file-viewer";
 /* constants */
 import { LOADER_KEYS } from "../../../constants/common";
 import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
@@ -257,7 +256,7 @@ function TitleGeneration({
               className="secondpage-text-input"
               value={inputText}
               onChange={(e) => handleInputText(e)}
-              disabled={isApiCalling || media?.length > 0}
+              disabled={isApiCalling || isLocalLoading || media?.length > 0}
             />
           </div>
         )}
@@ -268,7 +267,7 @@ function TitleGeneration({
           <ErrorText errorText={localErrorText} />
         )}
 
-        {!isApiCalling && media?.length === 0 && (
+        {!isApiCalling && !isLocalLoading && media?.length === 0 && (
           <div className="fourthpage-next-div">
             <button
               className={`${
@@ -282,23 +281,10 @@ function TitleGeneration({
             </button>
           </div>
         )}
-        {isApiCalling && (
+        {(isApiCalling || isLocalLoading) && (
           <>
             <UserMessage message={t("titleGeneration.createMicroImprovementPlan")} />
             <LoadingChat />
-          </>
-        )}
-        {media?.length > 0 && (
-          <>
-            <UserMessage message={t("titleGeneration.createMicroImprovementPlan")} />
-            <FileViewer
-              url={media[0]?.url}
-              fileType={media[0]?.media_type}
-              visibilityConfig={{
-                isShareVisible: true,
-                isDownloadVisible: true,
-              }}
-            />
           </>
         )}
       </div>
