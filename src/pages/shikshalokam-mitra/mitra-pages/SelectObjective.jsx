@@ -99,18 +99,18 @@ function SelectObjective({
             language,
             profile_id
           );
+          const { message = "", objective_list = [] } = fetched_objectiveList || {};
           if (
-            fetched_objectiveList &&
-            fetched_objectiveList?.objective_list?.length > 0
+            objective_list?.length > 0
           ) {
-            setObjectiveList(fetched_objectiveList?.objective_list);
+            setObjectiveList(objective_list);
             setEncodedSessionStorage(
               "objective",
-              fetched_objectiveList?.objective_list
+              objective_list
             );
 
             const transformedSource = transformSource(
-              fetched_objectiveList?.objective_list
+              objective_list
             );
 
             setEncodedSessionStorage(
@@ -121,15 +121,13 @@ function SelectObjective({
 
             setEncodedSessionStorage(
               "chunks",
-              JSON.stringify(fetched_objectiveList?.chunks)
+              JSON.stringify(objective_list?.chunks)
             );
             // setIsLoading(false);
             if (isSelectObjectiveSection) handleScrollIntoView();
           } else {
-            setFetchError(
-              getEncodedSessionStorage("system_error") ||
-                t("common.pleaseTryAgainLater")
-            );
+            const errorMessage = message?.length > 0 ? message : (getEncodedSessionStorage("system_error") || t("common.pleaseTryAgainLater"));
+            setFetchError(errorMessage);
             // window.location.reload();
           }
         }
@@ -327,7 +325,7 @@ function SelectObjective({
                 />
               )}
             </div>
-            {isSelectObjectiveSection && (
+            {isSelectObjectiveSection && !!objectiveList && objectiveList?.length > 0 && (
               <div className="secondpage-next-div">
                 <button
                   className={`${

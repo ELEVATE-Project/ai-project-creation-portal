@@ -131,10 +131,12 @@ function ActionItems({
             language,
             profile_id
           );
-          if (fetchedActionList?.length > 0) {
-            setActionList(fetchedActionList);
-            setEncodedSessionStorage("actionList", fetchedActionList);
-            const transformedSource = transformSource(fetchedActionList);
+
+          const { message = "", action_list = [] } = fetchedActionList || {};
+          if (action_list?.length > 0) {
+            setActionList(action_list);
+            setEncodedSessionStorage("actionList", action_list);
+            const transformedSource = transformSource(action_list);
             setActionItemSource(transformedSource);
             setEncodedSessionStorage(
               "action_item_source",
@@ -142,10 +144,8 @@ function ActionItems({
             );
             if (isSelectActionItems) handleScrollIntoView();
           } else {
-            setFetchError(
-              getEncodedSessionStorage("system_error") ||
-                t("common.pleaseTryAgainLater")
-            );
+            const errorMessage = message?.length > 0 ? message : (getEncodedSessionStorage("system_error") || t("common.pleaseTryAgainLater"));
+            setFetchError(errorMessage);
             // window.location.reload();
           }
         }
@@ -337,7 +337,7 @@ function ActionItems({
                 wrapperStyles: "md:!w-[60%] md:min-w-[570px]",
               }}
             />
-            {isSelectActionItems && (
+            {isSelectActionItems && !!actionList && actionList?.length > 0 && (
               <>
                 <SuggestOrAddCta
                   handleSuggestMore={handleSuggestMore}
@@ -350,7 +350,7 @@ function ActionItems({
                 />
                 <div className="thirdpage-next-div">
                   <button
-                    className={`thirdpage-select-bttn mt-14`}
+                    className={`thirdpage-select-bttn mt-14 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400`}
                     onClick={() => {
                       setWantsToMoveForward(true);
                     }}
