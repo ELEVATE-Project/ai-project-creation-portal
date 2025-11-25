@@ -131,7 +131,7 @@ function ActionItems({
             language,
             profile_id
           );
-          if (fetchedActionList && fetchedActionList?.action_list?.length > 0) {
+          if (fetchedActionList?.length > 0) {
             setActionList(fetchedActionList);
             setEncodedSessionStorage("actionList", fetchedActionList);
             const transformedSource = transformSource(fetchedActionList);
