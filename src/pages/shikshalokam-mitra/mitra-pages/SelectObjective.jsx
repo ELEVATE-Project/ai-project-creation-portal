@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+/* icons */
 import { IoArrowForward } from "react-icons/io5";
-import BotMessage from "./components/chat-message/BotMessage";
 import { RxCrossCircled } from "react-icons/rx";
+/* utils and api services */
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
 } from "../../../utils/storage_utils";
-import ObjectivesCard from "./components/objectives/ObjectivesCard";
-import SuggestOrAddCta from "./components/SuggestOrAddCta";
-import "../stylesheet/chatStyle.css";
 import {
   getObjectiveList,
   saveUserChatsInDB,
   validateObjective,
 } from "../../../apiServices/chat_flow_api";
-import { getSecondPageMessages } from "../question script/bot_user_questions";
-import {
-  getContinueButtonTranslation,
-  getNextButtonTranslation,
-  getObjectiveEmptyTranslation,
-  getObjectivePlaceholderTranslation,
-  getObjectiveTextTranslation,
-} from "../question script/secondpage_tanslation";
+import { transformSource } from "../../../utils/mitra-chat";
+/* components */
+import BotMessage from "./components/chat-message/BotMessage";
+import ObjectivesCard from "./components/objectives/ObjectivesCard";
+import SuggestOrAddCta from "./components/SuggestOrAddCta";
 import ErrorText from "./components/ErrorText";
 import UserMessage from "./components/chat-message/UserMessage";
 import LoadingChat from "./components/LoadingChat";
-import { transformSource } from "../../../utils/mitra-chat";
+/* constants */
 import { LOADER_KEYS } from "../../../constants/common";
+import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
+/* styles */
+import "../stylesheet/chatStyle.css";
+
+const { BOT, USER } = CONVERSATION_USER_TYPES;
 
 function SelectObjective({
   isSelectObjectiveSection,
@@ -45,6 +46,7 @@ function SelectObjective({
   handleLoaderState,
   getLoaderState,
 }) {
+  const { t } = useTranslation();
   const [objectiveList, setObjectiveList] = useState([]);
 
   const [hasClickedOnAddmore, setHasClickedOnAddmore] = useState(false);
@@ -82,8 +84,6 @@ function SelectObjective({
   );
   const language = preferredLanguage.value || "en";
 
-  const secondpage_messages = getSecondPageMessages(language);
-
   useEffect(() => {
     async function fetchObjectiveList() {
       try {
@@ -99,18 +99,18 @@ function SelectObjective({
             language,
             profile_id
           );
+          const { message = "", objective_list = [] } = fetched_objectiveList || {};
           if (
-            fetched_objectiveList &&
-            fetched_objectiveList?.objective_list?.length > 0
+            objective_list?.length > 0
           ) {
-            setObjectiveList(fetched_objectiveList?.objective_list);
+            setObjectiveList(objective_list);
             setEncodedSessionStorage(
               "objective",
-              fetched_objectiveList?.objective_list
+              objective_list
             );
 
             const transformedSource = transformSource(
-              fetched_objectiveList?.objective_list
+              objective_list
             );
 
             setEncodedSessionStorage(
@@ -121,21 +121,19 @@ function SelectObjective({
 
             setEncodedSessionStorage(
               "chunks",
-              JSON.stringify(fetched_objectiveList?.chunks)
+              JSON.stringify(objective_list?.chunks)
             );
             // setIsLoading(false);
             if (isSelectObjectiveSection) handleScrollIntoView();
           } else {
-            setFetchError(
-              getEncodedSessionStorage("system_error") ||
-                "Please try again later!"
-            );
+            const errorMessage = message?.length > 0 ? message : (getEncodedSessionStorage("system_error") || t("common.pleaseTryAgainLater"));
+            setFetchError(errorMessage);
             // window.location.reload();
           }
         }
       } catch (error) {
         setFetchError(
-          getEncodedSessionStorage("system_error") || "Please try again later!"
+          getEncodedSessionStorage("system_error") || t("common.pleaseTryAgainLater")
         );
         // setIsLoading(false);
         handleLoaderState(LOADER_KEYS.FETCH_OBJECTIVE_LIST, false);
@@ -196,16 +194,16 @@ function SelectObjective({
       setEncodedSessionStorage("selected_objective", userSelectedObjective);
       const currentSession = getEncodedSessionStorage("session");
       const botMessage = hasClickedOnAddmore
-        ? secondpage_messages[5]?.[0]
+        ? t("selectObjective.enterObjective")
         : {
-            role: secondpage_messages[4]?.[0]?.role,
+            role: BOT,
             message:
-              secondpage_messages[4]?.[0]?.message +
+              t("selectObjective.theseAreSomeObjectives") +
               " " +
-              secondpage_messages[4]?.[1]?.message +
+              t("selectObjective.selectObjective") +
               " " +
               JSON.stringify(getEncodedSessionStorage("objective")),
-            messageId: secondpage_messages[4]?.[0]?.messageId,
+            messageId: "4_0",
           };
 
       const chunks = JSON.parse(getEncodedSessionStorage("chunks"));
@@ -235,7 +233,7 @@ function SelectObjective({
   async function handleInputSend() {
     try {
       if (!inputText || inputText === "") {
-        setErrorText(getObjectiveEmptyTranslation(language));
+        setErrorText(t("selectObjective.emptyObjective"));
         setTimeout(() => {
           setErrorText("");
         }, 3000);
@@ -257,7 +255,7 @@ function SelectObjective({
       }
     } catch (error) {
       const errorMessage =
-        getEncodedSessionStorage("system_error") || "Please try again later!";
+        getEncodedSessionStorage("system_error") || t("common.pleaseTryAgainLater");
 
       setErrorText(errorMessage);
       setTimeout(() => {
@@ -290,13 +288,13 @@ function SelectObjective({
         {!hasClickedOnAddmore ? (
           <div className="secondpage-bot-div">
             <BotMessage
-              primaryMessage={secondpage_messages[4]?.[0]?.message}
-              secondaryMessage={secondpage_messages[4]?.[1]?.message}
+              primaryMessage={t("selectObjective.theseAreSomeObjectives")}
+              secondaryMessage={t("selectObjective.selectObjective")}
             />
             <div className="secondpage-obj-fixed">
               <div className="mt-3">
                 <p className="secondpage-obj-text">
-                  {getObjectiveTextTranslation(language)}
+                  {t("selectObjective.title")}
                 </p>
                 {!!(!fetchError || fetchError === "") && (
                   <ObjectivesCard
@@ -327,7 +325,7 @@ function SelectObjective({
                 />
               )}
             </div>
-            {isSelectObjectiveSection && (
+            {isSelectObjectiveSection && !!objectiveList && objectiveList?.length > 0 && (
               <div className="secondpage-next-div">
                 <button
                   className={`${
@@ -338,14 +336,14 @@ function SelectObjective({
                   onClick={handleNextClick}
                   disabled={!Number.isInteger(selectedIndex)}
                 >
-                  {getNextButtonTranslation(language)} <IoArrowForward />
+                  {t("common.next")} <IoArrowForward />
                 </button>
               </div>
             )}
           </div>
         ) : (
           <div>
-            <BotMessage primaryMessage={secondpage_messages[5]?.[0]?.message} />
+            <BotMessage primaryMessage={t("selectObjective.theseAreSomeObjectives")} />
             {!!(!isSelectObjectiveSection && selectedObjective?.length > 0) ? (
               <div className="secondpage-obj-selected-button-div">
                 <div className="secondpage-obj-line"></div>
@@ -358,7 +356,7 @@ function SelectObjective({
                 <div className="secondpage-textbox-container">
                   <input
                     type="text"
-                    placeholder={getObjectivePlaceholderTranslation(language)}
+                    placeholder={t("selectObjective.enterObjectivePlaceholder")}
                     className="secondpage-text-input"
                     value={inputText}
                     onChange={(e) => handleInputText(e)}
@@ -376,18 +374,14 @@ function SelectObjective({
                   />
                 </div>
                 {errorText && errorText !== "" && (
-                  <>
-                    <div className="secondpage-error-div">
-                      <p className="secondpage-error-text">{errorText}</p>
-                    </div>
-                  </>
+                  <ErrorText errorText={errorText} />
                 )}
                 <div className="secondpage-continue-div">
                   <button
                     className="secondpage-continue-bttn"
                     onClick={() => handleInputSend()}
                   >
-                    {getContinueButtonTranslation(language)}{" "}
+                    {t("common.continue")}{" "}
                     <IoArrowForward className="secondpage-right-arror" />
                   </button>
                 </div>
@@ -395,7 +389,7 @@ function SelectObjective({
             )}
           </div>
         )}
-        {!isSelectObjectiveSection && <UserMessage message="Next" />}
+        {!isSelectObjectiveSection && <UserMessage message={t("common.next")} />}
       </div>
     </>
   );
