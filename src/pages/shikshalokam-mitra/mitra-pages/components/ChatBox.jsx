@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FaRegStopCircle } from "react-icons/fa";
 import { TbSend2 } from "react-icons/tb";
@@ -59,39 +59,100 @@ function ChatBox({
     return t("defineChallenge.placeholderDefine");
   }, [hasStartedRecording, isFetchingData, placeholder, t]);
 
+  function handleScrollToView() {
+    // if (acceptedTnc === "ONGOING") return
+    try {
+      document?.querySelector("#last-chat-boundary")?.scrollIntoView({
+        behavior: "smooth",
+      })
+    } catch (error) {
+      console.error({ error })
+    }
+  }
+
   return (
-    <form
-      onSubmit={handleSendMessage}
-      autoComplete="off"
-      className={`cursor-pointer flex items-center gap-[10px] h-[46px] rounded-[50px] border border-[#DDDDDD] py-3 px-4 mx-auto w-full md:w-[80%] lg:w-[70%] ${
-        shouldShowWhiteBg ? "bg-white" : "bg-[#F0F2F5]"
-      } ${formStyles}`}
-    >
-      <input
+    <>
+      <style>{`
+        #chat-box-textarea::-webkit-scrollbar {
+          width: 4px;
+        }
+        #chat-box-textarea::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        #chat-box-textarea::-webkit-scrollbar-thumb {
+          background: #AAAAAA;
+          border-radius: 2px;
+        }
+        #chat-box-textarea::-webkit-scrollbar-thumb:hover {
+          background: #888888;
+        }
+        /* Firefox */
+        #chat-box-textarea {
+          scrollbar-width: thin;
+          scrollbar-color: #AAAAAA transparent;
+        }
+      `}</style>
+      <form
+        onSubmit={handleSendMessage}
+        autoComplete="off"
+        className={`cursor-pointer flex items-center gap-[10px] h-full overflow-y-auto border border-[#DDDDDD] py-3 px-4 mx-auto w-full md:w-[80%] lg:w-[70%] ${
+          shouldShowWhiteBg ? "bg-white" : "bg-[#F0F2F5]"
+        } ${textMessage?.includes("\n") ? "rounded-3xl" : "rounded-[50px]"} ${formStyles}`}
+      >
+      <textarea
         ref={textInputRef}
         type="text"
         id="chat-box-textarea"
-        className={`rounded-lg h-[24px] resize-none outline-none focus:outline-none border-0 bg-transparent placeholder:font-normal placeholder:text-base placeholder:text-[#AAAAAA] font-normal text-base leading-[100%] text-[#101010] w-[90%] ${inputStyles}`}
+        className={`h-[24px] resize-none outline-none focus:outline-none border-0 bg-transparent placeholder:font-normal placeholder:text-base placeholder:text-[#AAAAAA] font-normal text-base leading-normal text-[#101010] w-[90%] max-h-24 py-0 px-0 ${inputStyles}`}
         placeholder={inputPlaceholderText}
         autoFocus={autoFocus}
         value={textMessage}
         onChange={handleOnInputText}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
         disabled={disabled}
-        onKeyDown={async (e) => {
+        onKeyDown={async e => {
           if (e.key === "Enter") {
-            try {
-              e.preventDefault();
-              e.target.form.requestSubmit();
-              setTimeout(() => {
-                e.target.value = "";
-              }, 0);
-            } catch (error) {
-              console.error("Error handling text:", error);
-            } finally {
-              setUseTextbox(false);
+            if (e.shiftKey) {
+              try {
+                e.preventDefault();
+                e.target.form.requestSubmit();
+                setTimeout(() => {
+                  e.target.value = "";
+                }, 0);
+              } catch (error) {
+                console.error("Error handling text:", error);
+              } finally {
+                setUseTextbox(false);
+              }
             }
+          }
+        }}
+        // onFocus={() => {
+        //   setTimeout(() => {
+        //     handleScrollToView()
+        //     if (textInputRef.current) {
+        //       textInputRef.current.scrollIntoView({
+        //         behavior: "smooth",
+        //         block: "center",
+        //       })
+        //     }
+        //   }, 300)
+        // }}
+        onInput={e => {
+          e.target.style.height = "auto"
+          const maxHeight = 96
+          const scrollHeight = e.target.scrollHeight
+          // For single-line content (no newlines), maintain 24px height
+          // Only grow when there are actual line breaks
+          const hasLineBreaks = e.target.value.includes('\n')
+          const newHeight = hasLineBreaks 
+            ? Math.max(24, scrollHeight) 
+            : 24
+          if (newHeight > maxHeight) {
+            e.target.style.height = `${maxHeight}px`
+            e.target.style.overflowY = "scroll"
+          } else {
+            e.target.style.height = `${newHeight}px`
+            e.target.style.overflowY = "hidden"
           }
         }}
       />
@@ -122,6 +183,7 @@ function ChatBox({
         <TbSend2 className="w-[22px] h-[22px] lg:w-[26px] lg:h-[26px]" />
       </button>
     </form>
+    </>
   );
 }
 
