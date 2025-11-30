@@ -196,8 +196,38 @@ function TitleGeneration({
           const access_token = getEncodedSessionStorage(
             process.env.REACT_APP_ACCESS_TOKEN_KEY
           );
-          const chunks = JSON.parse(getEncodedSessionStorage("chunks"));
 
+          const objective_source = getEncodedSessionStorage("selected_objective_source");
+          const action_source = getEncodedSessionStorage("selected_action_source");
+        
+          let objective_chunk = null;
+          let action_chunk = null;
+        
+          try {
+            if (objective_source) {
+              objective_chunk = JSON.parse(objective_source);
+            } else {
+              console.warn("⚠️ No objective source found in session storage");
+            }
+          } catch (error) {
+            console.error("Error parsing objective_source:", error);
+          }
+        
+          try {
+            if (action_source) {
+              action_chunk = JSON.parse(action_source);
+            } else {
+              console.warn("⚠️ No action source found in session storage");
+            }
+          } catch (error) {
+            console.error("Error parsing action_source:", error);
+          }
+        
+          const chunks = {
+            objective_chunk: objective_chunk,
+            action_chunk: action_chunk
+          };
+        
           const project_response = await createProject(
             access_token,
             user_problem_statement,
@@ -225,7 +255,7 @@ function TitleGeneration({
             clearMitraLocalStorage();
             setEncodedSessionStorage("media", media);
             window.location.replace(
-              `/create-project${process.env.REACT_APP_ROUTE_IMPROVEMENT_PLAN}`
+              `/${process.env.REACT_APP_ROUTE_IMPROVEMENT_PLAN}`
             );
           }
         }

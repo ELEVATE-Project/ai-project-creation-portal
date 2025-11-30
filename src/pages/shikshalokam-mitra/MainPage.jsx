@@ -503,6 +503,8 @@ export function clearMitraLocalStorage(avoidLogout = false) {
   sessionStorage.removeItem("end_context");
   sessionStorage.removeItem("system_error");
   sessionStorage.removeItem("objective_source");
+  sessionStorage.removeItem("selected_objective_source");
+  sessionStorage.removeItem("selected_action_source");
   sessionStorage.removeItem("action_item_source");
   sessionStorage.removeItem("media");
 }

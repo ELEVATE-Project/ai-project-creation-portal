@@ -192,6 +192,28 @@ function SelectObjective({
       // setIsLoading(true);
       setObjectiveList(userSelectedObjective);
       setEncodedSessionStorage("selected_objective", userSelectedObjective);
+      if (selectedIndex !== null && objectiveList[selectedIndex]) {
+        const selectedObjectiveData = objectiveList[selectedIndex];
+        
+        let selectedSource = null;
+        
+        for (const orgName in objectiveSource) {
+          const orgObjectives = objectiveSource[orgName];
+          const matchedObj = orgObjectives.find(
+            obj => obj.text === selectedObjectiveData.text
+          );
+          if (matchedObj) {
+            selectedSource = matchedObj.source;
+            break;
+          }
+        }
+        if (selectedSource) {
+          setEncodedSessionStorage("selected_objective_source", JSON.stringify(selectedSource));
+        } else {
+          console.warn("⚠️ No source found for selected objective");
+        }
+      }
+
       const currentSession = getEncodedSessionStorage("session");
       const botMessage = hasClickedOnAddmore
         ? t("selectObjective.enterObjective")

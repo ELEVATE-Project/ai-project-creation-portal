@@ -352,6 +352,29 @@ function ActionItems({
                   <button
                     className={`thirdpage-select-bttn mt-14 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400`}
                     onClick={() => {
+                      if (selectedIndex !== null && actionList[selectedIndex]) {
+                        const selectedActionItem = actionList[selectedIndex];
+                        
+                        let selectedSource = null;
+                        
+                        for (const orgName in actionItemSource) {
+                          const orgActions = actionItemSource[orgName];
+                          const matchedAction = orgActions.find(
+                            action => JSON.stringify(action.actionSteps) === JSON.stringify(selectedActionItem.actionSteps)
+                          );
+                          if (matchedAction) {
+                            selectedSource = matchedAction.source;
+                            break;
+                          }
+                        }
+                        
+                        if (selectedSource) {
+                          setEncodedSessionStorage("selected_action_source", JSON.stringify(selectedSource));
+                        } else {
+                          console.warn("⚠️ No source found for selected action item");
+                        }
+                      }
+                      
                       setWantsToMoveForward(true);
                     }}
                   >
