@@ -1,25 +1,24 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import useVoiceRecord, {
-  default_wave_surfer_config,
-} from "../../text-voice/useVoiceRecord";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+/* hooks */
+import useVoiceRecord from "../../text-voice/useVoiceRecord";
+import { useAudio } from "../../../hooks/useAudio";
+/* utils and api services */
+import axiosInstance from "../../../utils/axios";
 import { clearMitraLocalStorage, ShowLoader } from "../MainPage";
 import {
   getNewSessionID,
   saveUserChatsInDB,
 } from "../../../apiServices/chat_flow_api";
-import axiosInstance from "../../../utils/axios";
-import "../stylesheet/shikshaChatStyle.css";
 import {
   getEncodedSessionStorage,
   setEncodedSessionStorage,
 } from "../../../utils/storage_utils";
-import {
-  getAI4BharatAudio,
-} from "../../../apiServices/ai4bharat_services";
-import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
+import { getAI4BharatAudio } from "../../../apiServices/ai4bharat_services";
+import { handleS3Upload } from "../../../utils/upload";
+import { ai4BharatASRApi } from "../../../apiServices/ai";
+/* components */
 import ChatBox from "./components/ChatBox";
 import WelcomeCard from "./components/WelcomeCard";
 import InitialConversationCard from "./components/InitialConversationCard";
@@ -27,10 +26,10 @@ import ChatWindow from "./components/ChatWindow";
 import Notification, {
   showNotification,
 } from "../../../components/Toast/Toast";
-import { handleS3Upload } from "../../../utils/upload";
-import { useAudio } from "../../../hooks/useAudio";
-import { ai4BharatASRApi } from "../../../apiServices/ai";
+/* constants */
+import { CONVERSATION_USER_TYPES } from "../constants/mitra.constants";
 import { FIRST_BOT_MESSAGE } from "../../../constants/mitra-chat";
+import "../stylesheet/shikshaChatStyle.css";
 
 const sessionRoute = "/guided_guest";
 
@@ -54,6 +53,7 @@ const DefineChallenge = ({
   handleScrollIntoView,
   scrollRef,
 }) => {
+  const { t } = useTranslation();
   const [profileToUse, setProfileToUse] = useState(
     getEncodedSessionStorage("profileid") || null
   );
@@ -178,7 +178,7 @@ const DefineChallenge = ({
 
               if (!audioBlob || isSilent) {
                 showNotification({
-                  message: "Oops! We couldn't capture your speech. Try again.",
+                  message: t("common.failedToCaptureSpeech"),
                   type: "error",
                   options: {
                     position: "top-center",
@@ -200,8 +200,7 @@ const DefineChallenge = ({
                 storyData
               );
               if (!s3Url || s3Url === "") {
-                transcriptResult =
-                  "Oops! We couldn't capture your speech. Try again.";
+                transcriptResult = t("common.failedToCaptureSpeech");
               }
               setAsrAudio(s3Url);
               let storedRoute = sessionRoute;
@@ -212,7 +211,7 @@ const DefineChallenge = ({
               );
               if (!transcriptResult || transcriptResult === "") {
                 showNotification({
-                  message: "Oops! We couldn't capture your speech. Try again.",
+                  message: t("common.failedToCaptureSpeech"),
                   type: "error",
                   options: {
                     position: "top-center",

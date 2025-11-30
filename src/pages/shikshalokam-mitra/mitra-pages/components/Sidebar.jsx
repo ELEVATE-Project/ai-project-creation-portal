@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { FaRegPlusSquare } from "react-icons/fa";
 import { CgPlayPauseR } from "react-icons/cg";
 import { ACTIVE_TABS } from "../../constants/mitra.constants";
@@ -24,6 +25,7 @@ export default function Sidebar({
   isMobile = false,
   handleNewMIPClick,
 }) {
+  const { t } = useTranslation();
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     if (tab === ACTIVE_TABS.WELCOME) {
@@ -54,12 +56,12 @@ export default function Sidebar({
         <div className="w-[280px] md:w-[220px] lg:w-[250px] h-full flex flex-col gap-8 rounded-[20px] p-10 border border-[#DBDBDB] bg-[#F0F2F5] shadow-[0px_0px_8px_0px_#0000001A] pt-20 md:pt-10">
           <Action
             icon={FaRegPlusSquare}
-            text="New MIP"
+            text={t("sidebar.newMIP")}
             onClick={() => handleTabClick(ACTIVE_TABS.WELCOME)}
           />
           <Action
             icon={CgPlayPauseR}
-            text="FAQ"
+            text={t("sidebar.faq")}
             onClick={() => handleTabClick(ACTIVE_TABS.FAQ)}
           />
         </div>

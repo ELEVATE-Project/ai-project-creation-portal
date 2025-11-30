@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FiArrowLeft } from "react-icons/fi";
 import { HiMenu, HiX } from "react-icons/hi";
 
-const BASE_URL = "https://shikshagraha.org";
+const BASE_URL = process.env.REACT_APP_BASE_URL || "https://shikshagraha.org";
 
 function HeroSection() {
+  const { t } = useTranslation();
   return (
     <div className=" w-full">
       <div className="w-full mx-auto flex items-start justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900 mb-2">
-            Shikshagraha Commons
+            {t("header.heroSectionTitle")}
           </h1>
           <p className="text-gray-600 text-sm">
-            A compendium of solutions shared for public use by the Shikshagraha
-            movement partners under the Creative Commons Attribution Share-Alike
-            license.
+            {t("header.heroSectionDescription")}
           </p>
         </div>
       </div>
@@ -24,12 +24,13 @@ function HeroSection() {
   );
 }
 
-export default function Header({ 
-  isHeroSection = true, 
+export default function Header({
+  isHeroSection = true,
   isBackButton = false,
   onSidebarToggle,
-  isSidebarOpen = false
+  isSidebarOpen = false,
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -50,7 +51,11 @@ export default function Header({
 
   return (
     <>
-      <header className={`flex flex-col px-7 pt-4 pb-4 md:pb-8 w-full bg-white rounded-[16px] ${!isMobile ? 'shadow-[0px_0px_4px_rgba(0,0,0,0.2)]' : ''} ${isMobile && isBackButton ? 'items-start' : 'items-end'}`}>
+      <header
+        className={`flex flex-col px-7 pt-4 pb-4 md:pb-8 w-full bg-white rounded-[16px] ${
+          !isMobile ? "shadow-[0px_0px_4px_rgba(0,0,0,0.2)]" : ""
+        } ${isMobile && isBackButton ? "items-start" : "items-end"}`}
+      >
         {!isMobile && (
           <div className="w-full">
             <>
@@ -104,7 +109,7 @@ export default function Header({
                 <div className="frame hb">
                   <div className="div-block-16 hidden md:block" />
                   <p className="paragraph asd break-words w-full">
-                    A people’s movement towards education equity
+                    {t("header.movementText")}
                   </p>
                 </div>
               </div>
@@ -112,7 +117,13 @@ export default function Header({
           </div>
         )}
         {isBackButton && (
-          <div className={`flex ${isMobile && onSidebarToggle ? 'flex-col' : 'flex-row'} justify-start w-full ${isMobile && onSidebarToggle ? 'gap-2' : ''}`}>
+          <div
+            className={`flex ${
+              isMobile && onSidebarToggle ? "flex-col" : "flex-row"
+            } justify-start w-full ${
+              isMobile && onSidebarToggle ? "gap-2" : ""
+            }`}
+          >
             <button
               className="bg-transparent w-fit p-0 border-0 cursor-pointer inline-flex items-center justify-center"
               onClick={() => navigate(-1)}
@@ -167,13 +178,13 @@ export default function Header({
                   href="https://shikshagraha.org/"
                   className="nav-link w-nav-link"
                 >
-                  Home
+                  {t("header.home")}
                 </a>
                 <a
                   href={`${BASE_URL}/about-us`}
                   className="nav-link w-nav-link"
                 >
-                  About Us
+                  {t("header.aboutUs")}
                 </a>
                 <div
                   data-hover="false"
@@ -187,7 +198,7 @@ export default function Header({
                   <div className="dropdown-toggle-2 w-dropdown-toggle">
                     <div className="icon-2 w-icon-dropdown-toggle" />
                     <div className="nav-link dcd asafa w-nav-link">
-                      Initiatives
+                      {t("header.initiatives")}
                     </div>
                   </div>
                   {dropdownOpen && (
@@ -199,37 +210,37 @@ export default function Header({
                         href={`${BASE_URL}/systemic-leadership-collective`}
                         className="nav-link sms w-nav-link"
                       >
-                        Systemic Leadership Collective
+                        {t("header.systemicLeadershipCollective")}
                       </a>
                       <a
                         href={`${BASE_URL}/youth-leadership/`}
                         className="nav-link sms w-nav-link"
                       >
-                        Youth Leadership Collective
+                        {t("header.youthLeadershipCollective")}
                       </a>
                       <a
                         href={`${BASE_URL}/women`}
                         className="nav-link sms w-nav-link"
                       >
-                        Women Leadership Collective
+                        {t("header.womenLeadershipCollective")}
                       </a>
                     </nav>
                   )}
                 </div>
                 <a href={`${BASE_URL}/awards`} className="nav-link w-nav-link">
-                  Shikshagraha Awards
+                  {t("header.shikshagrahaAwards")}
                 </a>
                 <a
                   href={`${BASE_URL}/knowledge-hub`}
                   className="nav-link w-nav-link"
                 >
-                  Knowledge Hub
+                  {t("header.knowledgeHub")}
                 </a>
                 <a
                   href={`${BASE_URL}/story-archive`}
                   className="nav-link w-nav-link"
                 >
-                  Stories of Impact
+                  {t("header.storiesOfImpact")}
                 </a>
                 <a
                   href="https://docs.google.com/forms/d/e/1FAIpQLSfSX2bzdJzPBOlstfGg7vWqPFaS5weLnPpwIieR1DBdRgepPg/viewform"
@@ -237,7 +248,7 @@ export default function Header({
                   rel="noopener noreferrer"
                   className="nav-link w-nav-link"
                 >
-                  Join the Movement
+                  {t("header.joinTheMovement")}
                 </a>
               </div>
             </nav>

@@ -1,14 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import './i18n'; // Initialize i18n before App
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const rootPath = process.env.REACT_APP_ROOT_PATH
+  ? `/${process.env.REACT_APP_ROOT_PATH.replace(/^\/|\/$/g, "")}`
+  : "";
+
+const el = document.getElementById("root");
+const root = ReactDOM.createRoot(el);
+
 root.render(
-  <React.StrictMode>
-    <BrowserRouter basename='/create-project'>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
+  <BrowserRouter basename={rootPath}>
+    <App />
+  </BrowserRouter>
 );
