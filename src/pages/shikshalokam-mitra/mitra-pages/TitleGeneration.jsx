@@ -255,7 +255,7 @@ function TitleGeneration({
             clearMitraLocalStorage();
             setEncodedSessionStorage("media", media);
             window.location.replace(
-              `/${process.env.REACT_APP_ROUTE_IMPROVEMENT_PLAN}`
+              `/create-project${process.env.REACT_APP_ROUTE_IMPROVEMENT_PLAN}`
             );
           }
         }
